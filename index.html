@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valentine Tool Library | Valentine Neighborhood Association</title>
+<meta name="description" content="Borrow and lend tools with your Valentine neighbors. A sharing library run by the Valentine Neighborhood Association in Kansas City.">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        pine: {50:'#f2f7f3',100:'#e0eee3',200:'#c2dcc9',300:'#97c2a3',400:'#67a179',500:'#46845a',600:'#356847',700:'#2b543b',800:'#243f2f',900:'#1e3527',950:'#0f1f16'},
+        brick: {50:'#fbf3f1',100:'#f6e3de',200:'#eec6bc',300:'#e29e8d',400:'#d06f57',500:'#bd4f34',600:'#a03e28',700:'#843322',800:'#6d2c20',900:'#5b281e'},
+        cream: '#faf6ee',
+        sand: '#f1e8d5'
+      },
+      fontFamily: {
+        display: ['Georgia','Cambria','serif'],
+        sans: ['system-ui','-apple-system','Segoe UI','Roboto','Helvetica','Arial','sans-serif']
+      },
+      boxShadow: {
+        card: '0 1px 3px rgba(30,53,39,.08), 0 8px 24px rgba(30,53,39,.06)'
+      }
+    }
+  }
+}
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { background-color: #faf6ee; }
+  .chip-active { background-color: #1e3527; color: #fff; border-color: #1e3527; }
+  .tab-active { background-color: #1e3527; color: #fff; }
+  dialog::backdrop { background: rgba(15,31,22,.55); }
+  .fade-in { animation: fadeIn .18s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body class="font-sans text-stone-800 antialiased">
+
+<!-- Header -->
+<header class="bg-pine-900 text-cream">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <p class="text-pine-200 text-xs sm:text-sm font-semibold tracking-widest uppercase">Valentine Neighborhood Association · Kansas City</p>
+        <h1 class="font-display text-3xl sm:text-5xl font-bold mt-2">Valentine Tool Library</h1>
+        <p class="text-pine-100 mt-3 max-w-xl text-sm sm:text-base">Borrow the ladder, pressure washer, or canopy you need for the weekend, from a neighbor who already owns it. Lend the tools sitting in your garage and put them to work on your street.</p>
+      </div>
+      <div class="flex flex-col gap-2">
+        <button data-tab-link="lend" class="bg-brick-500 hover:bg-brick-600 text-white font-semibold px-5 py-2.5 rounded-full text-sm shadow">Lend a tool</button>
+        <button data-tab-link="requests" class="bg-pine-800 hover:bg-pine-700 text-cream font-semibold px-5 py-2.5 rounded-full text-sm border border-pine-600">Borrow requests <span id="pendingBadge" class="ml-1 inline-flex items-center justify-center bg-brick-500 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></button>
+      </div>
+    </div>
+    <div id="stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8"></div>
+  </div>
+</header>
+
+<!-- Tabs -->
+<nav class="bg-cream border-b border-sand sticky top-0 z-30">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap gap-2">
+    <button class="tab-btn tab-active px-4 py-2 rounded-full text-sm font-semibold border border-pine-200" data-tab="catalog">Tool catalog</button>
+    <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-pine-200 bg-white" data-tab="requests">Requests and loans</button>
+    <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-pine-200 bg-white" data-tab="lend">Lend a tool</button>
+    <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-pine-200 bg-white" data-tab="how">How it works</button>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+
+  <!-- Catalog -->
+  <section id="tab-catalog">
+    <div class="flex flex-col lg:flex-row lg:items-center gap-3">
+      <div class="relative flex-1">
+        <input id="searchInput" type="search" placeholder="Search tools, for example ladder, drill, canopy" class="w-full rounded-xl border border-pine-200 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+      </div>
+      <label class="inline-flex items-center gap-2 text-sm font-medium bg-white border border-pine-200 rounded-xl px-4 py-3 cursor-pointer">
+        <input id="availableOnly" type="checkbox" class="accent-pine-700 w-4 h-4"> Available only
+      </label>
+    </div>
+    <div id="categoryChips" class="flex flex-wrap gap-2 mt-4"></div>
+    <p id="resultCount" class="text-sm text-stone-500 mt-5"></p>
+    <div id="toolGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3"></div>
+    <div id="catalogEmpty" class="hidden bg-white border border-dashed border-pine-300 rounded-2xl p-10 text-center">
+      <p class="font-display text-xl font-bold text-pine-900">Nothing matches that search</p>
+      <p class="text-sm text-stone-500 mt-2">Try a different word, or be the first neighbor to lend this tool.</p>
+      <button data-tab-link="lend" class="mt-4 bg-pine-800 hover:bg-pine-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Lend a tool</button>
+    </div>
+  </section>
+
+  <!-- Requests -->
+  <section id="tab-requests" class="hidden">
+    <h2 class="font-display text-2xl font-bold text-pine-950">Requests and loans</h2>
+    <p class="text-sm text-stone-500 mt-1 max-w-2xl">Neighbors approve requests for their own tools here. Approving checks the tool out and sets the due date. When it comes back, mark it returned and it goes back on the shelf.</p>
+    <h3 class="font-bold text-pine-900 mt-8 mb-3">Waiting for approval</h3>
+    <div id="pendingList" class="space-y-3"></div>
+    <h3 class="font-bold text-pine-900 mt-10 mb-3">Out on loan</h3>
+    <div id="loanList" class="space-y-3"></div>
+    <h3 class="font-bold text-pine-900 mt-10 mb-3">History</h3>
+    <div id="historyList" class="space-y-3"></div>
+  </section>
+
+  <!-- Lend -->
+  <section id="tab-lend" class="hidden">
+    <div class="grid lg:grid-cols-5 gap-8">
+      <div class="lg:col-span-2">
+        <h2 class="font-display text-2xl font-bold text-pine-950">Lend a tool</h2>
+        <p class="text-sm text-stone-500 mt-2">List a tool you own and are happy to lend to Valentine neighbors. You set the loan length, you approve every request, and borrowers arrange pickup with you directly. You can remove your listing at any time from the catalog.</p>
+        <div class="bg-pine-50 border border-pine-100 rounded-2xl p-5 mt-5 text-sm space-y-2">
+          <p class="font-bold text-pine-900">Good candidates</p>
+          <p>Extension ladders, pressure washers, carpet cleaners, folding tables and chairs, canopies, post hole diggers, tile saws, and anything else that spends most of the year in the garage.</p>
+        </div>
+      </div>
+      <form id="lendForm" class="lg:col-span-3 bg-white rounded-2xl shadow-card border border-pine-100 p-6 space-y-4">
+        <div>
+          <label class="text-sm font-semibold" for="lendName">Tool name</label>
+          <input id="lendName" required maxlength="60" placeholder="For example: 24 ft extension ladder" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm font-semibold" for="lendCategory">Category</label>
+            <select id="lendCategory" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pine-500"></select>
+          </div>
+          <div>
+            <label class="text-sm font-semibold" for="lendDays">Standard loan length (days)</label>
+            <input id="lendDays" type="number" min="1" max="30" value="3" required class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+          </div>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm font-semibold" for="lendOwner">Your name</label>
+            <input id="lendOwner" required maxlength="40" placeholder="For example: Dana W." class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+          </div>
+          <div>
+            <label class="text-sm font-semibold" for="lendContact">Your email or phone</label>
+            <input id="lendContact" required maxlength="60" placeholder="How borrowers reach you" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+          </div>
+        </div>
+        <div>
+          <label class="text-sm font-semibold" for="lendCondition">Condition</label>
+          <select id="lendCondition" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pine-500">
+            <option>Excellent</option><option selected>Good</option><option>Fair, works fine</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-sm font-semibold" for="lendDesc">Description and what is included</label>
+          <textarea id="lendDesc" required maxlength="280" rows="3" placeholder="What it is, what comes with it, anything a borrower should know" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500"></textarea>
+        </div>
+        <button type="submit" class="bg-brick-500 hover:bg-brick-600 text-white font-semibold px-6 py-3 rounded-full text-sm w-full sm:w-auto">Add to the library</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="tab-how" class="hidden">
+    <h2 class="font-display text-2xl font-bold text-pine-950">How it works</h2>
+    <div class="grid md:grid-cols-3 gap-4 mt-5">
+      <div class="bg-white rounded-2xl shadow-card border border-pine-100 p-6">
+        <p class="font-display text-3xl font-bold text-brick-500">1</p>
+        <h3 class="font-bold text-pine-900 mt-2">Find and request</h3>
+        <p class="text-sm text-stone-500 mt-1">Search the catalog and send a borrow request with your name, contact, and the dates you need the tool.</p>
+      </div>
+      <div class="bg-white rounded-2xl shadow-card border border-pine-100 p-6">
+        <p class="font-display text-3xl font-bold text-brick-500">2</p>
+        <h3 class="font-bold text-pine-900 mt-2">Owner approves</h3>
+        <p class="text-sm text-stone-500 mt-1">The owner approves the request and arranges pickup with you. Most loans run 3 days, and owners set their own terms.</p>
+      </div>
+      <div class="bg-white rounded-2xl shadow-card border border-pine-100 p-6">
+        <p class="font-display text-3xl font-bold text-brick-500">3</p>
+        <h3 class="font-bold text-pine-900 mt-2">Return it ready</h3>
+        <p class="text-sm text-stone-500 mt-1">Bring it back clean, fueled or charged, and on time, so the next neighbor can use it. The owner marks it returned here.</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl shadow-card border border-pine-100 p-6 mt-4">
+      <h3 class="font-bold text-pine-900">Library ground rules</h3>
+      <ul class="list-disc pl-5 text-sm text-stone-600 space-y-1.5 mt-3">
+        <li>Neighbors lend to neighbors: borrowers and lenders both live in Valentine.</li>
+        <li>No fees. If something breaks in normal use, tell the owner right away and work it out in good faith.</li>
+        <li>Return tools clean and ready for the next person, by the due date on your loan.</li>
+        <li>Chainsaws and other high risk tools are lent at the owner's discretion, sometimes only with a quick orientation.</li>
+        <li>The Valentine Neighborhood Association hosts the catalog. Loans are private agreements between the two neighbors involved.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="border-t border-sand mt-4">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row justify-between gap-3 text-sm text-stone-500">
+    <p><span class="font-semibold text-pine-900">Valentine Tool Library</span> · A Valentine Neighborhood Association project · Kansas City, Missouri</p>
+    <button id="resetBtn" class="text-left sm:text-right underline decoration-dotted hover:text-brick-600">Reset the starter catalog</button>
+  </div>
+</footer>
+
+<!-- Borrow modal -->
+<dialog id="borrowModal" class="rounded-2xl p-0 w-[min(94vw,30rem)] shadow-xl">
+  <form id="borrowForm" class="p-6 space-y-4">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h3 class="font-display text-xl font-bold text-pine-950">Request to borrow</h3>
+        <p id="borrowToolName" class="text-sm text-brick-600 font-semibold mt-0.5"></p>
+      </div>
+      <button type="button" id="borrowClose" class="text-stone-400 hover:text-stone-700 text-2xl leading-none px-1" aria-label="Close">×</button>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="text-sm font-semibold" for="borrowerName">Your name</label>
+        <input id="borrowerName" required maxlength="40" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+      </div>
+      <div>
+        <label class="text-sm font-semibold" for="borrowerContact">Email or phone</label>
+        <input id="borrowerContact" required maxlength="60" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+      </div>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="text-sm font-semibold" for="borrowStart">Pickup date</label>
+        <input id="borrowStart" type="date" required class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+      </div>
+      <div>
+        <label class="text-sm font-semibold" for="borrowDays">Days needed</label>
+        <input id="borrowDays" type="number" min="1" max="30" value="3" required class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+      </div>
+    </div>
+    <div>
+      <label class="text-sm font-semibold" for="borrowProject">What is the project? <span class="font-normal text-stone-400">(optional)</span></label>
+      <input id="borrowProject" maxlength="120" placeholder="For example: gutters before the leaf drop" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+    </div>
+    <p class="text-xs text-stone-400">The owner sees this request in the Requests tab and approves it there. Pickup details are arranged between you and the owner.</p>
+    <button type="submit" class="bg-pine-800 hover:bg-pine-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Send request</button>
+  </form>
+</dialog>
+
+<div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 bg-pine-950 text-cream text-sm font-medium px-5 py-3 rounded-full shadow-xl z-50"></div>
+
+<script>
+const CATEGORIES = ["Yard and Garden","Power Tools","Hand Tools","Ladders and Access","Cleaning","Events and Hosting","Moving","Painting"];
+const STORE_KEY = "valentine-tool-library-v1";
+
+function seedTools() {
+  return [
+    {id:"t1", name:"24 ft Extension Ladder", category:"Ladders and Access", owner:"Dana W.", contact:"", condition:"Good", days:3, desc:"Fiberglass extension ladder, stable on uneven ground. Good for gutters and second story paint touch ups.", status:"available", borrower:"", due:""},
+    {id:"t2", name:"Electric Pressure Washer", category:"Power Tools", owner:"Marcus T.", contact:"", condition:"Excellent", days:2, desc:"2000 PSI electric pressure washer with 25 ft hose and three nozzles. Great for driveways, siding, and porches.", status:"available", borrower:"", due:""},
+    {id:"t3", name:"Cordless Drill and Driver Set", category:"Power Tools", owner:"Priya K.", contact:"", condition:"Excellent", days:3, desc:"20V drill and impact driver with two batteries, charger, and a full bit set in the case.", status:"available", borrower:"", due:""},
+    {id:"t4", name:"Hedge Trimmer", category:"Yard and Garden", owner:"Sam R.", contact:"", condition:"Good", days:2, desc:"22 inch cordless hedge trimmer with battery and charger. Handles the big privet hedges on Pennsylvania with no trouble.", status:"available", borrower:"", due:""},
+    {id:"t5", name:"10 x 10 Pop Up Canopy", category:"Events and Hosting", owner:"Valentine NA", contact:"", condition:"Good", days:3, desc:"Association canopy with weights and a wheeled bag. First pick for block parties, porchfest, and yard sales.", status:"available", borrower:"", due:""},
+    {id:"t6", name:"Folding Tables (Set of 2)", category:"Events and Hosting", owner:"Valentine NA", contact:"", condition:"Good", days:3, desc:"Two 6 ft folding tables. Stored with the association event supplies, pickup arranged with the social committee.", status:"available", borrower:"", due:""},
+    {id:"t7", name:"Wheelbarrow", category:"Yard and Garden", owner:"Jordan M.", contact:"", condition:"Good", days:3, desc:"Steel wheelbarrow, 6 cubic feet, newer tire. Mulch, soil, and leaf and brush weekends.", status:"available", borrower:"", due:""},
+    {id:"t8", name:"Post Hole Digger and Auger", category:"Yard and Garden", owner:"Chris D.", contact:"", condition:"Good", days:2, desc:"Manual post hole digger plus a one person power auger with an 8 inch bit. Fence posts and mailbox installs.", status:"available", borrower:"", due:""},
+    {id:"t9", name:"Wet and Dry Shop Vac", category:"Cleaning", owner:"Alex P.", contact:"", condition:"Excellent", days:3, desc:"12 gallon shop vac with attachments and spare filters. Basements, garages, and renovation dust.", status:"available", borrower:"", due:""},
+    {id:"t10", name:"Carpet Cleaner", category:"Cleaning", owner:"Robin S.", contact:"", condition:"Good", days:2, desc:"Upright carpet and upholstery cleaner with the hand tool. Please empty and rinse the tanks before returning.", status:"available", borrower:"", due:""},
+    {id:"t11", name:"Hand Truck and Furniture Dolly", category:"Moving", owner:"Jamie L.", contact:"", condition:"Good", days:3, desc:"Convertible hand truck rated to 800 lb plus a flat furniture dolly and two moving straps.", status:"available", borrower:"", due:""},
+    {id:"t12", name:"Tile Saw", category:"Power Tools", owner:"Taylor B.", contact:"", condition:"Good", days:3, desc:"10 inch wet tile saw on a folding stand with a fresh blade. Bathroom and kitchen projects welcome.", status:"available", borrower:"", due:""},
+    {id:"t13", name:"Paint Sprayer", category:"Painting", owner:"Morgan H.", contact:"", condition:"Fair, works fine", days:2, desc:"Airless paint sprayer with 50 ft hose. Please run water through it until it runs clear before returning.", status:"available", borrower:"", due:""},
+    {id:"t14", name:"Step Ladder, 6 ft", category:"Ladders and Access", owner:"Dana W.", contact:"", condition:"Excellent", days:3, desc:"Sturdy 6 ft step ladder with a paint tray shelf. The one everyone needs for light fixtures and ceiling fans.", status:"available", borrower:"", due:""}
+  ];
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) { const parsed = JSON.parse(raw); if (parsed && Array.isArray(parsed.tools)) return parsed; }
+  } catch (e) {}
+  return { tools: seedTools(), requests: [] };
+}
+let state = loadState();
+function save() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+
+let activeCategory = "All";
+let borrowToolId = null;
+
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function todayISO() { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
+function addDaysISO(iso, n) { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
+function fmtDate(iso) { if (!iso) return ""; const d = new Date(iso + "T12:00:00"); return d.toLocaleDateString("en-US", {weekday:"short", month:"short", day:"numeric"}); }
+function isOverdue(tool) { return tool.status === "onloan" && tool.due && tool.due < todayISO(); }
+
+function statusBadge(tool) {
+  if (tool.status === "available") return '<span class="bg-pine-100 text-pine-800 text-xs font-bold px-2.5 py-1 rounded-full">Available</span>';
+  if (tool.status === "requested") return '<span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">Request pending</span>';
+  if (isOverdue(tool)) return '<span class="bg-brick-100 text-brick-700 text-xs font-bold px-2.5 py-1 rounded-full">Overdue, due ' + esc(fmtDate(tool.due)) + '</span>';
+  return '<span class="bg-stone-200 text-stone-700 text-xs font-bold px-2.5 py-1 rounded-full">On loan until ' + esc(fmtDate(tool.due)) + '</span>';
+}
+
+function initials(name) { return name.split(/\s+/).map(w => w[0]).slice(0,2).join("").toUpperCase(); }
+
+function render() {
+  const tools = state.tools;
+  const available = tools.filter(t => t.status === "available").length;
+  const onloan = tools.filter(t => t.status === "onloan").length;
+  const pending = state.requests.filter(r => r.status === "pending").length;
+
+  document.getElementById("stats").innerHTML = [
+    ["Tools in the library", tools.length],
+    ["Available now", available],
+    ["Out on loan", onloan],
+    ["Requests waiting", pending]
+  ].map(([label, n]) => '<div class="bg-pine-800 rounded-2xl px-4 py-3 border border-pine-700"><p class="font-display text-2xl sm:text-3xl font-bold">' + n + '</p><p class="text-pine-200 text-xs sm:text-sm">' + label + '</p></div>').join("");
+
+  const badge = document.getElementById("pendingBadge");
+  if (pending > 0) { badge.textContent = pending; badge.classList.remove("hidden"); } else { badge.classList.add("hidden"); }
+
+  const chips = ["All"].concat(CATEGORIES);
+  document.getElementById("categoryChips").innerHTML = chips.map(c =>
+    '<button class="chip px-3.5 py-1.5 rounded-full text-sm font-medium border border-pine-200 bg-white hover:border-pine-400 ' + (c === activeCategory ? "chip-active" : "") + '" data-category="' + esc(c) + '">' + esc(c) + '</button>'
+  ).join("");
+
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const availOnly = document.getElementById("availableOnly").checked;
+  const filtered = tools.filter(t => {
+    if (activeCategory !== "All" && t.category !== activeCategory) return false;
+    if (availOnly && t.status !== "available") return false;
+    if (q && !(t.name + " " + t.category + " " + t.desc + " " + t.owner).toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  document.getElementById("resultCount").textContent = filtered.length + (filtered.length === 1 ? " tool" : " tools") + (activeCategory !== "All" ? " in " + activeCategory : "") + (q ? ' matching "' + q + '"' : "");
+  document.getElementById("catalogEmpty").classList.toggle("hidden", filtered.length > 0);
+
+  document.getElementById("toolGrid").innerHTML = filtered.map(t => {
+    let action = "";
+    if (t.status === "available") action = '<button class="borrow-btn bg-pine-800 hover:bg-pine-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Request to borrow</button>';
+    else if (t.status === "onloan") action = '<button class="return-btn bg-white border border-pine-300 hover:border-pine-500 text-pine-900 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button>';
+    else action = '<span class="text-sm text-amber-700 font-medium">Waiting on the owner to approve</span>';
+    return '<article class="bg-white rounded-2xl shadow-card border border-pine-100 p-5 flex flex-col fade-in">' +
+      '<div class="flex items-start justify-between gap-3">' +
+        '<div class="flex items-center gap-3"><div class="w-11 h-11 rounded-xl bg-pine-700 text-cream flex items-center justify-center font-display font-bold">' + esc(initials(t.name)) + '</div>' +
+        '<div><h3 class="font-bold text-pine-950 leading-snug">' + esc(t.name) + '</h3><p class="text-xs text-stone-500">' + esc(t.category) + '</p></div></div>' +
+        statusBadge(t) +
+      '</div>' +
+      '<p class="text-sm text-stone-600 mt-3 flex-1">' + esc(t.desc) + '</p>' +
+      '<dl class="text-xs text-stone-500 grid grid-cols-2 gap-y-1.5 mt-4">' +
+        '<div><dt class="font-semibold text-stone-400 uppercase tracking-wide">Lent by</dt><dd class="text-sm text-stone-700">' + esc(t.owner) + '</dd></div>' +
+        '<div><dt class="font-semibold text-stone-400 uppercase tracking-wide">Loan</dt><dd class="text-sm text-stone-700">' + t.days + (t.days === 1 ? " day" : " days") + '</dd></div>' +
+        '<div><dt class="font-semibold text-stone-400 uppercase tracking-wide">Condition</dt><dd class="text-sm text-stone-700">' + esc(t.condition) + '</dd></div>' +
+        (t.status === "onloan" ? '<div><dt class="font-semibold text-stone-400 uppercase tracking-wide">With</dt><dd class="text-sm text-stone-700">' + esc(t.borrower) + '</dd></div>' : "") +
+      '</dl>' +
+      '<div class="flex items-center justify-between gap-3 mt-5">' + action +
+        '<button class="remove-btn text-xs text-stone-400 hover:text-brick-600 underline decoration-dotted" data-id="' + t.id + '">Remove listing</button>' +
+      '</div>' +
+    '</article>';
+  }).join("");
+
+  const reqCard = (r, buttons) => {
+    const tool = state.tools.find(t => t.id === r.toolId);
+    return '<div class="bg-white rounded-2xl shadow-card border border-pine-100 p-5 fade-in">' +
+      '<div class="flex flex-wrap items-start justify-between gap-3">' +
+        '<div><p class="font-bold text-pine-950">' + esc(tool ? tool.name : "Tool") + '</p>' +
+        '<p class="text-sm text-stone-500 mt-0.5">Requested by <span class="font-medium text-stone-700">' + esc(r.borrower) + '</span> · ' + esc(r.contact) + '</p>' +
+        '<p class="text-sm text-stone-500">Pickup ' + esc(fmtDate(r.start)) + ' · ' + r.days + (r.days === 1 ? " day" : " days") + ' · due back ' + esc(fmtDate(addDaysISO(r.start, r.days))) + '</p>' +
+        (r.project ? '<p class="text-sm text-stone-500 italic">Project: ' + esc(r.project) + '</p>' : "") +
+        '</div>' + buttons + '</div></div>';
+  };
+
+  const pendingReqs = state.requests.filter(r => r.status === "pending");
+  document.getElementById("pendingList").innerHTML = pendingReqs.length ? pendingReqs.map(r => reqCard(r,
+    '<div class="flex gap-2"><button class="approve-btn bg-pine-800 hover:bg-pine-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Approve and check out</button>' +
+    '<button class="decline-btn bg-white border border-stone-300 hover:border-brick-400 text-stone-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Decline</button></div>'
+  )).join("") : '<p class="text-sm text-stone-400 bg-white border border-dashed border-pine-200 rounded-2xl p-6 text-center">No requests waiting right now.</p>';
+
+  const loans = state.tools.filter(t => t.status === "onloan");
+  document.getElementById("loanList").innerHTML = loans.length ? loans.map(t =>
+    '<div class="bg-white rounded-2xl shadow-card border border-pine-100 p-5 flex flex-wrap items-center justify-between gap-3 fade-in">' +
+      '<div><p class="font-bold text-pine-950">' + esc(t.name) + '</p><p class="text-sm text-stone-500">With ' + esc(t.borrower) + ' · due ' + esc(fmtDate(t.due)) + (isOverdue(t) ? ' · <span class="text-brick-600 font-semibold">overdue</span>' : "") + '</p></div>' +
+      '<button class="return-btn bg-pine-800 hover:bg-pine-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button></div>'
+  ).join("") : '<p class="text-sm text-stone-400 bg-white border border-dashed border-pine-200 rounded-2xl p-6 text-center">Nothing is out on loan right now.</p>';
+
+  const history = state.requests.filter(r => r.status !== "pending");
+  document.getElementById("historyList").innerHTML = history.length ? history.slice().reverse().map(r => reqCard(r,
+    '<span class="text-xs font-bold px-2.5 py-1 rounded-full ' + (r.status === "returned" ? "bg-pine-100 text-pine-800" : r.status === "approved" ? "bg-stone-200 text-stone-700" : "bg-brick-100 text-brick-700") + '">' + (r.status === "returned" ? "Returned" : r.status === "approved" ? "Checked out" : "Declined") + '</span>'
+  )).join("") : '<p class="text-sm text-stone-400 bg-white border border-dashed border-pine-200 rounded-2xl p-6 text-center">No history yet.</p>';
+}
+
+function showTab(name) {
+  ["catalog","requests","lend","how"].forEach(t => {
+    document.getElementById("tab-" + t).classList.toggle("hidden", t !== name);
+  });
+  document.querySelectorAll(".tab-btn").forEach(b => {
+    const active = b.dataset.tab === name;
+    b.classList.toggle("tab-active", active);
+    b.classList.toggle("bg-white", !active);
+  });
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+let toastTimer = null;
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.remove("hidden");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add("hidden"), 3400);
+}
+
+document.querySelectorAll(".tab-btn").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+document.addEventListener("click", e => {
+  const link = e.target.closest("[data-tab-link]");
+  if (link) { showTab(link.dataset.tabLink); return; }
+  const chip = e.target.closest("[data-category]");
+  if (chip) { activeCategory = chip.dataset.category; render(); }
+});
+document.getElementById("searchInput").addEventListener("input", render);
+document.getElementById("availableOnly").addEventListener("change", render);
+
+const categorySelect = document.getElementById("lendCategory");
+categorySelect.innerHTML = CATEGORIES.map(c => '<option>' + esc(c) + '</option>').join("");
+
+document.getElementById("lendForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const tool = {
+    id: "t" + Date.now(),
+    name: document.getElementById("lendName").value.trim(),
+    category: categorySelect.value,
+    owner: document.getElementById("lendOwner").value.trim(),
+    contact: document.getElementById("lendContact").value.trim(),
+    condition: document.getElementById("lendCondition").value,
+    days: Math.max(1, parseInt(document.getElementById("lendDays").value, 10) || 3),
+    desc: document.getElementById("lendDesc").value.trim(),
+    status: "available", borrower: "", due: ""
+  };
+  state.tools.unshift(tool);
+  save(); e.target.reset(); document.getElementById("lendDays").value = 3;
+  activeCategory = "All";
+  showTab("catalog"); render();
+  toast("Your tool is listed. Neighbors can request it now.");
+});
+
+const modal = document.getElementById("borrowModal");
+function openBorrow(tool) {
+  borrowToolId = tool.id;
+  document.getElementById("borrowToolName").textContent = tool.name + " · lent by " + tool.owner;
+  document.getElementById("borrowStart").value = todayISO();
+  document.getElementById("borrowDays").value = tool.days;
+  modal.showModal();
+}
+document.getElementById("borrowClose").addEventListener("click", () => modal.close());
+modal.addEventListener("click", e => { if (e.target === modal) modal.close(); });
+
+document.getElementById("borrowForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const tool = state.tools.find(t => t.id === borrowToolId);
+  if (!tool) { modal.close(); return; }
+  const req = {
+    id: "r" + Date.now(),
+    toolId: tool.id,
+    borrower: document.getElementById("borrowerName").value.trim(),
+    contact: document.getElementById("borrowerContact").value.trim(),
+    start: document.getElementById("borrowStart").value || todayISO(),
+    days: Math.max(1, parseInt(document.getElementById("borrowDays").value, 10) || tool.days),
+    project: document.getElementById("borrowProject").value.trim(),
+    status: "pending"
+  };
+  state.requests.push(req);
+  tool.status = "requested";
+  save(); modal.close(); e.target.reset(); render();
+  toast("Request sent. " + tool.owner + " can approve it in the Requests tab.");
+});
+
+document.addEventListener("click", e => {
+  const borrow = e.target.closest(".borrow-btn");
+  if (borrow) { const t = state.tools.find(x => x.id === borrow.dataset.id); if (t) openBorrow(t); return; }
+
+  const ret = e.target.closest(".return-btn");
+  if (ret) {
+    const t = state.tools.find(x => x.id === ret.dataset.id);
+    if (t) {
+      t.status = "available"; t.borrower = ""; t.due = "";
+      const open = state.requests.filter(r => r.toolId === t.id && r.status === "approved");
+      open.forEach(r => r.status = "returned");
+      save(); render(); toast(t.name + " is back on the shelf.");
+    }
+    return;
+  }
+
+  const approve = e.target.closest(".approve-btn");
+  if (approve) {
+    const r = state.requests.find(x => x.id === approve.dataset.id);
+    const t = r && state.tools.find(x => x.id === r.toolId);
+    if (r && t) {
+      r.status = "approved";
+      t.status = "onloan"; t.borrower = r.borrower; t.due = addDaysISO(r.start, r.days);
+      save(); render(); toast(t.name + " checked out to " + r.borrower + ", due " + fmtDate(t.due) + ".");
+    }
+    return;
+  }
+
+  const decline = e.target.closest(".decline-btn");
+  if (decline) {
+    const r = state.requests.find(x => x.id === decline.dataset.id);
+    const t = r && state.tools.find(x => x.id === r.toolId);
+    if (r && t) {
+      r.status = "declined";
+      if (t.status === "requested") t.status = "available";
+      save(); render(); toast("Request declined and the tool is available again.");
+    }
+    return;
+  }
+
+  const remove = e.target.closest(".remove-btn");
+  if (remove) {
+    const t = state.tools.find(x => x.id === remove.dataset.id);
+    if (t && confirm("Remove " + t.name + " from the library?")) {
+      state.tools = state.tools.filter(x => x.id !== t.id);
+      state.requests = state.requests.filter(r => r.toolId !== t.id);
+      save(); render(); toast("Listing removed.");
+    }
+  }
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (confirm("Reset the library back to the starter catalog? Tools and requests added since then will be cleared on this device.")) {
+    state = { tools: seedTools(), requests: [] };
+    save(); render(); toast("Starter catalog restored.");
+  }
+});
+
+render();
+</script>
+</body>
+</html>
