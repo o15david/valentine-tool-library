@@ -950,7 +950,68 @@ function loadState() {
 }
 let state = { tools: [], requests: [] };
 let catalogLoading = Boolean(supabaseClient);
-function save() { store.persist(); }
+
+/* Phase 5.14 (S15): no silent save outcomes. Every member-initiated
+   save ends in a visible success confirmation or a clear failure
+   notice. save() is the single persistence gate: it resolves true
+   only when the store accepted the write, and false after recording
+   the failure. Actions that change `state` snapshot it first and go
+   through saveUserAction(), which rolls the in-memory state back on
+   failure, so a failed save never leaves a phantom record on screen
+   or in the store, and the caller's form or dialog stays open with
+   its data in place for a retry. Purely background persistence that
+   passes through save() without a member action pending uses the
+   same gate without a snapshot; its failures surface at most one
+   notice per failure episode (an episode ends at the next successful
+   save, and a member-initiated failure always shows, even inside an
+   episode), so a sync problem cannot spam a toast on every render.
+   One deliberate exception stays silent by design: the cookie
+   acceptance profile sync is best-effort portability for an action
+   whose visible outcome (the banner dismisses, the browser flag is
+   set) has already succeeded locally. Email notices are sent only
+   after a save succeeds
+   and stay best-effort: a failed email never turns a saved record
+   into a reported failure. */
+const SAVE_FAILURE_MESSAGE = "That change could not be saved. Check your connection and try again.";
+let saveFailureNoticeAt = 0;
+let saveFailureEpisodeOpen = false;
+let lastSaveError = null;
+function showSaveFailureNotice(err, options) {
+  const opts = options || {};
+  if (err) console.warn("Save failed:", err);
+  const now = Date.now();
+  if (!opts.userAction && saveFailureEpisodeOpen && now - saveFailureNoticeAt < 30000) return;
+  saveFailureEpisodeOpen = true;
+  saveFailureNoticeAt = now;
+  toast(SAVE_FAILURE_MESSAGE);
+}
+async function save(options) {
+  try {
+    await store.persist();
+    saveFailureEpisodeOpen = false;
+    lastSaveError = null;
+    return true;
+  } catch (err) {
+    lastSaveError = err;
+    if (!options || options.notify !== false) showSaveFailureNotice(err, options);
+    return false;
+  }
+}
+function snapshotState() {
+  try { return JSON.stringify(state); } catch (e) { return ""; }
+}
+function restoreState(snapshot) {
+  if (!snapshot) return;
+  try { state = JSON.parse(snapshot); } catch (e) {}
+}
+async function saveUserAction(snapshot) {
+  const ok = await save({ notify: false });
+  if (ok) return true;
+  restoreState(snapshot);
+  render();
+  showSaveFailureNotice(lastSaveError, { userAction: true });
+  return false;
+}
 
 /* ================= PHASE 2: data layer =================
    The app keeps using the same interface it always has: a global `state`
@@ -1233,11 +1294,9 @@ const store = {
     tryOpenRequestLink();
   },
   persist() {
-    if (this.mode === "supabase") {
-      supabaseStore.persist(state).catch(e => console.warn("Supabase save failed:", e));
-    } else {
-      localStore.persist(state);
-    }
+    if (this.mode === "supabase") return supabaseStore.persist(state);
+    localStore.persist(state);
+    return Promise.resolve();
   },
   async updateTool(tool) {
     if (this.mode === "supabase") {
@@ -1459,8 +1518,10 @@ const store = {
         requestDelete = requestDelete.eq("neighborhood_id", nid);
         profileDelete = profileDelete.eq("neighborhood_id", nid);
       }
-      await toolDelete;
-      await requestDelete;
+      const toolResult = await toolDelete;
+      if (toolResult && toolResult.error) throw toolResult.error;
+      const requestResult = await requestDelete;
+      if (requestResult && requestResult.error) throw requestResult.error;
       const { error } = await profileDelete;
       if (error) throw error;
     } else {
@@ -1472,7 +1533,8 @@ const store = {
     const inThisLibrary = x => (x.tenant || DEFAULT_TENANT_SLUG) === targetSlug;
     state.tools = state.tools.filter(t => !(inThisLibrary(t) && String(t.contact || "").toLowerCase() === email));
     state.requests = state.requests.filter(r => !(inThisLibrary(r) && String(r.contact || "").toLowerCase() === email));
-    save();
+    const saved = await save({ notify: false });
+    if (!saved) throw lastSaveError || new Error("The account changes could not be saved.");
   },
   /* Phase 5.6: reports filed by members for the admin. Creation stores
      the filing-time snapshots; listing is newest first and scoped to
@@ -2356,8 +2418,10 @@ document.getElementById("lendForm").addEventListener("submit", async e => {
     else if (tool.photo) photoNote = " Your tool is listed, but the photo could not be uploaded to storage, so it was saved as an embedded copy.";
     else photoNote = " Your tool is listed, but the photo could not be saved with it.";
   }
+  const snapshot = snapshotState();
   state.tools.unshift(tool);
-  save(); e.target.reset(); document.getElementById("lendDays").value = 3; clearLendPhoto(); applyIdentityToForms();
+  if (!(await saveUserAction(snapshot))) return;
+  e.target.reset(); document.getElementById("lendDays").value = 3; clearLendPhoto(); applyIdentityToForms();
   activeCategory = "All";
   render(); scrollToSection("catalog");
   toast("Your tool is listed. Members can request it now." + photoNote);
@@ -2388,7 +2452,7 @@ function openBorrow(tool) {
 document.getElementById("borrowClose").addEventListener("click", () => modal.close());
 modal.addEventListener("click", e => { if (e.target === modal) modal.close(); });
 
-document.getElementById("borrowForm").addEventListener("submit", e => {
+document.getElementById("borrowForm").addEventListener("submit", async e => {
   e.preventDefault();
   if (currentProfile && currentProfile.status === "banned") { toast("This account is banned from making requests."); return; }
   // Close first, then let the gate scroll: with the dialog open, the
@@ -2428,9 +2492,11 @@ document.getElementById("borrowForm").addEventListener("submit", e => {
     project: document.getElementById("borrowProject").value.trim(),
     status: "pending"
   };
+  const snapshot = snapshotState();
   state.requests.push(req);
   tool.status = "requested";
-  save(); modal.close(); e.target.reset(); render();
+  if (!(await saveUserAction(snapshot))) return;
+  modal.close(); e.target.reset(); render();
   // Phase 2: email the owner about the new request (stub transport for now).
   if (isEmail(tool.contact)) {
     notify.sendBorrowRequestEmail({
@@ -2448,7 +2514,7 @@ document.getElementById("borrowForm").addEventListener("submit", e => {
   toast("Request sent to " + tool.owner + ". We emailed them a link straight to your request.");
 });
 
-document.addEventListener("click", e => {
+document.addEventListener("click", async e => {
   const borrow = e.target.closest(".borrow-btn");
   if (borrow) { if (!gateSignup("borrow tools")) return; const t = state.tools.find(x => x.id === borrow.dataset.id); if (t && isToolOwner(t)) { toast("That is your own tool."); return; } if (t) openBorrow(t); return; }
 
@@ -2507,9 +2573,10 @@ document.addEventListener("click", e => {
     const r = state.requests.find(x => x.id === decline.dataset.id);
     const t = r && state.tools.find(x => x.id === r.toolId);
     if (r && t) {
+      const snapshot = snapshotState();
       r.status = "declined";
       if (t.status === "requested") t.status = "available";
-      save(); render(); toast("Request declined and the tool is available again.");
+      if (await saveUserAction(snapshot)) { render(); toast("Request declined and the tool is available again."); }
     }
     return;
   }
@@ -2647,7 +2714,7 @@ document.getElementById("signupForm").addEventListener("submit", async e => {
     syncCookieBannerWithProfile();
   } catch (err) {
     console.warn("Sign-up save failed:", err);
-    toast("That did not save. Please try again in a moment.");
+    toast(SAVE_FAILURE_MESSAGE);
     return;
   }
   renderAuth();
@@ -2679,11 +2746,12 @@ function openApprove(r) {
 }
 document.getElementById("approveClose").addEventListener("click", () => approveModal.close());
 approveModal.addEventListener("click", e => { if (e.target === approveModal) approveModal.close(); });
-document.getElementById("approveForm").addEventListener("submit", e => {
+document.getElementById("approveForm").addEventListener("submit", async e => {
   e.preventDefault();
   const r = state.requests.find(x => x.id === approveRequestId);
   const t = r && state.tools.find(x => x.id === r.toolId);
   if (!r || !t) { approveModal.close(); return; }
+  const snapshot = snapshotState();
   const pDate = document.getElementById("approvePickupDate").value || r.start || todayISO();
   const pTime = document.getElementById("approvePickupTime").value || "17:00";
   r.start = pDate;
@@ -2695,7 +2763,7 @@ document.getElementById("approveForm").addEventListener("submit", e => {
   r.dueAt = "";
   r.status = "approved";
   t.status = "awaiting"; t.borrower = r.borrower; t.due = ""; t.dueAt = "";
-  save();
+  if (!(await saveUserAction(snapshot))) return;
   approveModal.close();
   render();
   if (isEmail(r.contact) || isEmail(t.contact)) {
@@ -2718,15 +2786,16 @@ document.getElementById("approveForm").addEventListener("submit", e => {
    the tool up. Only now does the loan clock start: the due date is the
    pickup moment plus the loan days from the request, and the borrower
    gets the checked-out email with that due date. */
-function markPickedUp(r) {
+async function markPickedUp(r) {
   const t = state.tools.find(x => x.id === r.toolId);
-  if (!t || r.status !== "approved" || !canManageTool(t)) return;
+  if (!t || r.status !== "approved" || !canManageTool(t)) return false;
+  const snapshot = snapshotState();
   const now = new Date();
   r.pickupAt = now.toISOString();
   r.dueAt = new Date(now.getTime() + r.days * 86400000).toISOString();
   r.status = "checked_out";
   t.status = "onloan"; t.borrower = r.borrower; t.due = addDaysISO(todayISO(), r.days); t.dueAt = r.dueAt;
-  save();
+  if (!(await saveUserAction(snapshot))) return false;
   render();
   if (isEmail(r.contact) || isEmail(t.contact)) {
     notify.sendCheckoutEmail({
@@ -2746,12 +2815,13 @@ function markPickedUp(r) {
 
 /* Not picked up: the borrower never showed. The request closes in the
    not_picked_up state and the tool goes straight back on the shelf. */
-function markNotPickedUp(r) {
+async function markNotPickedUp(r) {
   const t = state.tools.find(x => x.id === r.toolId);
-  if (!t || r.status !== "approved" || !canManageTool(t)) return;
+  if (!t || r.status !== "approved" || !canManageTool(t)) return false;
+  const snapshot = snapshotState();
   r.status = "not_picked_up";
   t.status = "available"; t.borrower = ""; t.due = ""; t.dueAt = "";
-  save();
+  if (!(await saveUserAction(snapshot))) return false;
   render();
   if (isEmail(r.contact) || isEmail(t.contact)) {
     notify.sendNotPickedUpEmail({
@@ -2787,20 +2857,20 @@ function openUnavailable(r) {
 document.getElementById("unavailableClose").addEventListener("click", () => unavailableModal.close());
 document.getElementById("unavailableCancel").addEventListener("click", () => unavailableModal.close());
 unavailableModal.addEventListener("click", e => { if (e.target === unavailableModal) unavailableModal.close(); });
-document.getElementById("unavailableForm").addEventListener("submit", e => {
+document.getElementById("unavailableForm").addEventListener("submit", async e => {
   e.preventDefault();
   const r = state.requests.find(x => x.id === unavailableRequestId);
   const reason = document.getElementById("unavailableReason").value.trim();
-  unavailableModal.close();
-  if (r) markUnavailable(r, reason);
+  if (r && (await markUnavailable(r, reason))) unavailableModal.close();
 });
-function markUnavailable(r, reason) {
+async function markUnavailable(r, reason) {
   const t = state.tools.find(x => x.id === r.toolId);
-  if (!t || r.status !== "approved" || !canManageTool(t)) return;
+  if (!t || r.status !== "approved" || !canManageTool(t)) return false;
+  const snapshot = snapshotState();
   r.status = "unavailable";
   r.unavailableReason = reason || "";
   t.status = "available"; t.borrower = ""; t.due = ""; t.dueAt = "";
-  save();
+  if (!(await saveUserAction(snapshot))) return false;
   render();
   if (isEmail(r.contact) || isEmail(t.contact)) {
     notify.sendUnavailableEmail({
@@ -2814,6 +2884,7 @@ function markUnavailable(r, reason) {
     });
   }
   toast("Marked no longer available. " + t.name + " is back in the library.");
+  return true;
 }
 
 /* Borrower release: while a request is pending or waiting for pickup,
@@ -2833,14 +2904,15 @@ function borrowerDisplayName(r) {
   if (!r) return "";
   return isRequestBorrower(r) ? "you" : r.borrower;
 }
-function releaseRequest(r) {
+async function releaseRequest(r) {
   const t = state.tools.find(x => x.id === r.toolId);
-  if (!t || !isRequestBorrower(r)) return;
-  if (r.status !== "pending" && r.status !== "approved") return;
-  if (!confirm("No longer need " + t.name + "? Your request will be cancelled and the tool goes back in the library.")) return;
+  if (!t || !isRequestBorrower(r)) return false;
+  if (r.status !== "pending" && r.status !== "approved") return false;
+  if (!confirm("No longer need " + t.name + "? Your request will be cancelled and the tool goes back in the library.")) return false;
+  const snapshot = snapshotState();
   r.status = "cancelled";
   if (t.status === "requested" || t.status === "awaiting") { t.status = "available"; t.borrower = ""; t.due = ""; t.dueAt = ""; }
-  save();
+  if (!(await saveUserAction(snapshot))) return false;
   render();
   if (isEmail(r.contact) || isEmail(t.contact)) {
     notify.sendReleaseEmail({
@@ -2957,7 +3029,7 @@ document.getElementById("reportForm").addEventListener("submit", async e => {
     await store.createReport(report);
   } catch (err) {
     console.warn("Report save failed:", err);
-    toast("That report did not save. Please try again in a moment.");
+    toast("That report could not be saved. Check your connection and try again.");
     return;
   }
   reportModal.close();
@@ -2988,15 +3060,16 @@ function openReturn(t) {
 }
 document.getElementById("returnClose").addEventListener("click", () => returnModal.close());
 returnModal.addEventListener("click", e => { if (e.target === returnModal) returnModal.close(); });
-document.getElementById("returnForm").addEventListener("submit", e => {
+document.getElementById("returnForm").addEventListener("submit", async e => {
   e.preventDefault();
   const t = state.tools.find(x => x.id === returnToolId);
   if (!t) { returnModal.close(); return; }
+  const snapshot = snapshotState();
   const thanks = returnIsBorrower ? document.getElementById("returnThanks").value.trim() : "";
   t.status = "available"; t.borrower = ""; t.due = ""; t.dueAt = "";
   const openReqs = state.requests.filter(r => r.toolId === t.id && r.status === "checked_out");
   openReqs.forEach(r => { r.status = "returned"; if (thanks) r.thanksNote = thanks; });
-  save();
+  if (!(await saveUserAction(snapshot))) return;
   returnModal.close();
   render();
   toast(thanks
@@ -3295,7 +3368,7 @@ document.getElementById("accountForm").addEventListener("submit", async e => {
     currentProfile = await store.upsertProfile(Object.assign({}, currentProfile, { fullName: fullName, address: address, avatarUrl: avatarUrl }));
   } catch (err) {
     console.warn("Account save failed:", err);
-    toast("That did not save. Please try again in a moment.");
+    toast(SAVE_FAILURE_MESSAGE);
     return;
   }
   accountAvatarFile = null;
@@ -3330,8 +3403,7 @@ document.getElementById("deleteAccountConfirm").addEventListener("click", async 
     await store.deleteProfile(profile);
   } catch (err) {
     console.warn("Account delete failed:", err);
-    deleteAccountModal.close();
-    toast("That did not delete. Please try again in a moment.");
+    toast("Your account could not be deleted. Check your connection and try again.");
     return;
   }
   deleteAccountModal.close();
@@ -3543,9 +3615,15 @@ async function signOutUser() {
     document.getElementById("authMessage").textContent = "";
     renderAuth();
     render();
+    toast("You are signed out.");
     return;
   }
-  await supabaseClient.auth.signOut();
+  const { error } = await supabaseClient.auth.signOut();
+  if (error) {
+    console.warn("Sign-out failed:", error);
+    toast("You could not be signed out. Check your connection and try again.");
+    return;
+  }
   currentUser = null;
   currentProfile = null;
   anyProfile = null;
@@ -3553,6 +3631,7 @@ async function signOutUser() {
   document.getElementById("authMessage").textContent = "";
   renderAuth();
   render();
+  toast("You are signed out.");
 }
 document.getElementById("authSignOut").addEventListener("click", signOutUser);
 const barSignOutBtn = document.getElementById("barSignOut");
@@ -3658,6 +3737,7 @@ document.getElementById("neighborhoodForm").addEventListener("submit", async e =
   }
   try {
     const nb = await store.createNeighborhood({ name: name, slug: slug, createdBy: currentUser ? currentUser.id : "" });
+    let membershipFailed = false;
     if (currentUser) {
       // Phase 5.7: the creator becomes the first admin of the new
       // library through a NEW membership in that library, carrying
@@ -3672,19 +3752,23 @@ document.getElementById("neighborhoodForm").addEventListener("submit", async e =
         address: currentProfile ? currentProfile.address || "" : "",
         avatarUrl: currentProfile ? currentProfile.avatarUrl || "" : ""
       };
-      try { await store.upsertProfile(membership); } catch (err) { console.warn("Admin membership save failed:", err); }
+      try { await store.upsertProfile(membership); } catch (err) { membershipFailed = true; console.warn("Admin membership save failed:", err); }
       await refreshLibrarySwitcher();
     }
     const result = document.getElementById("nbResult");
     result.innerHTML = "<p class='font-bold'>Your library is registered.</p>" +
       "<p class='mt-1'>Its address will be <span class='font-semibold'>https://" + esc(nb.slug) + ".toollendinglibrary.com</span>.</p>" +
-      "<p class='mt-1'>" + (currentUser ? "You are its first admin." : "Sign in with your email so you are recognized as its admin.") + " The address goes live once the domain and DNS are set up (see the phase 2 README).</p>";
+      "<p class='mt-1'>" + (membershipFailed
+        ? "The library was registered, but your admin membership in it could not be saved. Sign in at the new address and finish signing up there so you are recognized as its admin."
+        : (currentUser ? "You are its first admin." : "Sign in with your email so you are recognized as its admin.")) + " The address goes live once the domain and DNS are set up (see the phase 2 README).</p>";
     result.classList.remove("hidden");
     renderAuth();
-    toast(nb.name + " registered as " + nb.slug + ".toollendinglibrary.com.");
+    if (membershipFailed) toast("Your library is registered, but your admin membership could not be saved. Check your connection and finish signing up at the new address.");
+    else toast(nb.name + " registered as " + nb.slug + ".toollendinglibrary.com.");
   } catch (err) {
     msg.textContent = "Could not register that name: " + (err && err.message ? err.message : String(err));
     msg.className = "text-xs mt-1 text-gray-700";
+    toast("That library could not be registered. Check your connection and try again.");
   }
 });
 
@@ -3721,14 +3805,23 @@ function openEdit(tool) {
   editModal.showModal();
 }
 async function removeToolEverywhere(t) {
+  const snapshot = snapshotState();
   state.tools = state.tools.filter(x => x.id !== t.id);
   state.requests = state.requests.filter(r => r.toolId !== t.id);
-  save();
+  if (!(await saveUserAction(snapshot))) return false;
   if (store.mode === "supabase") {
-    try { await store.deleteTool(t.id, t); } catch (e) { console.warn("store.deleteTool failed:", e); }
+    try {
+      await store.deleteTool(t.id, t);
+    } catch (e) {
+      restoreState(snapshot);
+      render();
+      showSaveFailureNotice(e, { userAction: true });
+      return false;
+    }
   }
   render();
   toast("Listing removed.");
+  return true;
 }
 document.getElementById("editClose").addEventListener("click", () => editModal.close());
 editModal.addEventListener("click", e => { if (e.target === editModal) editModal.close(); });
@@ -3768,6 +3861,7 @@ document.getElementById("editForm").addEventListener("submit", async e => {
   e.preventDefault();
   const t = state.tools.find(x => x.id === editToolId);
   if (!t) { editModal.close(); return; }
+  const snapshot = snapshotState();
   t.name = document.getElementById("editName").value.trim();
   t.category = document.getElementById("editCategory").value;
   t.contact = document.getElementById("editContact").value.trim();
@@ -3782,19 +3876,18 @@ document.getElementById("editForm").addEventListener("submit", async e => {
   /* Avatars are snapshots: editing your own tool re-stamps your current
      profile photo (or clears it if you removed the photo). */
   if (isToolOwner(t)) t.ownerAvatar = (currentProfile && currentProfile.avatarUrl) || "";
-  save();
-  if (store.mode === "supabase") {
-    try { await store.updateTool(t); } catch (err) { console.warn("store.updateTool failed:", err); }
-  }
+  /* The scoped persist is the save: it already upserts this tool
+     (Phase 5.8), so there is no second write whose failure could
+     contradict the confirmation. */
+  if (!(await saveUserAction(snapshot))) return;
   editModal.close();
   render();
   toast("Tool updated.");
 });
-document.getElementById("editDelete").addEventListener("click", () => {
+document.getElementById("editDelete").addEventListener("click", async () => {
   const t = state.tools.find(x => x.id === editToolId);
   if (t && confirm("Delete " + t.name + " from the library? This cannot be undone.")) {
-    editModal.close();
-    removeToolEverywhere(t);
+    if (await removeToolEverywhere(t)) editModal.close();
   }
 });
 
@@ -3905,6 +3998,7 @@ if (adminLogoSaveBtn) adminLogoSaveBtn.addEventListener("click", async () => {
     renderAdmin();
   } catch (e) {
     if (msg) msg.textContent = "Could not save the logo: " + (e && e.message ? e.message : String(e));
+    toast("That logo could not be saved. Check your connection and try again.");
   }
 });
 /* Phase 5: remove the logo entirely; the header falls back to text only. */
@@ -3912,14 +4006,15 @@ const adminLogoRemoveBtn = document.getElementById("adminLogoRemove");
 if (adminLogoRemoveBtn) adminLogoRemoveBtn.addEventListener("click", async () => {
   const msg = document.getElementById("adminLogoMsg");
   try {
-    document.getElementById("adminLogoUrl").value = "";
     await store.updateNeighborhoodLogo("");
+    document.getElementById("adminLogoUrl").value = "";
     renderTenant();
     if (msg) msg.textContent = "Logo cleared. The header is back to text only.";
     toast("Organization logo cleared.");
     renderAdmin();
   } catch (e) {
     if (msg) msg.textContent = "Could not clear the logo: " + (e && e.message ? e.message : String(e));
+    toast("That logo could not be cleared. Check your connection and try again.");
   }
 });
 /* Phase 5: upload a logo file through the same helper and bucket as tool
@@ -3975,23 +4070,45 @@ if (adminLogoUploadBtn) adminLogoUploadBtn.addEventListener("click", async () =>
     renderAdmin();
   } catch (e) {
     if (msg) msg.textContent = "Could not save the logo: " + (e && e.message ? e.message : String(e));
+    toast("That logo could not be saved. Check your connection and try again.");
   }
 });
 async function adminSetReportStatus(rep, status) {
-  try { await store.setReportStatus(rep.id, status); } catch (e) { console.warn("setReportStatus failed:", e); }
+  try {
+    await store.setReportStatus(rep.id, status);
+  } catch (e) {
+    console.warn("setReportStatus failed:", e);
+    toast(SAVE_FAILURE_MESSAGE);
+    renderAdmin();
+    return;
+  }
   rep.status = status;
   renderAdmin();
   toast(status === "resolved" ? "Report marked resolved." : "Report reopened.");
 }
 async function adminSetStatus(p, status) {
-  try { await store.setProfileStatus(p.id, status); } catch (e) { console.warn("setProfileStatus failed:", e); }
+  try {
+    await store.setProfileStatus(p.id, status);
+  } catch (e) {
+    console.warn("setProfileStatus failed:", e);
+    toast(SAVE_FAILURE_MESSAGE);
+    renderAdmin();
+    return;
+  }
   p.status = status;
   renderAdmin();
   toast(p.email + (status === "banned" ? " is banned." : " is unbanned."));
 }
 async function adminDeleteUser(p) {
   if (!confirm("Delete " + p.email + "? Their profile, tools, and requests in this library will be removed.")) return;
-  try { await store.deleteProfile(p); } catch (e) { console.warn("deleteProfile failed:", e); }
+  try {
+    await store.deleteProfile(p);
+  } catch (e) {
+    console.warn("deleteProfile failed:", e);
+    toast("That user could not be deleted. Check your connection and try again.");
+    renderAdmin();
+    return;
+  }
   render();
   renderAdmin();
   toast("User deleted.");
