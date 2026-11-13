@@ -39,13 +39,16 @@ tailwind.config = {
 <header class="bg-white text-gray-900 border-b border-gray-200">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
     <div class="flex flex-wrap items-start justify-between gap-4">
-      <div>
+      <div class="flex items-start gap-4">
+        <img id="headerLogo" class="hidden h-10 w-auto mt-1.5 shrink-0" alt="" onerror="this.classList.add('hidden')">
+        <div>
         <p class="text-gray-500 text-xs sm:text-sm font-semibold tracking-widest uppercase">Valentine Neighborhood Association · Kansas City</p>
         <h1 class="font-display text-3xl sm:text-5xl font-bold mt-2">Valentine Tool Library</h1>
         <p class="text-gray-600 mt-3 max-w-xl text-sm sm:text-base">Borrow the ladder, pressure washer, or canopy you need for the weekend, from a neighbor who already owns it. Lend the tools sitting in your garage and put them to work on your street.</p>
+        </div>
       </div>
       <div class="flex flex-col gap-2">
-        <button data-tab-link="lend" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shadow">Lend a tool</button>
+        <button data-tab-link="lend" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shadow inline-flex items-center justify-center gap-2"><span data-icon="plus" data-icon-class="w-4 h-4" class="flex shrink-0"></span>Lend a tool</button>
         <button data-tab-link="requests" class="bg-white hover:bg-gray-50 text-gray-900 font-semibold px-5 py-2.5 rounded-full text-sm border border-gray-300">Borrow requests <span id="pendingBadge" class="ml-1 inline-flex items-center justify-center bg-gray-900 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></button>
       </div>
     </div>
@@ -103,7 +106,7 @@ tailwind.config = {
         <p class="text-xs text-gray-400 mt-1">The home you actually live in. The library is for neighbors, so the address has to be your real home.</p>
       </div>
       <div>
-        <span class="text-sm font-semibold">Terms</span>
+        <span class="text-sm font-semibold flex items-center gap-1.5"><span data-icon="shield" data-icon-class="w-4 h-4" class="text-gray-400 flex shrink-0"></span>Terms</span>
         <div id="signupTerms" class="mt-1 bg-white border border-gray-200 rounded-xl p-4 text-sm text-gray-600 whitespace-pre-wrap max-h-64 overflow-y-auto"></div>
         <p id="signupCookie" class="text-xs text-gray-400 mt-2"></p>
         <label class="flex items-start gap-2 text-sm mt-3">
@@ -124,7 +127,8 @@ tailwind.config = {
   <section id="tab-catalog">
     <div class="flex flex-col lg:flex-row lg:items-center gap-3">
       <div class="relative flex-1">
-        <input id="searchInput" type="search" placeholder="Search tools, for example ladder, drill, canopy" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+        <span data-icon="search" data-icon-class="w-5 h-5" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none flex"></span>
+        <input id="searchInput" type="search" placeholder="Search tools, for example ladder, drill, canopy" class="w-full rounded-xl border border-gray-200 bg-white pl-12 pr-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
       </div>
       <label class="inline-flex items-center gap-2 text-sm font-medium bg-white border border-gray-200 rounded-xl px-4 py-3 cursor-pointer">
         <input id="availableOnly" type="checkbox" class="accent-gray-900 w-4 h-4"> Available only
@@ -231,7 +235,7 @@ tailwind.config = {
       <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
         <p class="font-display text-3xl font-bold text-gray-900">3</p>
         <h3 class="font-bold text-gray-900 mt-2">Return it ready</h3>
-        <p class="text-sm text-gray-500 mt-1">Bring it back clean, fueled or charged, and on time, so the next neighbor can use it. The owner marks it returned here.</p>
+        <p class="text-sm text-gray-500 mt-1">Bring it back clean, fueled or charged, and on time, so the next neighbor can use it. Either the owner or the borrower can mark it returned here.</p>
       </div>
     </div>
     <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6 mt-4">
@@ -250,13 +254,23 @@ tailwind.config = {
   <section id="tab-admin" class="hidden">
     <h2 class="font-display text-2xl font-bold text-gray-950">Admin</h2>
     <p class="text-sm text-gray-500 mt-1 max-w-2xl">Neighbor accounts for this library, from the profiles table. Banning blocks sign-in and new requests. Deleting removes the profile, their tools, and their requests in this app; the underlying login account is removed separately at go-live (see the phase 2 README).</p>
+    <div id="adminLogoWrap" class="hidden bg-white rounded-2xl shadow-card border border-gray-200 p-5 mt-6 max-w-2xl">
+      <h3 class="font-bold text-gray-900">Neighborhood logo</h3>
+      <p class="text-sm text-gray-500 mt-1">Shown at the top of this library and used as the browser tab icon. The image should be a PNG with a transparent background, hosted at a public URL or a path on this site, for example /valentine-heart-mark.png.</p>
+      <div class="flex flex-wrap items-center gap-3 mt-3">
+        <img id="adminLogoPreview" class="hidden h-10 w-auto shrink-0" alt="" onerror="this.classList.add('hidden')">
+        <input id="adminLogoUrl" maxlength="300" placeholder="/your-logo.png or https://example.org/logo.png" class="flex-1 min-w-[14rem] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+        <button id="adminLogoSave" type="button" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-4 py-2 rounded-full text-sm">Save logo</button>
+      </div>
+      <p id="adminLogoMsg" class="text-sm text-gray-500 mt-2"></p>
+    </div>
     <div id="adminUserList" class="space-y-3 mt-6"></div>
   </section>
 </main>
 
 <footer class="border-t border-gray-200 mt-4">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row justify-between gap-3 text-sm text-gray-500">
-    <p><span class="font-semibold text-gray-900">Valentine Tool Library</span> · A Valentine Neighborhood Association project · Kansas City, Missouri</p>
+    <p class="flex items-center gap-2.5"><img id="footerLogo" class="hidden h-7 w-auto opacity-80 shrink-0" alt="" onerror="this.classList.add('hidden')"><span><span class="font-semibold text-gray-900">Valentine Tool Library</span> · A Valentine Neighborhood Association project · Kansas City, Missouri</span></p>
     <button id="resetBtn" class="text-left sm:text-right underline decoration-dotted hover:text-gray-700">Reset the starter catalog</button>
   </div>
 </footer>
@@ -511,6 +525,49 @@ let allNeighborhoods = [];
 let currentNeighborhood = null;
 
 const CATEGORIES = ["Yard and Garden","Power Tools","Hand Tools","Ladders and Access","Cleaning","Events and Hosting","Moving","Painting"];
+
+/* ============ Phase 4: inline SVG icons ============
+   Small stroke icons drawn in house in the Lucide/Feather style: a 24x24
+   grid, 1.5px stroke, round caps and joins, currentColor so each icon
+   inherits the neutral gray text color around it. No new brand colors,
+   no emoji. Icons are decorative only (aria-hidden); the text label next
+   to them always stays. */
+const ICON_PATHS = {
+  search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  check: '<path d="M20 6L9 17l-5-5"/>',
+  pin: '<path d="M12 21s-7-5.4-7-11a7 7 0 0 1 14 0c0 5.6-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/>',
+  shield: '<path d="M12 3l7 2.8V11c0 4.6-2.9 7.9-7 9.7C7.9 18.9 5 15.6 5 11V5.8L12 3z"/><path d="M9 11.6l2.1 2.1 3.9-4"/>',
+  grid: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>',
+  plug: '<path d="M9 2.5V8M15 2.5V8"/><path d="M6.5 8h11v4a5.5 5.5 0 0 1-11 0V8z"/><path d="M12 17.5V22"/>',
+  wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  leaf: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
+  ladder: '<path d="M7 3v18M17 3v18M7 8.5h10M7 13h10M7 17.5h10"/>',
+  sparkles: '<path d="M12 3l1.9 5.7 5.7 1.9-5.7 1.9L12 18.2l-1.9-5.7L4.4 10.6l5.7-1.9L12 3z"/><path d="M18.6 15.4l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z"/>',
+  utensils: '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
+  roller: '<rect x="3" y="4" width="14" height="5" rx="1"/><path d="M17 6.5h2a2 2 0 0 1 2 2V11a2 2 0 0 1-2 2h-7v3"/><rect x="10" y="16" width="4" height="5" rx="1"/>',
+  car: '<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>',
+  box: '<path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/>'
+};
+function icon(name, cls) {
+  const body = ICON_PATHS[name] || ICON_PATHS.wrench;
+  return '<svg class="' + (cls || "w-5 h-5") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + body + '</svg>';
+}
+/* Category to icon. Unknown categories fall back to the wrench. */
+const CATEGORY_ICONS = {
+  "Power Tools": "plug",
+  "Hand Tools": "wrench",
+  "Yard and Garden": "leaf",
+  "Ladders and Access": "ladder",
+  "Cleaning": "sparkles",
+  "Events and Hosting": "utensils",
+  "Kitchen and Entertaining": "utensils",
+  "Painting": "roller",
+  "Automotive": "car",
+  "Moving": "box"
+};
+function categoryIcon(category) { return CATEGORY_ICONS[category] || "wrench"; }
 const STORE_KEY = "valentine-tool-library-v1";
 
 function seedTools() {
@@ -564,7 +621,7 @@ const localStore = {
 
 const NEIGHBORHOODS_KEY = "valentine-tool-library-neighborhoods";
 function seedNeighborhoods() {
-  return [{ id: "n-valentine", slug: "valentine", name: "Valentine Neighborhood Association", residencyArea: "the Valentine neighborhood", createdBy: "", createdAt: "2026-11-11T00:00:00.000Z" }];
+  return [{ id: "n-valentine", slug: "valentine", name: "Valentine Neighborhood Association", residencyArea: "the Valentine neighborhood", logoUrl: "", createdBy: "", createdAt: "2026-11-11T00:00:00.000Z" }];
 }
 function loadLocalNeighborhoods() {
   try {
@@ -612,7 +669,7 @@ const supabaseStore = {
   async loadNeighborhoods() {
     const { data, error } = await supabaseClient.from("neighborhoods").select("*").order("created_at", { ascending: true });
     if (error) throw error;
-    this.neighborhoods = (data || []).map(row => ({ id: row.id, slug: row.slug, name: row.name, residencyArea: row.residency_area || "", createdBy: row.created_by || "", createdAt: row.created_at }));
+    this.neighborhoods = (data || []).map(row => ({ id: row.id, slug: row.slug, name: row.name, residencyArea: row.residency_area || "", logoUrl: row.logo_url || "", createdBy: row.created_by || "", createdAt: row.created_at }));
     return this.neighborhoods;
   },
   async load() {
@@ -726,17 +783,53 @@ const store = {
     if (this.mode === "supabase") {
       const { data, error } = await supabaseClient.from("neighborhoods").insert({ name: name, slug: slug, created_by: createdBy || null }).select().single();
       if (error) throw error;
-      const nb = { id: data.id, slug: data.slug, name: data.name, residencyArea: data.residency_area || "", createdBy: data.created_by || "", createdAt: data.created_at };
+      const nb = { id: data.id, slug: data.slug, name: data.name, residencyArea: data.residency_area || "", logoUrl: data.logo_url || "", createdBy: data.created_by || "", createdAt: data.created_at };
       allNeighborhoods = allNeighborhoods.concat([nb]);
       return nb;
     }
     const list = loadLocalNeighborhoods();
     if (list.some(n => n.slug === slug)) throw new Error("That short name is already taken.");
-    const nb = { id: "n-" + slug, slug: slug, name: name, residencyArea: "", createdBy: createdBy || "", createdAt: new Date().toISOString() };
+    const nb = { id: "n-" + slug, slug: slug, name: name, residencyArea: "", logoUrl: "", createdBy: createdBy || "", createdAt: new Date().toISOString() };
     list.push(nb);
     saveLocalNeighborhoods(list);
     allNeighborhoods = list;
     return nb;
+  },
+  /* Phase 4: save the current neighborhood's logo URL (empty clears it).
+     Supabase mode updates the neighborhoods row; local mode updates the
+     localStorage neighborhoods list. The caller re-renders the tenant
+     chrome so the header picks the change up immediately. */
+  async updateNeighborhoodLogo(logoUrl) {
+    const url = String(logoUrl == null ? "" : logoUrl).trim();
+    if (!currentNeighborhood) throw new Error("No current neighborhood.");
+    if (this.mode === "supabase") {
+      const { error } = await supabaseClient.from("neighborhoods").update({ logo_url: url || null }).eq("id", currentNeighborhood.id);
+      if (error) throw error;
+    } else {
+      const list = loadLocalNeighborhoods();
+      const nb = list.find(n => n.slug === CURRENT_SLUG) || list[0];
+      if (nb) { nb.logoUrl = url; saveLocalNeighborhoods(list); }
+      allNeighborhoods = list;
+    }
+    currentNeighborhood.logoUrl = url;
+    const inAll = allNeighborhoods.find(n => n.slug === currentNeighborhood.slug);
+    if (inAll) inAll.logoUrl = url;
+    return currentNeighborhood;
+  },
+  /* Phase 4: record a cookie-note acceptance on the signed-in member's
+     profile (profiles.cookie_accepted_at), so acceptance follows the
+     member rather than only the browser. Callers treat this as
+     best-effort: a failed write is not surfaced to the member. */
+  async setCookieAccepted(whenIso) {
+    if (!currentUser) return;
+    if (this.mode === "supabase") {
+      const { error } = await supabaseClient.from("profiles").update({ cookie_accepted_at: whenIso }).eq("id", currentUser.id);
+      if (error) throw error;
+      return;
+    }
+    const list = loadLocalProfiles();
+    const p = list.find(x => x.id === currentUser.id);
+    if (p) { p.cookieAcceptedAt = whenIso; saveLocalProfiles(list); }
   },
   async listProfiles() {
     if (this.mode === "supabase") {
@@ -744,7 +837,7 @@ const store = {
       if (supabaseStore.currentId()) query = query.eq("neighborhood_id", supabaseStore.currentId());
       const { data, error } = await query;
       if (error) throw error;
-      return (data || []).map(row => ({ id: row.id, email: row.email, role: row.role, status: row.status, neighborhood: CURRENT_SLUG, createdAt: row.created_at, fullName: row.full_name || "", address: row.address || "", termsAcceptedAt: row.terms_accepted_at || "", termsVersion: row.terms_version || "" }));
+      return (data || []).map(row => ({ id: row.id, email: row.email, role: row.role, status: row.status, neighborhood: CURRENT_SLUG, createdAt: row.created_at, fullName: row.full_name || "", address: row.address || "", termsAcceptedAt: row.terms_accepted_at || "", termsVersion: row.terms_version || "", cookieAcceptedAt: row.cookie_accepted_at || "" }));
     }
     return loadLocalProfiles().filter(p => (p.neighborhood || DEFAULT_TENANT_SLUG) === CURRENT_SLUG);
   },
@@ -752,7 +845,7 @@ const store = {
     if (this.mode === "supabase") {
       const { data, error } = await supabaseClient.from("profiles").select("*").eq("id", userId).maybeSingle();
       if (error) throw error;
-      return data ? { id: data.id, email: data.email, role: data.role, status: data.status, neighborhood: CURRENT_SLUG, createdAt: data.created_at, fullName: data.full_name || "", address: data.address || "", termsAcceptedAt: data.terms_accepted_at || "", termsVersion: data.terms_version || "" } : null;
+      return data ? { id: data.id, email: data.email, role: data.role, status: data.status, neighborhood: CURRENT_SLUG, createdAt: data.created_at, fullName: data.full_name || "", address: data.address || "", termsAcceptedAt: data.terms_accepted_at || "", termsVersion: data.terms_version || "", cookieAcceptedAt: data.cookie_accepted_at || "" } : null;
     }
     return loadLocalProfiles().find(p => p.id === userId) || null;
   },
@@ -767,7 +860,8 @@ const store = {
         id: merged.id, neighborhood_id: supabaseStore.currentId(),
         email: merged.email, role: merged.role, status: merged.status,
         full_name: merged.fullName || null, address: merged.address || null,
-        terms_accepted_at: merged.termsAcceptedAt || null, terms_version: merged.termsVersion || null
+        terms_accepted_at: merged.termsAcceptedAt || null, terms_version: merged.termsVersion || null,
+        cookie_accepted_at: merged.cookieAcceptedAt || null
       });
       if (error) throw error;
       return merged;
@@ -1004,7 +1098,7 @@ function initials(name) { return name.split(/\s+/).map(w => w[0]).slice(0,2).joi
 function pickupSpotHTML(r) {
   if (!r) return "";
   if (r.status !== "approved" && r.status !== "checked_out" && r.status !== "returned") return "";
-  return '<p class="text-sm text-gray-500">Pickup spot: ' + esc(r.pickupLocation || "The lender's home") + (r.pickupAt ? ' · ' + esc(fmtDateTime(r.pickupAt)) : '') + '</p>';
+  return '<p class="text-sm text-gray-500 flex items-start gap-1.5"><span class="text-gray-400 mt-0.5 shrink-0 flex">' + icon("pin", "w-4 h-4") + '</span><span>Pickup spot: ' + esc(r.pickupLocation || "The lender's home") + (r.pickupAt ? ' · ' + esc(fmtDateTime(r.pickupAt)) : '') + '</span></p>';
 }
 
 function render() {
@@ -1026,7 +1120,7 @@ function render() {
 
   const chips = ["All"].concat(CATEGORIES);
   document.getElementById("categoryChips").innerHTML = chips.map(c =>
-    '<button class="chip px-3.5 py-1.5 rounded-full text-sm font-medium border border-gray-200 bg-white hover:border-gray-400 ' + (c === activeCategory ? "chip-active" : "") + '" data-category="' + esc(c) + '">' + esc(c) + '</button>'
+    '<button class="chip inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium border border-gray-200 bg-white hover:border-gray-400 ' + (c === activeCategory ? "chip-active" : "") + '" data-category="' + esc(c) + '">' + icon(c === "All" ? "grid" : categoryIcon(c), "w-4 h-4") + esc(c) + '</button>'
   ).join("");
 
   const q = document.getElementById("searchInput").value.trim().toLowerCase();
@@ -1054,8 +1148,9 @@ function render() {
     return '<article id="tool-' + t.id + '" class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-col fade-in">' +
       (t.photo ? '<img src="' + esc(t.photo) + '" alt="Photo of ' + esc(t.name) + '" class="w-full h-44 object-cover rounded-xl mb-4">' : '') +
       '<div class="flex items-start justify-between gap-3">' +
-        '<div class="flex items-center gap-3"><div class="w-11 h-11 rounded-xl bg-gray-700 text-white flex items-center justify-center font-display font-bold">' + esc(initials(t.name)) + '</div>' +
-        '<div><h3 class="font-bold text-gray-950 leading-snug">' + esc(t.name) + '</h3><p class="text-xs text-gray-500">' + esc(t.category) + '</p></div></div>' +
+        '<div class="flex items-center gap-3">' +
+        (t.photo ? '' : '<div class="w-11 h-11 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 flex items-center justify-center shrink-0">' + icon(categoryIcon(t.category), "w-6 h-6") + '</div>') +
+        '<div><h3 class="font-bold text-gray-950 leading-snug">' + esc(t.name) + '</h3><p class="text-xs text-gray-500 flex items-center gap-1">' + (t.photo ? '<span class="text-gray-400 flex shrink-0">' + icon(categoryIcon(t.category), "w-3.5 h-3.5") + '</span>' : '') + esc(t.category) + '</p></div></div>' +
         statusBadge(t) +
       '</div>' +
       '<p class="text-sm text-gray-600 mt-3 flex-1">' + esc(t.desc) + '</p>' +
@@ -1063,7 +1158,7 @@ function render() {
         '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Lent by</dt><dd class="text-sm text-gray-700">' + esc(t.owner) + '</dd></div>' +
         '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Loan</dt><dd class="text-sm text-gray-700">' + t.days + (t.days === 1 ? " day" : " days") + '</dd></div>' +
         '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Condition</dt><dd class="text-sm text-gray-700">' + esc(t.condition) + '</dd></div>' +
-        (Array.isArray(t.pickupWindows) && t.pickupWindows.length ? '<div class="col-span-2"><dt class="font-semibold text-gray-400 uppercase tracking-wide">Pickup windows</dt><dd class="text-sm text-gray-700">' + esc(t.pickupWindows.map(w => w.label).join(" · ")) + '</dd></div>' : "") +
+        (Array.isArray(t.pickupWindows) && t.pickupWindows.length ? '<div class="col-span-2"><dt class="font-semibold text-gray-400 uppercase tracking-wide">Pickup windows</dt><dd class="text-sm text-gray-700 flex items-start gap-1.5"><span class="text-gray-400 mt-0.5 shrink-0 flex">' + icon("clock", "w-4 h-4") + '</span><span>' + esc(t.pickupWindows.map(w => w.label).join(" · ")) + '</span></dd></div>' : "") +
         (t.status === "onloan" ? '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">With</dt><dd class="text-sm text-gray-700">' + esc(t.borrower) + '</dd></div>' : "") +
       '</dl>' +
       '<div class="flex items-center justify-between gap-3 mt-5">' + action +
@@ -1081,7 +1176,7 @@ function render() {
       '<div class="flex flex-wrap items-start justify-between gap-3">' +
         '<div><p class="font-bold text-gray-950">' + esc(tool ? tool.name : "Tool") + '</p>' +
         '<p class="text-sm text-gray-500 mt-0.5">Requested by <span class="font-medium text-gray-700">' + esc(r.borrower) + '</span> · ' + esc(r.contact) + '</p>' +
-        '<p class="text-sm text-gray-500">Pickup ' + esc(fmtDate(r.start)) + (r.pickup ? ' · ' + esc(r.pickup) : '') + (r.pickupAt ? ' at ' + esc(fmtTime(r.pickupAt)) : '') + ' · ' + r.days + (r.days === 1 ? " day" : " days") + ' · due back ' + esc(r.dueAt ? fmtDateTime(r.dueAt) : fmtDate(addDaysISO(r.start, r.days))) + '</p>' +
+        '<p class="text-sm text-gray-500 flex items-start gap-1.5"><span class="text-gray-400 mt-0.5 shrink-0 flex">' + icon("clock", "w-4 h-4") + '</span><span>Pickup ' + esc(fmtDate(r.start)) + (r.pickup ? ' · ' + esc(r.pickup) : '') + (r.pickupAt ? ' at ' + esc(fmtTime(r.pickupAt)) : '') + ' · ' + r.days + (r.days === 1 ? " day" : " days") + ' · due back ' + esc(r.dueAt ? fmtDateTime(r.dueAt) : fmtDate(addDaysISO(r.start, r.days))) + '</span></p>' +
         pickupSpotHTML(r) +
         (r.project ? '<p class="text-sm text-gray-500 italic">Project: ' + esc(r.project) + '</p>' : "") +
         (r.thanksNote ? '<p class="text-sm text-gray-500">Thank-you from ' + esc(r.borrower) + ': "' + esc(r.thanksNote) + '"</p>' : "") +
@@ -1100,7 +1195,7 @@ function render() {
   const loans = tools.filter(t => t.status === "onloan");
   document.getElementById("loanList").innerHTML = loans.length ? loans.map(t =>
     '<div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-wrap items-center justify-between gap-3 fade-in">' +
-      '<div><p class="font-bold text-gray-950">' + esc(t.name) + '</p><p class="text-sm text-gray-500">With ' + esc(t.borrower) + ' · due back ' + esc(t.dueAt ? fmtDateTime(t.dueAt) : fmtDate(t.due)) + (isOverdue(t) ? ' · <span class="text-gray-700 font-semibold">overdue</span>' : "") + '</p>' + pickupSpotHTML(visibleReqs.find(r => r.toolId === t.id && (r.status === "approved" || r.status === "checked_out"))) + '</div>' +
+      '<div><p class="font-bold text-gray-950">' + esc(t.name) + '</p><p class="text-sm text-gray-500 flex items-start gap-1.5"><span class="text-gray-400 mt-0.5 shrink-0 flex">' + icon("clock", "w-4 h-4") + '</span><span>With ' + esc(t.borrower) + ' · due back ' + esc(t.dueAt ? fmtDateTime(t.dueAt) : fmtDate(t.due)) + (isOverdue(t) ? ' · <span class="text-gray-700 font-semibold">overdue</span>' : "") + '</span></p>' + pickupSpotHTML(visibleReqs.find(r => r.toolId === t.id && (r.status === "approved" || r.status === "checked_out"))) + '</div>' +
       (canReturnTool(t) ? '<button class="return-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button>' : '<span class="text-sm text-gray-400 font-medium">Out on loan</span>') + '</div>'
   ).join("") : '<p class="text-sm text-gray-400 bg-white border border-dashed border-gray-200 rounded-2xl p-6 text-center">Nothing is out on loan right now.</p>';
 
@@ -1126,7 +1221,7 @@ function showTab(name) {
 let toastTimer = null;
 function toast(msg) {
   const el = document.getElementById("toast");
-  el.textContent = msg;
+  el.innerHTML = '<span class="inline-flex items-center gap-2"><span class="text-gray-300 flex shrink-0">' + icon("check", "w-4 h-4") + '</span><span>' + esc(msg) + '</span></span>';
   el.classList.remove("hidden");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.add("hidden"), 3400);
@@ -1370,10 +1465,12 @@ document.getElementById("signupForm").addEventListener("submit", async e => {
   const profile = Object.assign({}, base, {
     id: currentUser.id, email: currentUser.email, neighborhood: CURRENT_SLUG,
     fullName: fullName, address: address,
-    termsAcceptedAt: new Date().toISOString(), termsVersion: TERMS_VERSION
+    termsAcceptedAt: new Date().toISOString(), termsVersion: TERMS_VERSION,
+    cookieAcceptedAt: new Date().toISOString()
   });
   try {
     currentProfile = await store.upsertProfile(profile);
+    syncCookieBannerWithProfile();
   } catch (err) {
     console.warn("Sign-up save failed:", err);
     toast("That did not save. Please try again in a moment.");
@@ -1513,6 +1610,7 @@ async function initLocalAuth() {
     currentProfile = null;
     document.getElementById("authMessage").textContent = "This account has been banned from this tool library.";
   }
+  syncCookieBannerWithProfile();
   renderAuth();
   render();
   tryOpenRequestLink();
@@ -1612,6 +1710,7 @@ async function handleSession(session) {
       }
     } catch (e) { console.warn("Profile load failed:", e); }
   }
+  syncCookieBannerWithProfile();
   renderAuth();
   render();
   tryOpenRequestLink();
@@ -1643,6 +1742,7 @@ document.getElementById("authForm").addEventListener("submit", async e => {
       return;
     }
     msg.textContent = "";
+    syncCookieBannerWithProfile();
     renderAuth();
     render();
     tryOpenRequestLink();
@@ -1681,6 +1781,30 @@ function renderTenant() {
   const nb = currentNeighborhood;
   document.getElementById("tenantName").textContent = nb ? nb.name.replace(/ Neighborhood Association$/, "") : CURRENT_SLUG;
   document.getElementById("tenantAddress").textContent = CURRENT_SLUG + ".toollendinglibrary.com";
+  applyNeighborhoodLogo(nb);
+}
+
+/* Phase 4: when the current neighborhood has a logo (neighborhoods.logo_url),
+   show it at the left of the header, small in the footer, and as the page
+   favicon. No logo means the chrome renders exactly as before: the images
+   stay hidden (and hide themselves on error), and no favicon is touched. */
+function applyNeighborhoodLogo(nb) {
+  const url = nb && nb.logoUrl ? String(nb.logoUrl).trim() : "";
+  const header = document.getElementById("headerLogo");
+  if (header) {
+    if (url) { header.src = url; header.alt = nb ? nb.name : "Neighborhood logo"; header.classList.remove("hidden"); }
+    else { header.removeAttribute("src"); header.alt = ""; header.classList.add("hidden"); }
+  }
+  const footer = document.getElementById("footerLogo");
+  if (footer) {
+    if (url) { footer.src = url; footer.classList.remove("hidden"); }
+    else { footer.removeAttribute("src"); footer.classList.add("hidden"); }
+  }
+  if (url) {
+    let link = document.querySelector('link[rel="icon"]');
+    if (!link) { link = document.createElement("link"); link.rel = "icon"; document.head.appendChild(link); }
+    link.href = url;
+  }
 }
 
 const RESERVED_SLUGS = ["www", "app", "api", "mail", "admin", "support", "valentine-toollendinglibrary"];
@@ -1851,6 +1975,19 @@ document.getElementById("editDelete").addEventListener("click", () => {
 async function renderAdmin() {
   const list = document.getElementById("adminUserList");
   if (!list || !isAdminUser()) return;
+  // Phase 4: the neighborhood logo field lives in this admin-only view.
+  const logoWrap = document.getElementById("adminLogoWrap");
+  if (logoWrap) {
+    logoWrap.classList.remove("hidden");
+    const logoUrl = currentNeighborhood && currentNeighborhood.logoUrl ? currentNeighborhood.logoUrl : "";
+    const logoInput = document.getElementById("adminLogoUrl");
+    if (logoInput && document.activeElement !== logoInput) logoInput.value = logoUrl;
+    const logoPrev = document.getElementById("adminLogoPreview");
+    if (logoPrev) {
+      if (logoUrl) { logoPrev.src = logoUrl; logoPrev.classList.remove("hidden"); }
+      else { logoPrev.removeAttribute("src"); logoPrev.classList.add("hidden"); }
+    }
+  }
   list.innerHTML = '<p class="text-sm text-gray-400">Loading users...</p>';
   let profiles = [];
   try { profiles = await store.listProfiles(); } catch (e) { console.warn("listProfiles failed:", e); }
@@ -1871,6 +2008,23 @@ async function renderAdmin() {
       '</div></div>'
   ).join("");
 }
+/* Phase 4: save the neighborhood logo from the Admin view. On success the
+   tenant chrome re-renders at once, so the header and footer pick the new
+   logo up without a reload. */
+const adminLogoSaveBtn = document.getElementById("adminLogoSave");
+if (adminLogoSaveBtn) adminLogoSaveBtn.addEventListener("click", async () => {
+  const url = document.getElementById("adminLogoUrl").value.trim();
+  const msg = document.getElementById("adminLogoMsg");
+  try {
+    await store.updateNeighborhoodLogo(url);
+    renderTenant();
+    if (msg) msg.textContent = url ? "Logo saved. It is showing at the top of the page now." : "Logo cleared. The header is back to text only.";
+    toast(url ? "Neighborhood logo saved." : "Neighborhood logo cleared.");
+    renderAdmin();
+  } catch (e) {
+    if (msg) msg.textContent = "Could not save the logo: " + (e && e.message ? e.message : String(e));
+  }
+});
 async function adminSetStatus(p, status) {
   try { await store.setProfileStatus(p.id, status); } catch (e) { console.warn("setProfileStatus failed:", e); }
   p.status = status;
@@ -1898,19 +2052,62 @@ function openDeepLink() {
 window.addEventListener("hashchange", openDeepLink);
 
 /* Cookie notice banner: shown once per browser and remembered in
-   localStorage. The same note is part of the sign-up terms acceptance. */
+   localStorage. The same note is part of the sign-up terms acceptance.
+   Phase 4: acceptance is also stored per member on the profile
+   (profiles.cookie_accepted_at), so it follows the member, not just the
+   browser. A profile with cookie_accepted_at set never sees the banner.
+   An acceptance recorded in this browser before sign-in is backfilled
+   into the profile when the member signs in. The database write is
+   best-effort: if it fails, the localStorage flag still keeps the
+   banner from nagging, and no error is shown for it. */
+function cookieAcceptedLocally() {
+  try { return Boolean(localStorage.getItem("tl-cookie-ok")); } catch (e) { return false; }
+}
+function hideCookieBanner() {
+  const banner = document.getElementById("cookieBanner");
+  if (banner) banner.classList.add("hidden");
+}
+/* Record an acceptance: always in this browser, and on the signed-in
+   member's profile when there is one that has not recorded it yet. */
+async function persistCookieAcceptance() {
+  try { localStorage.setItem("tl-cookie-ok", "1"); } catch (e) {}
+  if (!currentUser || !currentProfile || currentProfile.cookieAcceptedAt) return;
+  const when = new Date().toISOString();
+  try {
+    await store.setCookieAccepted(when);
+    if (currentProfile) currentProfile.cookieAcceptedAt = when;
+  } catch (e) { console.warn("Cookie acceptance save failed:", e); }
+}
+/* Called after a profile loads at sign-in, and after sign-up completes.
+   A profile that already accepted hides the banner and seeds the local
+   flag for this browser; a profile that has not accepted inherits an
+   earlier acceptance from this browser, once, silently. */
+function syncCookieBannerWithProfile() {
+  if (!currentProfile) return;
+  if (currentProfile.cookieAcceptedAt) {
+    try { localStorage.setItem("tl-cookie-ok", "1"); } catch (e) {}
+    hideCookieBanner();
+  } else if (cookieAcceptedLocally()) {
+    persistCookieAcceptance();
+  }
+}
 (function initCookieBanner() {
   const banner = document.getElementById("cookieBanner");
   if (!banner) return;
   document.getElementById("cookieBannerText").textContent = COOKIE_NOTE;
-  let ok = false;
-  try { ok = Boolean(localStorage.getItem("tl-cookie-ok")); } catch (e) {}
-  if (!ok) banner.classList.remove("hidden");
+  if (!cookieAcceptedLocally()) banner.classList.remove("hidden");
   document.getElementById("cookieAccept").addEventListener("click", () => {
-    try { localStorage.setItem("tl-cookie-ok", "1"); } catch (e) {}
-    banner.classList.add("hidden");
+    hideCookieBanner();
+    persistCookieAcceptance();
   });
 })();
+
+/* Phase 4: fill the static icon placeholders in the page chrome (search
+   box, lend button, terms heading). Dynamic surfaces call icon() directly
+   while they render. */
+document.querySelectorAll("[data-icon]").forEach(el => {
+  el.innerHTML = icon(el.getAttribute("data-icon"), el.getAttribute("data-icon-class") || "w-5 h-5");
+});
 
 initAuth();
 if (store.mode === "supabase") {
