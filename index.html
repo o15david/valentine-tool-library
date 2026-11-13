@@ -26,8 +26,17 @@ tailwind.config = {
 <style>
   html { scroll-behavior: smooth; }
   body { background-color: #ffffff; }
-  .chip-active { background-color: #171717; color: #fff; border-color: #171717; }
-  .tab-active { background-color: #171717; color: #fff; }
+  /* Category chips: default and active backgrounds live in this custom
+     block, never in a Tailwind utility on the button. The Play CDN injects
+     its stylesheet after this block, so a utility like bg-white wins an
+     equal-specificity tie; that bug once left the active chip as a blank
+     white pill with white text and icon. .chip.chip-active (two classes)
+     outranks any single utility regardless of order. */
+  .chip { background-color: #ffffff; }
+  .chip.chip-active { background-color: #171717; color: #fff; border-color: #171717; }
+  /* Phase 5: one-page areas. Anchored sections clear the sticky top bar
+     when scrolled to, so a section title is never hidden underneath it. */
+  .section-anchor { scroll-margin-top: 88px; }
   dialog::backdrop { background: rgba(0,0,0,.45); }
   .fade-in { animation: fadeIn .18s ease-out; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: none; } }
@@ -39,92 +48,77 @@ tailwind.config = {
 <header class="bg-white text-gray-900 border-b border-gray-200">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
     <div class="flex flex-wrap items-start justify-between gap-4">
-      <div class="flex items-start gap-4">
-        <img id="headerLogo" class="hidden h-10 w-auto mt-1.5 shrink-0" alt="" onerror="this.classList.add('hidden')">
-        <div>
+      <div>
         <p class="text-gray-500 text-xs sm:text-sm font-semibold tracking-widest uppercase">Valentine Neighborhood Association · Kansas City</p>
         <h1 class="font-display text-3xl sm:text-5xl font-bold mt-2">Valentine Tool Library</h1>
         <p class="text-gray-600 mt-3 max-w-xl text-sm sm:text-base">Borrow the ladder, pressure washer, or canopy you need for the weekend, from a neighbor who already owns it. Lend the tools sitting in your garage and put them to work on your street.</p>
-        </div>
       </div>
       <div class="flex flex-col gap-2">
-        <button data-tab-link="lend" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shadow inline-flex items-center justify-center gap-2"><span data-icon="plus" data-icon-class="w-4 h-4" class="flex shrink-0"></span>Lend a tool</button>
-        <button data-tab-link="requests" class="bg-white hover:bg-gray-50 text-gray-900 font-semibold px-5 py-2.5 rounded-full text-sm border border-gray-300">Borrow requests <span id="pendingBadge" class="ml-1 inline-flex items-center justify-center bg-gray-900 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></button>
+        <button data-scroll-to="lend" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shadow inline-flex items-center justify-center gap-2"><span data-icon="plus" data-icon-class="w-4 h-4" class="flex shrink-0"></span>Lend a tool</button>
+        <button data-scroll-to="requests" id="heroRequestsBtn" class="hidden bg-white hover:bg-gray-50 text-gray-900 font-semibold px-5 py-2.5 rounded-full text-sm border border-gray-300">Requests and loans</button>
       </div>
     </div>
     <div id="stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8"></div>
   </div>
 </header>
 
-<!-- Tabs -->
-<nav class="bg-white border-b border-gray-200 sticky top-0 z-30">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap gap-2">
-    <button class="tab-btn tab-active px-4 py-2 rounded-full text-sm font-semibold border border-gray-200" data-tab="catalog">Tool catalog</button>
-    <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-gray-200 bg-white" data-tab="requests">Requests and loans</button>
-    <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-gray-200 bg-white" data-tab="lend">Lend a tool</button>
-    <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-gray-200 bg-white" data-tab="how">How it works</button>
-    <button id="adminTabBtn" class="tab-btn hidden px-4 py-2 rounded-full text-sm font-semibold border border-gray-200 bg-white" data-tab="admin">Admin</button>
+<!-- Phase 5: sticky top bar with one-page burger navigation. The page is a
+     single scroll of clearly defined areas; the burger menu smooth-scrolls
+     to each area instead of switching tabs. -->
+<nav class="bg-white/95 backdrop-blur border-b border-gray-200 sticky top-0 z-40">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+    <button data-scroll-to="catalog" class="flex items-center gap-2.5 min-w-0 text-left">
+      <img id="headerLogo" class="hidden h-9 w-auto shrink-0" alt="" onerror="this.classList.add('hidden')">
+      <span id="barTitle" class="font-display font-bold text-gray-950 truncate">Valentine Tool Library</span>
+    </button>
+    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+      <span id="barUserChip" class="hidden items-center gap-2 text-sm text-gray-600">
+        <span id="barUserEmail" class="font-medium text-gray-900 max-w-[10rem] sm:max-w-[16rem] truncate"></span>
+        <button id="barSignOut" type="button" class="font-semibold text-gray-700 underline decoration-dotted">Sign out</button>
+      </span>
+      <button id="barSignIn" data-scroll-to="signin" type="button" class="text-sm font-semibold text-gray-900 underline decoration-dotted">Sign in</button>
+      <div id="navMenuWrap" class="relative">
+        <button id="menuBtn" type="button" aria-expanded="false" aria-controls="navMenu" aria-label="Open navigation menu" class="w-10 h-10 inline-flex items-center justify-center rounded-full border border-gray-300 bg-white text-gray-900 hover:bg-gray-50">
+          <span id="menuIconOpen" data-icon="menu" data-icon-class="w-5 h-5" class="flex"></span>
+          <span id="menuIconClose" data-icon="x" data-icon-class="w-5 h-5" class="hidden"></span>
+        </button>
+        <div id="navMenu" class="hidden absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-2xl shadow-xl p-2 z-50">
+          <button data-scroll-to="catalog" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="grid" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Browse the catalog</button>
+          <button data-scroll-to="lend" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="wrench" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Lend a tool</button>
+          <button data-scroll-to="requests" id="menuRequestsItem" class="w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left hidden"><span data-icon="inbox" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Requests and loans<span id="pendingBadge" class="ml-auto inline-flex items-center justify-center bg-gray-900 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></button>
+          <button data-scroll-to="how" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="info" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>How it works</button>
+          <button data-scroll-to="signin" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="user" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span><span id="menuSigninLabel">Sign in</span></button>
+          <button id="adminMenuItem" data-scroll-to="admin" class="hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="shield" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Admin</button>
+        </div>
+      </div>
+    </div>
   </div>
 </nav>
 
-<!-- Phase 2: sign-in bar (Supabase magic link; configured in the script below) -->
-<section class="bg-white border-b border-gray-200">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3">
-    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-      <p class="text-sm text-gray-600">You are browsing the <span id="tenantName" class="font-semibold text-gray-900">Valentine</span> tool library · <span id="tenantAddress" class="text-gray-500">valentine.toollendinglibrary.com</span></p>
-      <button id="startNeighborhoodBtn" type="button" class="text-sm font-semibold text-gray-900 underline decoration-dotted hover:text-gray-600">Start a neighborhood library</button>
-    </div>
-    <p id="authNotConfigured" class="text-sm text-gray-500">Sign-in is not configured yet. You can still browse the catalog, request tools, and lend tools below.</p>
-    <form id="authForm" class="hidden flex-wrap items-center gap-2">
-      <label class="text-sm font-semibold text-gray-900" for="authEmail">Neighbor sign-in</label>
-      <input id="authEmail" type="email" required placeholder="you@example.com" class="flex-1 min-w-[12rem] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-      <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-4 py-2 rounded-full text-sm">Email me a sign-in link</button>
-    </form>
-    <div id="authSignedIn" class="hidden flex-wrap items-center gap-3">
-      <p class="text-sm text-gray-600">Signed in as <span id="authUserEmail" class="font-semibold text-gray-900"></span></p>
-      <button id="authSignOut" type="button" class="text-sm font-semibold text-gray-700 underline decoration-dotted">Sign out</button>
-    </div>
-    <p id="authMessage" class="text-sm text-gray-500 mt-1"></p>
-    <p class="text-xs text-gray-400 mt-1">Sign-in links can only be used once and they expire quickly. If a link stops working, just ask for a fresh one, that is normal.</p>
-  </div>
-</section>
-
-<!-- Sign-up: shown to signed-in neighbors who have not finished signing up.
-     Until it is complete they can browse, but not list or borrow. -->
-<section id="signupSection" class="hidden bg-gray-50 border-b border-gray-200">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-    <h2 class="font-display text-2xl font-bold text-gray-950">Finish signing up</h2>
-    <p class="text-sm text-gray-500 mt-2 max-w-2xl">You are signed in. Add your name and home address to finish, it takes about a minute. Your address stays private: it is never shown in the library. Only a pickup spot you confirm is shared with a borrower, and only after you approve their request.</p>
-    <form id="signupForm" class="mt-5 grid gap-4 max-w-2xl">
-      <div>
-        <label class="text-sm font-semibold" for="signupName">Full name</label>
-        <input id="signupName" required maxlength="80" placeholder="Your full name" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
-      </div>
-      <div>
-        <label class="text-sm font-semibold" for="signupAddress">Home address</label>
-        <input id="signupAddress" required maxlength="160" placeholder="Street address, city, ZIP" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
-        <p class="text-xs text-gray-400 mt-1">The home you actually live in. The library is for neighbors, so the address has to be your real home.</p>
-      </div>
-      <div>
-        <span class="text-sm font-semibold flex items-center gap-1.5"><span data-icon="shield" data-icon-class="w-4 h-4" class="text-gray-400 flex shrink-0"></span>Terms</span>
-        <div id="signupTerms" class="mt-1 bg-white border border-gray-200 rounded-xl p-4 text-sm text-gray-600 whitespace-pre-wrap max-h-64 overflow-y-auto"></div>
-        <p id="signupCookie" class="text-xs text-gray-400 mt-2"></p>
-        <label class="flex items-start gap-2 text-sm mt-3">
-          <input id="signupTermsAgree" type="checkbox" required class="accent-gray-900 w-4 h-4 mt-0.5">
-          <span>I agree to the terms above, and I accept the cookie note.</span>
-        </label>
-      </div>
-      <div>
-        <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm">Finish signing up</button>
-      </div>
-    </form>
-  </div>
-</section>
-
-<main class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+<main class="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-16">
 
   <!-- Catalog -->
-  <section id="tab-catalog">
+  <section id="catalog" class="section-anchor">
+    <div class="flex items-start gap-3 mb-6">
+      <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="grid" data-icon-class="w-5 h-5" class="flex"></span></span>
+      <div>
+        <h2 class="font-display text-2xl font-bold text-gray-950">Browse the catalog</h2>
+        <p class="text-sm text-gray-500 mt-0.5">Tools your neighbors are lending. Search or filter, then send a request.</p>
+      </div>
+    </div>
+    <!-- Phase 5: unmistakable sign-up gate for borrowing. Shown only to a
+         signed-in member whose sign-up is unfinished (the state that used
+         to surface as a lone toast). -->
+    <div id="catalogGateNotice" class="hidden bg-white border border-gray-300 shadow-card rounded-2xl p-5 mb-6 flex-wrap items-center justify-between gap-3">
+      <div class="flex items-start gap-3 min-w-0">
+        <span class="w-9 h-9 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
+        <div>
+          <p class="font-bold text-gray-950">Your sign-up is not finished yet</p>
+          <p class="text-sm text-gray-500 mt-0.5 max-w-xl">You are signed in, but borrowing is paused until the library has your name, home address, and terms agreement. It takes about a minute, and then every borrow button works.</p>
+        </div>
+      </div>
+      <button data-scroll-to="signupSection" type="button" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shrink-0">Finish signing up</button>
+    </div>
     <div class="flex flex-col lg:flex-row lg:items-center gap-3">
       <div class="relative flex-1">
         <span data-icon="search" data-icon-class="w-5 h-5" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none flex"></span>
@@ -140,29 +134,47 @@ tailwind.config = {
     <div id="catalogEmpty" class="hidden bg-white border border-dashed border-gray-300 rounded-2xl p-10 text-center">
       <p class="font-display text-xl font-bold text-gray-900">No tools match, yet</p>
       <p class="text-sm text-gray-500 mt-2">Try another word, or be the first neighbor to lend one like it. Your garage might hold exactly what someone on your street needs.</p>
-      <button data-tab-link="lend" class="mt-4 bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Lend a tool</button>
+      <button data-scroll-to="lend" class="mt-4 bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Lend a tool</button>
     </div>
   </section>
 
-  <!-- Requests -->
-  <section id="tab-requests" class="hidden">
-    <h2 class="font-display text-2xl font-bold text-gray-950">Requests and loans</h2>
-    <p class="text-sm text-gray-500 mt-1 max-w-2xl">Neighbors approve requests for their own tools here. Approving checks the tool out and sets the due date. When it comes back, mark it returned and it goes back on the shelf.</p>
-    <h3 class="font-bold text-gray-900 mt-8 mb-3">Waiting for approval</h3>
-    <div id="pendingList" class="space-y-3"></div>
-    <h3 class="font-bold text-gray-900 mt-10 mb-3">Out on loan</h3>
-    <div id="loanList" class="space-y-3"></div>
-    <h3 class="font-bold text-gray-900 mt-10 mb-3">History</h3>
-    <div id="historyList" class="space-y-3"></div>
-  </section>
-
   <!-- Lend -->
-  <section id="tab-lend" class="hidden">
+  <section id="lend" class="section-anchor bg-gray-50 border border-gray-200 rounded-3xl px-5 py-7 sm:px-8 sm:py-9">
+    <div class="flex items-start gap-3 mb-6">
+      <span class="w-10 h-10 rounded-xl bg-white border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="wrench" data-icon-class="w-5 h-5" class="flex"></span></span>
+      <div>
+        <h2 class="font-display text-2xl font-bold text-gray-950">Lend a tool</h2>
+        <p class="text-sm text-gray-500 mt-0.5">Put a garage tool to work on your street.</p>
+      </div>
+    </div>
+    <!-- Phase 5: unmistakable sign-up gate for listing. One of these cards
+         sits at the top of this area whenever listing is not available, so
+         a blocked submit never reads as "nothing happened" again: the
+         typed form data stays, and the submit scrolls this card into view. -->
+    <div id="lendGateIncomplete" class="hidden bg-white border border-gray-300 shadow-card rounded-2xl p-5 mb-6 flex-wrap items-center justify-between gap-3">
+      <div class="flex items-start gap-3 min-w-0">
+        <span class="w-9 h-9 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
+        <div>
+          <p class="font-bold text-gray-950">Finish signing up before listing a tool</p>
+          <p class="text-sm text-gray-500 mt-0.5 max-w-xl">You are signed in, but the library still needs your name, home address, and terms agreement before you can list or borrow. It takes about a minute. Anything you type in the form below stays put while you finish.</p>
+        </div>
+      </div>
+      <button data-scroll-to="signupSection" type="button" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shrink-0">Finish signing up</button>
+    </div>
+    <div id="lendGateGuest" class="hidden bg-white border border-gray-200 rounded-2xl p-5 mb-6 flex-wrap items-center justify-between gap-3">
+      <div class="flex items-start gap-3 min-w-0">
+        <span class="w-9 h-9 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
+        <div>
+          <p class="font-bold text-gray-950">Have an account? Sign in first</p>
+          <p class="text-sm text-gray-500 mt-0.5 max-w-xl">Signed-in members list with their saved name and contact, and can edit or remove their listings later. You can also list as a guest by filling in your name and contact in the form below.</p>
+        </div>
+      </div>
+      <button data-scroll-to="signin" type="button" class="bg-white hover:bg-gray-50 text-gray-900 font-semibold px-5 py-2.5 rounded-full text-sm border border-gray-300 shrink-0">Go to sign in</button>
+    </div>
     <div class="grid lg:grid-cols-5 gap-8">
       <div class="lg:col-span-2">
-        <h2 class="font-display text-2xl font-bold text-gray-950">Lend a tool</h2>
-        <p class="text-sm text-gray-500 mt-2">List a tool you own and are happy to lend to Valentine neighbors. You set the loan length, you approve every request, and borrowers arrange pickup with you directly. You can remove your listing at any time from the catalog.</p>
-        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5 mt-5 text-sm space-y-2">
+        <p class="text-sm text-gray-500">List a tool you own and are happy to lend to Valentine neighbors. You set the loan length, you approve every request, and borrowers arrange pickup with you directly. You can remove your listing at any time from the catalog.</p>
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 mt-5 text-sm space-y-2">
           <p class="font-bold text-gray-900">Good candidates</p>
           <p>Extension ladders, pressure washers, carpet cleaners, folding tables and chairs, canopies, post hole diggers, tile saws, and anything else that spends most of the year in the garage.</p>
         </div>
@@ -213,15 +225,45 @@ tailwind.config = {
           <input id="lendPickupLocation" maxlength="120" placeholder="Leave blank for your home address, or name another spot" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
           <p class="text-xs text-gray-400 mt-1">Your address stays private. This spot is only shared with a borrower after you approve their request.</p>
         </div>
+        <div>
+          <label class="text-sm font-semibold" for="lendPhoto">Tool photo <span class="font-normal text-gray-400">(optional)</span></label>
+          <img id="lendPhotoPreview" class="hidden w-full h-44 object-cover rounded-xl mt-2" alt="Tool photo preview">
+          <input id="lendPhoto" type="file" accept="image/*" class="mt-2 w-full text-sm">
+          <button type="button" id="lendPhotoClear" class="hidden mt-2 text-sm text-gray-500 underline decoration-dotted hover:text-gray-800">Remove photo</button>
+        </div>
         <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full sm:w-auto">Add to the library</button>
       </form>
     </div>
   </section>
 
+  <!-- Requests and loans: hidden until the signed-in member has activity
+       here (render() toggles it); ships hidden so it never flashes empty. -->
+  <section id="requests" class="section-anchor hidden">
+    <div class="flex items-start gap-3 mb-6">
+      <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="inbox" data-icon-class="w-5 h-5" class="flex"></span></span>
+      <div>
+        <h2 class="font-display text-2xl font-bold text-gray-950 flex items-center gap-2.5">Requests and loans <span id="pendingBadgeSection" class="inline-flex items-center justify-center bg-gray-900 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></h2>
+        <p class="text-sm text-gray-500 mt-0.5 max-w-2xl">Neighbors approve requests for their own tools here. Approving checks the tool out and sets the due date. When it comes back, mark it returned and it goes back on the shelf.</p>
+      </div>
+    </div>
+    <h3 class="font-bold text-gray-900 mt-8 mb-3">Waiting for approval</h3>
+    <div id="pendingList" class="space-y-3"></div>
+    <h3 class="font-bold text-gray-900 mt-10 mb-3">Out on loan</h3>
+    <div id="loanList" class="space-y-3"></div>
+    <h3 class="font-bold text-gray-900 mt-10 mb-3">History</h3>
+    <div id="historyList" class="space-y-3"></div>
+  </section>
+
   <!-- How it works -->
-  <section id="tab-how" class="hidden">
-    <h2 class="font-display text-2xl font-bold text-gray-950">How it works</h2>
-    <div class="grid md:grid-cols-3 gap-4 mt-5">
+  <section id="how" class="section-anchor bg-gray-50 border border-gray-200 rounded-3xl px-5 py-7 sm:px-8 sm:py-9">
+    <div class="flex items-start gap-3 mb-6">
+      <span class="w-10 h-10 rounded-xl bg-white border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="info" data-icon-class="w-5 h-5" class="flex"></span></span>
+      <div>
+        <h2 class="font-display text-2xl font-bold text-gray-950">How it works</h2>
+        <p class="text-sm text-gray-500 mt-0.5">Borrowing and lending in three steps, with a few ground rules.</p>
+      </div>
+    </div>
+    <div class="grid md:grid-cols-3 gap-4">
       <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
         <p class="font-display text-3xl font-bold text-gray-900">1</p>
         <h3 class="font-bold text-gray-900 mt-2">Find and request</h3>
@@ -250,17 +292,123 @@ tailwind.config = {
     </div>
   </section>
 
+  <!-- Sign in and profile (Phase 2 auth + Phase 3 sign-up, one defined area) -->
+  <section id="signin" class="section-anchor">
+    <div class="flex items-start gap-3 mb-6">
+      <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
+      <div>
+        <h2 class="font-display text-2xl font-bold text-gray-950">Sign in and your profile</h2>
+        <p class="text-sm text-gray-500 mt-0.5">Sign in with a one-time link sent to your email. Your profile holds the name and address you list and borrow with.</p>
+      </div>
+    </div>
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+      <p class="text-sm text-gray-600">You are browsing the <span id="tenantName" class="font-semibold text-gray-900">Valentine</span> tool library · <span id="tenantAddress" class="text-gray-500">valentine.toollendinglibrary.com</span></p>
+      <button id="startNeighborhoodBtn" type="button" class="text-sm font-semibold text-gray-900 underline decoration-dotted hover:text-gray-600">Start a neighborhood library</button>
+    </div>
+    <p id="authNotConfigured" class="text-sm text-gray-500">Sign-in is not configured yet. You can still browse the catalog, request tools, and lend tools on this page.</p>
+    <form id="authForm" class="hidden flex-wrap items-center gap-2">
+      <label class="text-sm font-semibold text-gray-900" for="authEmail">Neighbor sign-in</label>
+      <input id="authEmail" type="email" required placeholder="you@example.com" class="flex-1 min-w-[12rem] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+      <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-4 py-2 rounded-full text-sm">Email me a sign-in link</button>
+    </form>
+    <div id="authSignedIn" class="hidden flex-wrap items-center gap-3">
+      <p class="text-sm text-gray-600">Signed in as <span id="authUserEmail" class="font-semibold text-gray-900"></span></p>
+      <button id="authSignOut" type="button" class="text-sm font-semibold text-gray-700 underline decoration-dotted">Sign out</button>
+    </div>
+    <p id="authMessage" class="text-sm text-gray-500 mt-1"></p>
+    <p class="text-xs text-gray-400 mt-1">Sign-in links can only be used once and they expire quickly. If a link stops working, just ask for a fresh one, that is normal.</p>
+
+    <!-- Sign-up: shown to signed-in neighbors who have not finished signing up.
+         Until it is complete they can browse, but not list or borrow. -->
+    <div id="signupSection" class="hidden section-anchor bg-gray-50 border border-gray-200 rounded-3xl px-5 py-7 sm:px-8 mt-8">
+      <h3 class="font-display text-xl font-bold text-gray-950">Finish signing up</h3>
+      <p class="text-sm text-gray-500 mt-2 max-w-2xl">You are signed in. Add your name and home address to finish, it takes about a minute. Your address stays private: it is never shown in the library. Only a pickup spot you confirm is shared with a borrower, and only after you approve their request.</p>
+      <form id="signupForm" class="mt-5 grid gap-4 max-w-2xl">
+        <div>
+          <label class="text-sm font-semibold" for="signupName">Full name</label>
+          <input id="signupName" required maxlength="80" placeholder="Your full name" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
+        </div>
+        <div>
+          <label class="text-sm font-semibold" for="signupAddress">Home address</label>
+          <input id="signupAddress" required maxlength="160" placeholder="Street address, city, ZIP" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <p class="text-xs text-gray-400 mt-1">The home you actually live in. The library is for neighbors, so the address has to be your real home.</p>
+        </div>
+        <div>
+          <span class="text-sm font-semibold flex items-center gap-1.5"><span data-icon="shield" data-icon-class="w-4 h-4" class="text-gray-400 flex shrink-0"></span>Terms</span>
+          <div id="signupTerms" class="mt-1 bg-white border border-gray-200 rounded-xl p-4 text-sm text-gray-600 whitespace-pre-wrap max-h-64 overflow-y-auto"></div>
+          <p id="signupCookie" class="text-xs text-gray-400 mt-2"></p>
+          <label class="flex items-start gap-2 text-sm mt-3">
+            <input id="signupTermsAgree" type="checkbox" required class="accent-gray-900 w-4 h-4 mt-0.5">
+            <span>I agree to the terms above, and I accept the cookie note.</span>
+          </label>
+        </div>
+        <div>
+          <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm">Finish signing up</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Your account: signed-in members with a completed profile can update
+         their name and home address here, or delete their account. -->
+    <div id="accountSection" class="hidden bg-white border border-gray-200 rounded-3xl px-5 py-7 sm:px-8 mt-8">
+      <div class="flex items-start gap-3 mb-5">
+        <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
+        <div>
+          <h3 class="font-display text-xl font-bold text-gray-950">Your account</h3>
+          <p class="text-sm text-gray-500 mt-0.5">The details you lend and borrow with. Keep them current so neighbors can reach you.</p>
+        </div>
+      </div>
+      <form id="accountForm" class="grid gap-4 max-w-2xl">
+        <div>
+          <label class="text-sm font-semibold" for="accountEmail">Sign-in email</label>
+          <input id="accountEmail" readonly class="mt-1 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-500 focus:outline-none">
+          <p class="text-xs text-gray-400 mt-1">This is your login identity. Sign-in links are sent to this address, so it is shown for reference and cannot be changed here.</p>
+        </div>
+        <div>
+          <label class="text-sm font-semibold" for="accountName">Full name</label>
+          <input id="accountName" required maxlength="80" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
+        </div>
+        <div>
+          <label class="text-sm font-semibold" for="accountAddress">Home address</label>
+          <input id="accountAddress" required maxlength="160" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <p class="text-xs text-gray-400 mt-1">Still private: your address is never shown in the library.</p>
+        </div>
+        <div>
+          <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm">Save changes</button>
+        </div>
+      </form>
+      <div class="border-t border-gray-200 mt-8 pt-6 max-w-2xl">
+        <h4 class="font-bold text-gray-950">Delete your account</h4>
+        <p class="text-sm text-gray-500 mt-1">Deleting removes your profile, every tool you have listed, and your request history from the tool library. It cannot be undone.</p>
+        <div id="deleteBlockedNotice" class="hidden bg-gray-50 border border-gray-300 rounded-2xl p-4 mt-4"></div>
+        <button id="deleteAccountBtn" type="button" class="mt-4 bg-white border border-gray-400 hover:border-gray-600 text-gray-900 font-semibold px-5 py-2.5 rounded-full text-sm">Delete my account</button>
+      </div>
+    </div>
+  </section>
+
   <!-- Phase 2: admin (visible only to admins of this neighborhood) -->
-  <section id="tab-admin" class="hidden">
-    <h2 class="font-display text-2xl font-bold text-gray-950">Admin</h2>
-    <p class="text-sm text-gray-500 mt-1 max-w-2xl">Neighbor accounts for this library, from the profiles table. Banning blocks sign-in and new requests. Deleting removes the profile, their tools, and their requests in this app; the underlying login account is removed separately at go-live (see the phase 2 README).</p>
+  <section id="admin" class="hidden section-anchor">
+    <div class="flex items-start gap-3 mb-6">
+      <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="shield" data-icon-class="w-5 h-5" class="flex"></span></span>
+      <div>
+        <h2 class="font-display text-2xl font-bold text-gray-950">Admin</h2>
+        <p class="text-sm text-gray-500 mt-0.5 max-w-2xl">Neighbor accounts for this library, from the profiles table. Banning blocks sign-in and new requests. Deleting removes the profile, their tools, and their requests in this app; the underlying login account is removed separately at go-live (see the phase 2 README).</p>
+      </div>
+    </div>
     <div id="adminLogoWrap" class="hidden bg-white rounded-2xl shadow-card border border-gray-200 p-5 mt-6 max-w-2xl">
       <h3 class="font-bold text-gray-900">Neighborhood logo</h3>
-      <p class="text-sm text-gray-500 mt-1">Shown at the top of this library and used as the browser tab icon. The image should be a PNG with a transparent background, hosted at a public URL or a path on this site, for example /valentine-heart-mark.png.</p>
+      <p class="text-sm text-gray-500 mt-1">Shown at the top of this library and used as the browser tab icon. Paste a public URL or a path on this site, for example /valentine-heart-mark.png, or upload an image file below. A PNG with a transparent background works best.</p>
       <div class="flex flex-wrap items-center gap-3 mt-3">
         <img id="adminLogoPreview" class="hidden h-10 w-auto shrink-0" alt="" onerror="this.classList.add('hidden')">
         <input id="adminLogoUrl" maxlength="300" placeholder="/your-logo.png or https://example.org/logo.png" class="flex-1 min-w-[14rem] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
         <button id="adminLogoSave" type="button" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-4 py-2 rounded-full text-sm">Save logo</button>
+        <button id="adminLogoRemove" type="button" class="bg-white border border-gray-300 hover:border-gray-500 text-gray-700 font-semibold px-4 py-2 rounded-full text-sm">Remove logo</button>
+      </div>
+      <div class="flex flex-wrap items-center gap-3 mt-3">
+        <label class="text-sm font-semibold" for="adminLogoFile">Upload a logo image</label>
+        <input id="adminLogoFile" type="file" accept="image/*" class="text-sm">
+        <img id="adminLogoFilePreview" class="hidden h-10 w-auto shrink-0" alt="">
+        <button id="adminLogoUpload" type="button" class="hidden bg-gray-900 hover:bg-gray-700 text-white font-semibold px-4 py-2 rounded-full text-sm">Upload and use this image</button>
       </div>
       <p id="adminLogoMsg" class="text-sm text-gray-500 mt-2"></p>
     </div>
@@ -271,7 +419,10 @@ tailwind.config = {
 <footer class="border-t border-gray-200 mt-4">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row justify-between gap-3 text-sm text-gray-500">
     <p class="flex items-center gap-2.5"><img id="footerLogo" class="hidden h-7 w-auto opacity-80 shrink-0" alt="" onerror="this.classList.add('hidden')"><span><span class="font-semibold text-gray-900">Valentine Tool Library</span> · A Valentine Neighborhood Association project · Kansas City, Missouri</span></p>
-    <button id="resetBtn" class="text-left sm:text-right underline decoration-dotted hover:text-gray-700">Reset the starter catalog</button>
+    <div class="flex items-center gap-4">
+      <button id="footerTermsBtn" type="button" class="underline decoration-dotted hover:text-gray-700">Terms and conditions</button>
+      <button id="footerCookieBtn" type="button" class="underline decoration-dotted hover:text-gray-700">Cookie policy</button>
+    </div>
   </div>
 </footer>
 
@@ -442,6 +593,49 @@ tailwind.config = {
   </form>
 </dialog>
 
+<!-- Delete account confirmation: Cancel is the safe path (dark button,
+     autofocused); the destructive action is a plain outline button. -->
+<dialog id="deleteAccountModal" class="rounded-2xl p-0 w-[min(94vw,30rem)] shadow-xl">
+  <form id="deleteAccountForm" class="p-6 space-y-4">
+    <h3 class="font-display text-xl font-bold text-gray-950">Delete your account?</h3>
+    <p class="text-sm text-gray-600">This permanently removes your profile, every tool you have listed, and your request history from the tool library. It cannot be undone.</p>
+    <p class="text-sm text-gray-600">Signing in again with the same email would start a fresh, empty account.</p>
+    <div class="flex flex-wrap gap-2 justify-end pt-1">
+      <button type="button" id="deleteAccountCancel" autofocus class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Cancel</button>
+      <button type="button" id="deleteAccountConfirm" class="bg-white border border-gray-400 hover:border-gray-600 text-gray-900 font-semibold px-5 py-2.5 rounded-full text-sm">Yes, delete my account</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Footer policy dialogs. The terms body is filled from termsText() and
+     the cookie body from COOKIE_NOTE every time they open, so the wording
+     lives in exactly one place (the same text members accept at sign-up). -->
+<dialog id="termsModal" class="rounded-2xl p-0 w-[min(94vw,34rem)] shadow-xl">
+  <div class="p-6 space-y-4">
+    <div class="flex items-start justify-between gap-4">
+      <h3 class="font-display text-xl font-bold text-gray-950">Terms and conditions</h3>
+      <button type="button" id="termsClose" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Close terms and conditions">×</button>
+    </div>
+    <div id="termsDialogText" class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-600 whitespace-pre-wrap max-h-80 overflow-y-auto"></div>
+    <div class="flex justify-end">
+      <button type="button" id="termsCloseBtn" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="cookieModal" class="rounded-2xl p-0 w-[min(94vw,30rem)] shadow-xl">
+  <div class="p-6 space-y-4">
+    <div class="flex items-start justify-between gap-4">
+      <h3 class="font-display text-xl font-bold text-gray-950">Cookie policy</h3>
+      <button type="button" id="cookieClose" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Close cookie policy">×</button>
+    </div>
+    <p id="cookieDialogText" class="text-sm text-gray-600"></p>
+    <div class="flex justify-end">
+      <button type="button" id="cookieCloseBtn" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Close</button>
+    </div>
+  </div>
+</dialog>
+
 <div id="cookieBanner" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 w-[min(94vw,34rem)] bg-gray-900 text-white text-sm px-5 py-4 rounded-2xl shadow-xl z-50">
   <p id="cookieBannerText"></p>
   <button id="cookieAccept" type="button" class="mt-3 bg-white text-gray-900 font-semibold px-4 py-2 rounded-full text-sm">That is fine</button>
@@ -533,6 +727,11 @@ const CATEGORIES = ["Yard and Garden","Power Tools","Hand Tools","Ladders and Ac
    no emoji. Icons are decorative only (aria-hidden); the text label next
    to them always stays. */
 const ICON_PATHS = {
+  menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  inbox: '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  user: '<circle cx="12" cy="8" r="3.6"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11.5V16"/><path d="M12 7.8h.01"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
@@ -570,31 +769,12 @@ const CATEGORY_ICONS = {
 function categoryIcon(category) { return CATEGORY_ICONS[category] || "wrench"; }
 const STORE_KEY = "valentine-tool-library-v1";
 
-function seedTools() {
-  return [
-    {id:"t1", name:"24 ft Extension Ladder", category:"Ladders and Access", owner:"Dana W.", contact:"", condition:"Good", days:3, desc:"Fiberglass extension ladder, stable on uneven ground. Good for gutters and second story paint touch ups.", status:"available", borrower:"", due:""},
-    {id:"t2", name:"Electric Pressure Washer", category:"Power Tools", owner:"Marcus T.", contact:"", condition:"Excellent", days:2, desc:"2000 PSI electric pressure washer with 25 ft hose and three nozzles. Great for driveways, siding, and porches.", status:"available", borrower:"", due:""},
-    {id:"t3", name:"Cordless Drill and Driver Set", category:"Power Tools", owner:"Priya K.", contact:"", condition:"Excellent", days:3, desc:"20V drill and impact driver with two batteries, charger, and a full bit set in the case.", status:"available", borrower:"", due:""},
-    {id:"t4", name:"Hedge Trimmer", category:"Yard and Garden", owner:"Sam R.", contact:"", condition:"Good", days:2, desc:"22 inch cordless hedge trimmer with battery and charger. Handles the big privet hedges on Pennsylvania with no trouble.", status:"available", borrower:"", due:""},
-    {id:"t5", name:"10 x 10 Pop Up Canopy", category:"Events and Hosting", owner:"Valentine NA", contact:"", condition:"Good", days:3, desc:"Association canopy with weights and a wheeled bag. First pick for block parties, porchfest, and yard sales.", status:"available", borrower:"", due:""},
-    {id:"t6", name:"Folding Tables (Set of 2)", category:"Events and Hosting", owner:"Valentine NA", contact:"", condition:"Good", days:3, desc:"Two 6 ft folding tables. Stored with the association event supplies, pickup arranged with the social committee.", status:"available", borrower:"", due:""},
-    {id:"t7", name:"Wheelbarrow", category:"Yard and Garden", owner:"Jordan M.", contact:"", condition:"Good", days:3, desc:"Steel wheelbarrow, 6 cubic feet, newer tire. Mulch, soil, and leaf and brush weekends.", status:"available", borrower:"", due:""},
-    {id:"t8", name:"Post Hole Digger and Auger", category:"Yard and Garden", owner:"Chris D.", contact:"", condition:"Good", days:2, desc:"Manual post hole digger plus a one person power auger with an 8 inch bit. Fence posts and mailbox installs.", status:"available", borrower:"", due:""},
-    {id:"t9", name:"Wet and Dry Shop Vac", category:"Cleaning", owner:"Alex P.", contact:"", condition:"Excellent", days:3, desc:"12 gallon shop vac with attachments and spare filters. Basements, garages, and renovation dust.", status:"available", borrower:"", due:""},
-    {id:"t10", name:"Carpet Cleaner", category:"Cleaning", owner:"Robin S.", contact:"", condition:"Good", days:2, desc:"Upright carpet and upholstery cleaner with the hand tool. Please empty and rinse the tanks before returning.", status:"available", borrower:"", due:""},
-    {id:"t11", name:"Hand Truck and Furniture Dolly", category:"Moving", owner:"Jamie L.", contact:"", condition:"Good", days:3, desc:"Convertible hand truck rated to 800 lb plus a flat furniture dolly and two moving straps.", status:"available", borrower:"", due:""},
-    {id:"t12", name:"Tile Saw", category:"Power Tools", owner:"Taylor B.", contact:"", condition:"Good", days:3, desc:"10 inch wet tile saw on a folding stand with a fresh blade. Bathroom and kitchen projects welcome.", status:"available", borrower:"", due:""},
-    {id:"t13", name:"Paint Sprayer", category:"Painting", owner:"Morgan H.", contact:"", condition:"Fair, works fine", days:2, desc:"Airless paint sprayer with 50 ft hose. Please run water through it until it runs clear before returning.", status:"available", borrower:"", due:""},
-    {id:"t14", name:"Step Ladder, 6 ft", category:"Ladders and Access", owner:"Dana W.", contact:"", condition:"Excellent", days:3, desc:"Sturdy 6 ft step ladder with a paint tray shelf. The one everyone needs for light fixtures and ceiling fans.", status:"available", borrower:"", due:""}
-  ];
-}
-
 function loadState() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
     if (raw) { const parsed = JSON.parse(raw); if (parsed && Array.isArray(parsed.tools)) return parsed; }
   } catch (e) {}
-  return { tools: seedTools(), requests: [] };
+  return { tools: [], requests: [] };
 }
 let state = { tools: [], requests: [] };
 let catalogLoading = Boolean(supabaseClient);
@@ -681,12 +861,11 @@ const supabaseStore = {
 
     let { data: toolRows, error: toolErr } = await supabaseClient.from("tools").select("*").eq("neighborhood_id", nid).order("created_at", { ascending: false });
     if (toolErr) throw toolErr;
-    if (!toolRows || toolRows.length === 0) {
-      const seeds = seedTools();
-      const { error: seedErr } = await supabaseClient.from("tools").insert(seeds.map(t => this.toolToRow(t)));
-      if (seedErr) throw seedErr;
-      toolRows = seeds.map(t => this.toolToRow(t));
-    }
+    if (!toolRows) toolRows = [];
+    // Phase 5: there is no starter catalog anymore. An empty tools table
+    // is a real state (a brand-new library, or one whose neighbors have
+    // not listed anything yet) and renders the catalog's empty state.
+    // Nothing is ever inserted on load.
     const { data: reqRows, error: reqErr } = await supabaseClient.from("borrow_requests").select("*").eq("neighborhood_id", nid).order("created_at", { ascending: true });
     if (reqErr) throw reqErr;
 
@@ -1115,12 +1294,36 @@ function render() {
     ["Requests waiting", pending]
   ].map(([label, n]) => '<div class="bg-gray-100 rounded-2xl px-4 py-3 border border-gray-200"><p class="font-display text-2xl sm:text-3xl font-bold">' + (catalogLoading ? "…" : n) + '</p><p class="text-gray-500 text-xs sm:text-sm">' + label + '</p></div>').join("");
 
-  const badge = document.getElementById("pendingBadge");
-  if (pending > 0) { badge.textContent = pending; badge.classList.remove("hidden"); } else { badge.classList.add("hidden"); }
+  /* Phase 5: Requests visibility and the mail-style pending badge,
+     derived fresh on every render, never cached. The badge counts only
+     the pending requests waiting on the signed-in member (requests for
+     their own tools not yet approved or declined). The Requests area,
+     its menu entry, and the hero shortcut appear only when that member
+     has something in the area; signed-out visitors never see them. The
+     request lists themselves are unchanged. */
+  const myEmail = currentUser ? String(currentUser.email || "").trim().toLowerCase() : "";
+  const pendingMine = myEmail ? visibleReqs.filter(r => {
+    if (r.status !== "pending") return false;
+    const t = state.tools.find(x => x.id === r.toolId);
+    return Boolean(t) && String(t.contact || "").trim().toLowerCase() === myEmail;
+  }).length : 0;
+  ["pendingBadge", "pendingBadgeSection"].forEach(badgeId => {
+    const b = document.getElementById(badgeId);
+    if (!b) return;
+    if (pendingMine > 0) { b.textContent = pendingMine; b.classList.remove("hidden"); }
+    else b.classList.add("hidden");
+  });
+  const showRequests = memberHasRequestActivity();
+  const reqSection = document.getElementById("requests");
+  if (reqSection) reqSection.classList.toggle("hidden", !showRequests);
+  const reqMenuItem = document.getElementById("menuRequestsItem");
+  if (reqMenuItem) { reqMenuItem.classList.toggle("hidden", !showRequests); reqMenuItem.classList.toggle("flex", showRequests); }
+  const heroReqBtn = document.getElementById("heroRequestsBtn");
+  if (heroReqBtn) heroReqBtn.classList.toggle("hidden", !showRequests);
 
   const chips = ["All"].concat(CATEGORIES);
   document.getElementById("categoryChips").innerHTML = chips.map(c =>
-    '<button class="chip inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium border border-gray-200 bg-white hover:border-gray-400 ' + (c === activeCategory ? "chip-active" : "") + '" data-category="' + esc(c) + '">' + icon(c === "All" ? "grid" : categoryIcon(c), "w-4 h-4") + esc(c) + '</button>'
+    '<button class="chip inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium border border-gray-200 hover:border-gray-400 ' + (c === activeCategory ? "chip-active" : "") + '" data-category="' + esc(c) + '">' + icon(c === "All" ? "grid" : categoryIcon(c), "w-4 h-4") + esc(c) + '</button>'
   ).join("");
 
   const q = document.getElementById("searchInput").value.trim().toLowerCase();
@@ -1203,19 +1406,48 @@ function render() {
   document.getElementById("historyList").innerHTML = history.length ? history.slice().reverse().map(r => reqCard(r,
     '<span class="text-xs font-bold px-2.5 py-1 rounded-full ' + (r.status === "returned" ? "bg-gray-100 text-gray-900" : r.status === "approved" ? "bg-gray-200 text-gray-700" : "bg-gray-100 text-gray-800") + '">' + (r.status === "returned" ? "Returned" : r.status === "approved" ? "Checked out" : "Declined") + '</span>'
   )).join("") : '<p class="text-sm text-gray-400 bg-white border border-dashed border-gray-200 rounded-2xl p-6 text-center">No history yet.</p>';
+  renderAccount();
 }
 
-function showTab(name) {
-  ["catalog","requests","lend","how","admin"].forEach(t => {
-    document.getElementById("tab-" + t).classList.toggle("hidden", t !== name);
-  });
-  document.querySelectorAll(".tab-btn").forEach(b => {
-    const active = b.dataset.tab === name;
-    b.classList.toggle("tab-active", active);
-    b.classList.toggle("bg-white", !active);
-  });
-  if (name === "admin") renderAdmin();
-  window.scrollTo({top: 0, behavior: "smooth"});
+/* Phase 5: one-page navigation. Every area lives on the single page, so
+   navigating means smooth-scrolling to the area's anchor (the sections
+   carry scroll-margin so the sticky bar never covers their titles). */
+/* Phase 5: does the signed-in member have anything in the Requests area?
+   A request involves them when they are the borrower or they own the
+   tool it is for; a loan involves them when they own the tool that is
+   out. Signed out always means nothing to show. */
+function memberHasRequestActivity() {
+  if (!currentUser) return false;
+  const email = String(currentUser.email || "").trim().toLowerCase();
+  if (!email) return false;
+  const involves = r => {
+    if (String(r.contact || "").trim().toLowerCase() === email) return true;
+    const t = state.tools.find(x => x.id === r.toolId);
+    return Boolean(t) && String(t.contact || "").trim().toLowerCase() === email;
+  };
+  if (visibleRequests().some(involves)) return true;
+  return visibleTools().some(t => t.status === "onloan" && String(t.contact || "").trim().toLowerCase() === email);
+}
+
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth" });
+}
+
+/* Burger menu: lists every area. It closes when an area is picked, on an
+   outside click, or on Escape. Areas that do not apply (Admin for
+   non-admins) are hidden, not disabled. */
+let navMenuOpen = false;
+function setNavMenu(open) {
+  navMenuOpen = open;
+  const menu = document.getElementById("navMenu");
+  if (menu) menu.classList.toggle("hidden", !open);
+  const btn = document.getElementById("menuBtn");
+  if (btn) btn.setAttribute("aria-expanded", open ? "true" : "false");
+  const openIcon = document.getElementById("menuIconOpen");
+  const closeIcon = document.getElementById("menuIconClose");
+  if (openIcon) { openIcon.classList.toggle("hidden", open); openIcon.classList.toggle("flex", !open); }
+  if (closeIcon) { closeIcon.classList.toggle("hidden", !open); closeIcon.classList.toggle("flex", open); }
 }
 
 let toastTimer = null;
@@ -1227,10 +1459,23 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.add("hidden"), 3400);
 }
 
-document.querySelectorAll(".tab-btn").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+const menuBtn = document.getElementById("menuBtn");
+if (menuBtn) menuBtn.addEventListener("click", () => setNavMenu(!navMenuOpen));
 document.addEventListener("click", e => {
-  const link = e.target.closest("[data-tab-link]");
-  if (link) { showTab(link.dataset.tabLink); return; }
+  if (navMenuOpen && !e.target.closest("#navMenuWrap")) setNavMenu(false);
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && navMenuOpen) setNavMenu(false);
+});
+document.addEventListener("click", e => {
+  const link = e.target.closest("[data-scroll-to]");
+  if (link) {
+    const target = link.dataset.scrollTo;
+    if (link.closest("#navMenu")) setNavMenu(false);
+    if (target === "admin") renderAdmin();
+    scrollToSection(target);
+    return;
+  }
   const chip = e.target.closest("[data-category]");
   if (chip) { activeCategory = chip.dataset.category; render(); }
 });
@@ -1241,7 +1486,35 @@ const categorySelect = document.getElementById("lendCategory");
 categorySelect.innerHTML = CATEGORIES.map(c => '<option>' + esc(c) + '</option>').join("");
 fillPickupPresets("lendPickupPresets", "pickup-preset", null);
 
-document.getElementById("lendForm").addEventListener("submit", e => {
+/* Lend form photo: same machinery as the edit form. The picked file is
+   read to a data URL for the preview and as the fallback; on submit the
+   shared upload helper tries the tool-photos bucket first (signed-in
+   Supabase mode) and the data URL is kept when there is no upload. */
+let lendPhotoFile = null;
+let lendPhotoData = "";
+function updateLendPhotoPreview() {
+  const img = document.getElementById("lendPhotoPreview");
+  const clearBtn = document.getElementById("lendPhotoClear");
+  if (lendPhotoData) { img.src = lendPhotoData; img.classList.remove("hidden"); clearBtn.classList.remove("hidden"); }
+  else { img.removeAttribute("src"); img.classList.add("hidden"); clearBtn.classList.add("hidden"); }
+}
+function clearLendPhoto() {
+  lendPhotoFile = null;
+  lendPhotoData = "";
+  document.getElementById("lendPhoto").value = "";
+  updateLendPhotoPreview();
+}
+document.getElementById("lendPhoto").addEventListener("change", e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  lendPhotoFile = file;
+  const reader = new FileReader();
+  reader.onload = () => { lendPhotoData = String(reader.result || ""); updateLendPhotoPreview(); };
+  reader.readAsDataURL(file);
+});
+document.getElementById("lendPhotoClear").addEventListener("click", clearLendPhoto);
+
+document.getElementById("lendForm").addEventListener("submit", async e => {
   e.preventDefault();
   if (currentProfile && currentProfile.status === "banned") { toast("This account is banned from listing tools."); return; }
   if (!gateSignup("list tools")) return;
@@ -1256,15 +1529,25 @@ document.getElementById("lendForm").addEventListener("submit", e => {
     desc: document.getElementById("lendDesc").value.trim(),
     pickupWindows: gatherPickupWindows("pickup-preset", "lendPickupOther"),
     pickupLocation: document.getElementById("lendPickupLocation").value.trim(),
-    photo: "",
+    photo: lendPhotoData || "",
     tenant: CURRENT_SLUG,
     status: "available", borrower: "", due: "", dueAt: ""
   };
+  /* Photo honesty: in Supabase mode the upload is attempted; if it does
+     not produce a URL the listing still succeeds and the toast says what
+     happened to the photo. A photo problem never blocks the listing. */
+  let photoNote = "";
+  if (lendPhotoFile && supabaseClient) {
+    const uploadedUrl = await uploadPhotoFile(lendPhotoFile, "tools/" + tool.id + "/" + Date.now() + "." + photoExt(lendPhotoFile));
+    if (uploadedUrl) tool.photo = uploadedUrl;
+    else if (tool.photo) photoNote = " Your tool is listed, but the photo could not be uploaded to storage, so it was saved as an embedded copy.";
+    else photoNote = " Your tool is listed, but the photo could not be saved with it.";
+  }
   state.tools.unshift(tool);
-  save(); e.target.reset(); document.getElementById("lendDays").value = 3; applyIdentityToForms();
+  save(); e.target.reset(); document.getElementById("lendDays").value = 3; clearLendPhoto(); applyIdentityToForms();
   activeCategory = "All";
-  showTab("catalog"); render();
-  toast("Your tool is listed. Neighbors can request it now.");
+  render(); scrollToSection("catalog");
+  toast("Your tool is listed. Neighbors can request it now." + photoNote);
 });
 
 const modal = document.getElementById("borrowModal");
@@ -1295,7 +1578,9 @@ modal.addEventListener("click", e => { if (e.target === modal) modal.close(); })
 document.getElementById("borrowForm").addEventListener("submit", e => {
   e.preventDefault();
   if (currentProfile && currentProfile.status === "banned") { toast("This account is banned from making requests."); return; }
-  if (!gateSignup("borrow tools")) { modal.close(); return; }
+  // Close first, then let the gate scroll: with the dialog open, the
+  // scroll to the sign-up form (and its gate feedback) can be swallowed.
+  if (currentUser && !signupComplete()) { modal.close(); gateSignup("borrow tools"); return; }
   const tool = state.tools.find(t => t.id === borrowToolId);
   if (!tool) { modal.close(); return; }
   const start = document.getElementById("borrowStart").value || todayISO();
@@ -1398,13 +1683,6 @@ document.addEventListener("click", e => {
   }
 });
 
-document.getElementById("resetBtn").addEventListener("click", () => {
-  if (confirm("Reset the library back to the starter catalog? Tools and requests added since then will be cleared on this device.")) {
-    state = { tools: seedTools(), requests: [] };
-    save(); render(); toast("Starter catalog restored.");
-  }
-});
-
 /* ================= Sign-up flow, approve and return dialogs, request deep links =================
    A profile row is created when a neighbor finishes the sign-up form below
    (full name, home address, terms acceptance), not at sign-in. Until then a
@@ -1416,11 +1694,19 @@ const LOCAL_USER_KEY = "valentine-tool-library-local-user";
 function signupComplete() {
   return Boolean(currentProfile && currentProfile.fullName && currentProfile.address && currentProfile.termsAcceptedAt);
 }
+/* Phase 5: the gate rule is unchanged (a signed-in member must finish
+   sign-up before listing or borrowing), but its feedback is now
+   unmistakable. The inline gate cards in the Lend and Catalog areas
+   render with the page (see renderGateNotices), and a blocked action
+   scrolls the relevant card into view instead of relying on a toast
+   alone. A blocked submit never clears typed form data. */
 function gateSignup(what) {
   if (!currentUser || signupComplete()) return true;
   toast("Finish signing up first, it only takes a minute, and then you can " + what + ".");
-  const sec = document.getElementById("signupSection");
-  if (sec) sec.scrollIntoView({ behavior: "smooth" });
+  const target = what === "list tools"
+    ? (document.getElementById("lendGateIncomplete") || document.getElementById("signupSection"))
+    : document.getElementById("signupSection");
+  if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
   return false;
 }
 function renderSignup() {
@@ -1571,9 +1857,9 @@ document.getElementById("returnForm").addEventListener("submit", e => {
 });
 
 /* Request deep links: the borrow-request email links to ?request=<id>.
-   When the tool's owner is signed in, open the Requests view right at
-   that request. If they are not signed in yet, the id stays pending and
-   is honored as soon as sign-in completes. */
+   When the tool's owner is signed in, scroll to that request in the
+   Requests area and highlight it. If they are not signed in yet, the id
+   stays pending and is honored as soon as sign-in completes. */
 let pendingRequestId = "";
 try { pendingRequestId = new URLSearchParams(window.location.search).get("request") || ""; } catch (e) { pendingRequestId = ""; }
 function tryOpenRequestLink() {
@@ -1584,7 +1870,6 @@ function tryOpenRequestLink() {
   if (!t) return;
   if (!currentUser || !isToolOwner(t)) return;
   pendingRequestId = "";
-  showTab("requests");
   requestAnimationFrame(() => {
     const el = document.getElementById("request-" + r.id);
     if (el) {
@@ -1654,12 +1939,181 @@ function canReturnTool(t) {
   return Boolean(open && open.contact && String(open.contact).trim().toLowerCase() === String(currentUser.email).toLowerCase());
 }
 
+/* Phase 5 chrome state: the inline sign-up gate cards, the admin area
+   and its menu item, and the top bar's sign-in chip all follow the
+   current sign-in state. renderAuth calls renderChrome on every auth or
+   profile change, in both local preview and Supabase modes. */
+function renderGateNotices() {
+  const incomplete = Boolean(currentUser && !signupComplete());
+  const guest = !currentUser;
+  const setNotice = (el, show) => {
+    if (!el) return;
+    el.classList.toggle("hidden", !show);
+    el.classList.toggle("flex", show);
+  };
+  setNotice(document.getElementById("lendGateIncomplete"), incomplete);
+  setNotice(document.getElementById("lendGateGuest"), guest);
+  setNotice(document.getElementById("catalogGateNotice"), incomplete);
+}
+function updateAdminVisibility() {
+  const admin = isAdminUser();
+  const sec = document.getElementById("admin");
+  if (sec) sec.classList.toggle("hidden", !admin);
+  const item = document.getElementById("adminMenuItem");
+  if (item) { item.classList.toggle("hidden", !admin); item.classList.toggle("flex", admin); }
+  if (admin) renderAdmin();
+}
+function renderChrome() {
+  const chip = document.getElementById("barUserChip");
+  if (chip) {
+    chip.classList.toggle("hidden", !currentUser);
+    chip.classList.toggle("flex", Boolean(currentUser));
+    if (currentUser) document.getElementById("barUserEmail").textContent = currentUser.email || "";
+  }
+  const signInBtn = document.getElementById("barSignIn");
+  if (signInBtn) signInBtn.classList.toggle("hidden", Boolean(currentUser));
+  const menuLabel = document.getElementById("menuSigninLabel");
+  if (menuLabel) menuLabel.textContent = currentUser ? "Your profile" : "Sign in";
+  updateAdminVisibility();
+  renderGateNotices();
+  renderAccount();
+}
+
+/* ============ Your account: update and delete ============
+   Shown in the Sign in area to members whose sign-up is complete.
+   Updates go through store.upsertProfile, which merges, so the terms
+   and cookie timestamps on the profile are never wiped by an edit.
+   Deletion reuses store.deleteProfile (profile, listed tools, and
+   request history), guarded so it cannot start while the member still
+   has open loans or requests on either side of a loan. */
+function openInvolvements(profile) {
+  if (!profile) return [];
+  const email = String(profile.email || "").trim().toLowerCase();
+  if (!email) return [];
+  const items = new Set();
+  const myTools = state.tools.filter(t => String(t.contact || "").trim().toLowerCase() === email);
+  const myToolIds = new Set(myTools.map(t => t.id));
+  myTools.filter(t => t.status === "onloan").forEach(t => items.add('"' + t.name + '" is out on loan'));
+  state.requests.filter(r => myToolIds.has(r.toolId) && r.status === "pending").forEach(r => {
+    const t = state.tools.find(x => x.id === r.toolId);
+    items.add('a request for "' + (t ? t.name : "one of your tools") + '" is waiting for your approval');
+  });
+  state.requests.filter(r => String(r.contact || "").trim().toLowerCase() === email && (r.status === "pending" || r.status === "approved" || r.status === "checked_out")).forEach(r => {
+    const t = state.tools.find(x => x.id === r.toolId);
+    items.add('your request for "' + (t ? t.name : "a tool") + '" is still open');
+  });
+  return Array.from(items);
+}
+function renderDeleteGuard() {
+  const notice = document.getElementById("deleteBlockedNotice");
+  const btn = document.getElementById("deleteAccountBtn");
+  if (!notice || !btn) return;
+  const items = openInvolvements(currentProfile);
+  if (items.length) {
+    notice.innerHTML = '<p class="font-bold text-gray-950">Finish these first</p>' +
+      '<p class="text-sm text-gray-500 mt-1">Your account cannot be deleted while loans or requests are still open:</p>' +
+      '<ul class="list-disc pl-5 text-sm text-gray-600 mt-2 space-y-1">' + items.map(i => '<li>' + esc(i) + '</li>').join("") + '</ul>';
+    notice.classList.remove("hidden");
+    btn.disabled = true;
+    btn.classList.add("opacity-50", "cursor-not-allowed");
+  } else {
+    notice.classList.add("hidden");
+    notice.innerHTML = "";
+    btn.disabled = false;
+    btn.classList.remove("opacity-50", "cursor-not-allowed");
+  }
+}
+function renderAccount() {
+  const sec = document.getElementById("accountSection");
+  if (!sec) return;
+  const show = Boolean(currentUser && signupComplete());
+  sec.classList.toggle("hidden", !show);
+  if (!show) return;
+  const emailInput = document.getElementById("accountEmail");
+  if (emailInput) emailInput.value = currentUser.email || "";
+  const nameInput = document.getElementById("accountName");
+  const addrInput = document.getElementById("accountAddress");
+  if (nameInput && document.activeElement !== nameInput) nameInput.value = (currentProfile && currentProfile.fullName) || "";
+  if (addrInput && document.activeElement !== addrInput) addrInput.value = (currentProfile && currentProfile.address) || "";
+  renderDeleteGuard();
+}
+document.getElementById("accountForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!currentUser || !currentProfile) return;
+  const fullName = document.getElementById("accountName").value.trim();
+  const address = document.getElementById("accountAddress").value.trim();
+  if (!fullName || !address) { toast("Please keep a full name and home address on your account."); return; }
+  try {
+    currentProfile = await store.upsertProfile(Object.assign({}, currentProfile, { fullName: fullName, address: address }));
+  } catch (err) {
+    console.warn("Account save failed:", err);
+    toast("That did not save. Please try again in a moment.");
+    return;
+  }
+  applyIdentityToForms();
+  renderAccount();
+  render();
+  toast("Your account is updated.");
+});
+const deleteAccountModal = document.getElementById("deleteAccountModal");
+document.getElementById("deleteAccountBtn").addEventListener("click", () => {
+  if (!currentProfile) return;
+  if (openInvolvements(currentProfile).length) {
+    renderDeleteGuard();
+    const notice = document.getElementById("deleteBlockedNotice");
+    if (notice) notice.scrollIntoView({ behavior: "smooth", block: "center" });
+    toast("Finish your open loans and requests before deleting your account.");
+    return;
+  }
+  deleteAccountModal.showModal();
+});
+document.getElementById("deleteAccountCancel").addEventListener("click", () => deleteAccountModal.close());
+deleteAccountModal.addEventListener("click", e => { if (e.target === deleteAccountModal) deleteAccountModal.close(); });
+document.getElementById("deleteAccountForm").addEventListener("submit", e => e.preventDefault());
+document.getElementById("deleteAccountConfirm").addEventListener("click", async () => {
+  if (!currentProfile) { deleteAccountModal.close(); return; }
+  const profile = currentProfile;
+  const firstName = profile.fullName ? profile.fullName.split(" ")[0] : "";
+  try {
+    await store.deleteProfile(profile);
+  } catch (err) {
+    console.warn("Account delete failed:", err);
+    deleteAccountModal.close();
+    toast("That did not delete. Please try again in a moment.");
+    return;
+  }
+  deleteAccountModal.close();
+  await signOutUser();
+  toast(firstName
+    ? "Your account has been deleted. Thank you for lending and borrowing with your neighbors, " + firstName + "."
+    : "Your account has been deleted. Thank you for being part of the library.");
+  scrollToSection("catalog");
+});
+
+/* Footer policy dialogs: bodies come from termsText() and COOKIE_NOTE each
+   time they open (single source of truth, no second copy of the wording).
+   Escape closes natively, like the other dialogs. */
+const termsModal = document.getElementById("termsModal");
+document.getElementById("footerTermsBtn").addEventListener("click", () => {
+  document.getElementById("termsDialogText").textContent = termsText();
+  termsModal.showModal();
+});
+document.getElementById("termsClose").addEventListener("click", () => termsModal.close());
+document.getElementById("termsCloseBtn").addEventListener("click", () => termsModal.close());
+termsModal.addEventListener("click", e => { if (e.target === termsModal) termsModal.close(); });
+const cookieModal = document.getElementById("cookieModal");
+document.getElementById("footerCookieBtn").addEventListener("click", () => {
+  document.getElementById("cookieDialogText").textContent = COOKIE_NOTE;
+  cookieModal.showModal();
+});
+document.getElementById("cookieClose").addEventListener("click", () => cookieModal.close());
+document.getElementById("cookieCloseBtn").addEventListener("click", () => cookieModal.close());
+cookieModal.addEventListener("click", e => { if (e.target === cookieModal) cookieModal.close(); });
+
 function renderAuth() {
   const note = document.getElementById("authNotConfigured");
   const form = document.getElementById("authForm");
   const signedIn = document.getElementById("authSignedIn");
-  document.getElementById("adminTabBtn").classList.toggle("hidden", !isAdminUser());
-  if (!isAdminUser() && !document.getElementById("tab-admin").classList.contains("hidden")) showTab("catalog");
   if (!supabaseClient) {
     // Local preview mode (Supabase not configured on this copy): a
     // device-local sign-in stands in for magic links so the member flows
@@ -1677,6 +2131,7 @@ function renderAuth() {
     }
     applyIdentityToForms();
     renderSignup();
+    renderChrome();
     return;
   }
   note.classList.add("hidden");
@@ -1690,6 +2145,7 @@ function renderAuth() {
   }
   applyIdentityToForms();
   renderSignup();
+  renderChrome();
 }
 
 async function handleSession(session) {
@@ -1758,7 +2214,7 @@ document.getElementById("authForm").addEventListener("submit", async e => {
   });
   msg.textContent = error ? "That link did not send. Double-check the email address, and try again in a moment." : ("Check " + email + " for your sign-in link.");
 });
-document.getElementById("authSignOut").addEventListener("click", async () => {
+async function signOutUser() {
   if (!supabaseClient) {
     try { localStorage.removeItem(LOCAL_USER_KEY); } catch (err) {}
     currentUser = null;
@@ -1774,20 +2230,26 @@ document.getElementById("authSignOut").addEventListener("click", async () => {
   document.getElementById("authMessage").textContent = "";
   renderAuth();
   render();
-});
+}
+document.getElementById("authSignOut").addEventListener("click", signOutUser);
+const barSignOutBtn = document.getElementById("barSignOut");
+if (barSignOutBtn) barSignOutBtn.addEventListener("click", signOutUser);
 
 /* ================= PHASE 2: tenant display + neighborhood registration ================= */
 function renderTenant() {
   const nb = currentNeighborhood;
   document.getElementById("tenantName").textContent = nb ? nb.name.replace(/ Neighborhood Association$/, "") : CURRENT_SLUG;
   document.getElementById("tenantAddress").textContent = CURRENT_SLUG + ".toollendinglibrary.com";
+  const barTitle = document.getElementById("barTitle");
+  if (barTitle) barTitle.textContent = (nb ? nb.name.replace(/ Neighborhood Association$/, "") : CURRENT_SLUG) + " Tool Library";
   applyNeighborhoodLogo(nb);
 }
 
 /* Phase 4: when the current neighborhood has a logo (neighborhoods.logo_url),
-   show it at the left of the header, small in the footer, and as the page
-   favicon. No logo means the chrome renders exactly as before: the images
-   stay hidden (and hide themselves on error), and no favicon is touched. */
+   show it in the sticky top bar (Phase 5: at the left of the site title),
+   small in the footer, and as the page favicon. No logo means the chrome
+   renders exactly as before: the images stay hidden (and hide themselves
+   on error), and no favicon is touched. */
 function applyNeighborhoodLogo(nb) {
   const url = nb && nb.logoUrl ? String(nb.logoUrl).trim() : "";
   const header = document.getElementById("headerLogo");
@@ -1925,19 +2387,25 @@ document.getElementById("editPhoto").addEventListener("change", e => {
 /* Photo storage (go-live step 9): when Supabase is configured AND the owner
    is signed in, upload the picked file to the public tool-photos bucket and
    use its public URL. Any failure (signed out, offline, policy) returns ""
-   and the caller keeps the data URL, exactly the old behavior. */
-async function uploadToolPhoto(toolId) {
-  if (!editPhotoFile || !supabaseClient) return "";
+   and the caller keeps the data URL, exactly the old behavior. One shared
+   helper serves tool photos (edit and lend forms) and neighborhood logos. */
+function photoExt(file) {
+  return (String((file && file.name) || "").split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+}
+async function uploadPhotoFile(file, path) {
+  if (!file || !supabaseClient) return "";
   try {
     const { data: sessionData } = await supabaseClient.auth.getSession();
     if (!sessionData || !sessionData.session) return "";
-    const ext = (String(editPhotoFile.name || "").split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-    const path = "tools/" + toolId + "/" + Date.now() + "." + ext;
-    const { error } = await supabaseClient.storage.from("tool-photos").upload(path, editPhotoFile, { upsert: true, contentType: editPhotoFile.type || "image/jpeg" });
+    const { error } = await supabaseClient.storage.from("tool-photos").upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
     if (error) { console.warn("photo upload failed, keeping data URL:", error); return ""; }
     const { data } = supabaseClient.storage.from("tool-photos").getPublicUrl(path);
     return (data && data.publicUrl) || "";
   } catch (e) { console.warn("photo upload failed, keeping data URL:", e); return ""; }
+}
+async function uploadToolPhoto(toolId) {
+  if (!editPhotoFile) return "";
+  return uploadPhotoFile(editPhotoFile, "tools/" + toolId + "/" + Date.now() + "." + photoExt(editPhotoFile));
 }
 document.getElementById("editRemovePhoto").addEventListener("change", updateEditPhotoPreview);
 document.getElementById("editForm").addEventListener("submit", async e => {
@@ -2025,6 +2493,76 @@ if (adminLogoSaveBtn) adminLogoSaveBtn.addEventListener("click", async () => {
     if (msg) msg.textContent = "Could not save the logo: " + (e && e.message ? e.message : String(e));
   }
 });
+/* Phase 5: remove the logo entirely; the header falls back to text only. */
+const adminLogoRemoveBtn = document.getElementById("adminLogoRemove");
+if (adminLogoRemoveBtn) adminLogoRemoveBtn.addEventListener("click", async () => {
+  const msg = document.getElementById("adminLogoMsg");
+  try {
+    document.getElementById("adminLogoUrl").value = "";
+    await store.updateNeighborhoodLogo("");
+    renderTenant();
+    if (msg) msg.textContent = "Logo cleared. The header is back to text only.";
+    toast("Neighborhood logo cleared.");
+    renderAdmin();
+  } catch (e) {
+    if (msg) msg.textContent = "Could not clear the logo: " + (e && e.message ? e.message : String(e));
+  }
+});
+/* Phase 5: upload a logo file through the same helper and bucket as tool
+   photos, at logos/<slug>-logo.<ext> with upsert, so replacing the logo
+   is one upload. Local preview mode stores the data URL as the logo
+   value, mirroring tool photos. A failed upload changes nothing: the
+   current logo stays exactly as it was. */
+let adminLogoFile = null;
+let adminLogoData = "";
+const adminLogoFileInput = document.getElementById("adminLogoFile");
+if (adminLogoFileInput) adminLogoFileInput.addEventListener("change", e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  adminLogoFile = file;
+  const reader = new FileReader();
+  reader.onload = () => {
+    adminLogoData = String(reader.result || "");
+    const prev = document.getElementById("adminLogoFilePreview");
+    if (adminLogoData) { prev.src = adminLogoData; prev.classList.remove("hidden"); }
+    document.getElementById("adminLogoUpload").classList.remove("hidden");
+  };
+  reader.readAsDataURL(file);
+});
+const adminLogoUploadBtn = document.getElementById("adminLogoUpload");
+if (adminLogoUploadBtn) adminLogoUploadBtn.addEventListener("click", async () => {
+  const msg = document.getElementById("adminLogoMsg");
+  if (!adminLogoFile) return;
+  let value = adminLogoData || "";
+  if (supabaseClient) {
+    const uploaded = await uploadPhotoFile(adminLogoFile, "logos/" + CURRENT_SLUG + "-logo." + photoExt(adminLogoFile));
+    if (!uploaded) {
+      if (msg) msg.textContent = "That logo could not be uploaded. Your current logo is unchanged.";
+      toast("The logo could not be uploaded. Your current logo is unchanged.");
+      return;
+    }
+    value = uploaded;
+  }
+  if (!value) {
+    if (msg) msg.textContent = "That image could not be read. Your current logo is unchanged.";
+    toast("That image could not be read. Your current logo is unchanged.");
+    return;
+  }
+  try {
+    await store.updateNeighborhoodLogo(value);
+    renderTenant();
+    adminLogoFile = null;
+    adminLogoData = "";
+    adminLogoFileInput.value = "";
+    document.getElementById("adminLogoFilePreview").classList.add("hidden");
+    adminLogoUploadBtn.classList.add("hidden");
+    if (msg) msg.textContent = "Logo saved. It is showing at the top of the page now.";
+    toast("Neighborhood logo saved.");
+    renderAdmin();
+  } catch (e) {
+    if (msg) msg.textContent = "Could not save the logo: " + (e && e.message ? e.message : String(e));
+  }
+});
 async function adminSetStatus(p, status) {
   try { await store.setProfileStatus(p.id, status); } catch (e) { console.warn("setProfileStatus failed:", e); }
   p.status = status;
@@ -2045,7 +2583,6 @@ function openDeepLink() {
   if (!m) return;
   const el = document.getElementById("tool-" + m[1]);
   if (!el) return;
-  showTab("catalog");
   el.scrollIntoView({ behavior: "smooth", block: "center" });
   el.classList.add("ring-2", "ring-gray-900");
 }
