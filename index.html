@@ -6,6 +6,8 @@
 <title>Valentine Tool Library | Valentine Neighborhood Association</title>
 <meta name="description" content="Borrow and lend tools with your Valentine neighbors. A sharing library run by the Valentine Neighborhood Association in Kansas City.">
 <script src="https://cdn.tailwindcss.com"></script>
+<!-- Phase 2: Supabase client library (magic-link auth + shared data store). Safe to load while unconfigured. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 tailwind.config = {
   theme: {
@@ -64,8 +66,30 @@ tailwind.config = {
     <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-pine-200 bg-white" data-tab="requests">Requests and loans</button>
     <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-pine-200 bg-white" data-tab="lend">Lend a tool</button>
     <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-pine-200 bg-white" data-tab="how">How it works</button>
+    <button id="adminTabBtn" class="tab-btn hidden px-4 py-2 rounded-full text-sm font-semibold border border-pine-200 bg-white" data-tab="admin">Admin</button>
   </div>
 </nav>
+
+<!-- Phase 2: sign-in bar (Supabase magic link; configured in the script below) -->
+<section class="bg-white border-b border-sand">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+      <p class="text-sm text-stone-600">You are browsing the <span id="tenantName" class="font-semibold text-pine-900">Valentine</span> tool library · <span id="tenantAddress" class="text-stone-500">valentine.toollendinglibrary.com</span></p>
+      <button id="startNeighborhoodBtn" type="button" class="text-sm font-semibold text-pine-800 underline decoration-dotted hover:text-pine-600">Start a neighborhood library</button>
+    </div>
+    <p id="authNotConfigured" class="text-sm text-stone-500">Sign-in is not configured yet. You can still browse the catalog, request tools, and lend tools below.</p>
+    <form id="authForm" class="hidden flex-wrap items-center gap-2">
+      <label class="text-sm font-semibold text-pine-900" for="authEmail">Neighbor sign-in</label>
+      <input id="authEmail" type="email" required placeholder="you@example.com" class="flex-1 min-w-[12rem] rounded-lg border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+      <button type="submit" class="bg-pine-800 hover:bg-pine-700 text-white font-semibold px-4 py-2 rounded-full text-sm">Email me a sign-in link</button>
+    </form>
+    <div id="authSignedIn" class="hidden flex-wrap items-center gap-3">
+      <p class="text-sm text-stone-600">Signed in as <span id="authUserEmail" class="font-semibold text-pine-900"></span></p>
+      <button id="authSignOut" type="button" class="text-sm font-semibold text-brick-600 underline decoration-dotted">Sign out</button>
+    </div>
+    <p id="authMessage" class="text-sm text-stone-500 mt-1"></p>
+  </div>
+</section>
 
 <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
 
@@ -147,6 +171,12 @@ tailwind.config = {
           <label class="text-sm font-semibold" for="lendDesc">Description and what is included</label>
           <textarea id="lendDesc" required maxlength="280" rows="3" placeholder="What it is, what comes with it, anything a borrower should know" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500"></textarea>
         </div>
+        <div>
+          <span class="text-sm font-semibold">Pickup windows</span>
+          <p class="text-xs text-stone-400 mt-0.5">When can neighbors pick up from you? Tick any that work, or write your own. Borrowers pick one when they request.</p>
+          <div id="lendPickupPresets" class="mt-2 space-y-1.5 text-sm"></div>
+          <input id="lendPickupOther" maxlength="80" placeholder="Other window, for example: weekday mornings before 9" class="mt-2 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+        </div>
         <button type="submit" class="bg-brick-500 hover:bg-brick-600 text-white font-semibold px-6 py-3 rounded-full text-sm w-full sm:w-auto">Add to the library</button>
       </form>
     </div>
@@ -183,6 +213,13 @@ tailwind.config = {
       </ul>
     </div>
   </section>
+
+  <!-- Phase 2: admin (visible only to admins of this neighborhood) -->
+  <section id="tab-admin" class="hidden">
+    <h2 class="font-display text-2xl font-bold text-pine-950">Admin</h2>
+    <p class="text-sm text-stone-500 mt-1 max-w-2xl">Neighbor accounts for this library, from the profiles table. Banning blocks sign-in and new requests. Deleting removes the profile, their tools, and their requests in this app; the underlying login account is removed separately at go-live (see the phase 2 README).</p>
+    <div id="adminUserList" class="space-y-3 mt-6"></div>
+  </section>
 </main>
 
 <footer class="border-t border-sand mt-4">
@@ -195,6 +232,7 @@ tailwind.config = {
 <!-- Borrow modal -->
 <dialog id="borrowModal" class="rounded-2xl p-0 w-[min(94vw,30rem)] shadow-xl">
   <form id="borrowForm" class="p-6 space-y-4">
+    <img id="borrowToolPhoto" class="hidden w-full h-44 object-cover rounded-xl" alt="Photo of the tool">
     <div class="flex items-start justify-between gap-4">
       <div>
         <h3 class="font-display text-xl font-bold text-pine-950">Request to borrow</h3>
@@ -222,6 +260,20 @@ tailwind.config = {
         <input id="borrowDays" type="number" min="1" max="30" value="3" required class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
       </div>
     </div>
+    <div id="borrowPickupSelectWrap">
+      <label class="text-sm font-semibold" for="borrowPickup">Pickup window</label>
+      <select id="borrowPickup" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pine-500"></select>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="text-sm font-semibold" for="borrowPickupTime">Pickup time</label>
+        <input id="borrowPickupTime" type="time" value="10:00" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+      </div>
+      <div>
+        <label class="text-sm font-semibold" for="borrowReturnTime">Return time</label>
+        <input id="borrowReturnTime" type="time" value="18:00" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+      </div>
+    </div>
     <div>
       <label class="text-sm font-semibold" for="borrowProject">What is the project? <span class="font-normal text-stone-400">(optional)</span></label>
       <input id="borrowProject" maxlength="120" placeholder="For example: gutters before the leaf drop" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
@@ -231,9 +283,115 @@ tailwind.config = {
   </form>
 </dialog>
 
+<!-- Phase 2: owner edit dialog -->
+<dialog id="editModal" class="rounded-2xl p-0 w-[min(94vw,32rem)] shadow-xl">
+  <form id="editForm" class="p-6 space-y-4">
+    <div class="flex items-start justify-between gap-4">
+      <h3 class="font-display text-xl font-bold text-pine-950">Edit your tool</h3>
+      <button type="button" id="editClose" class="text-stone-400 hover:text-stone-700 text-2xl leading-none px-1" aria-label="Close">×</button>
+    </div>
+    <div>
+      <label class="text-sm font-semibold" for="editName">Tool name</label>
+      <input id="editName" required maxlength="60" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="text-sm font-semibold" for="editCategory">Category</label>
+        <select id="editCategory" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pine-500"></select>
+      </div>
+      <div>
+        <label class="text-sm font-semibold" for="editContact">Your email or phone</label>
+        <input id="editContact" required maxlength="60" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+      </div>
+    </div>
+    <div>
+      <label class="text-sm font-semibold" for="editDesc">Description and what is included</label>
+      <textarea id="editDesc" required maxlength="280" rows="3" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500"></textarea>
+    </div>
+    <div>
+      <span class="text-sm font-semibold">Pickup windows</span>
+      <p class="text-xs text-stone-400 mt-0.5">When can neighbors pick up from you? Tick any that work, or write your own.</p>
+      <div id="editPickupPresets" class="mt-2 space-y-1.5 text-sm"></div>
+      <input id="editPickupOther" maxlength="80" placeholder="Other window, for example: weekday mornings before 9" class="mt-2 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+    </div>
+    <div>
+      <label class="text-sm font-semibold" for="editPhoto">Tool photo</label>
+      <img id="editPhotoPreview" class="hidden w-full h-44 object-cover rounded-xl mt-2" alt="Current tool photo">
+      <input id="editPhoto" type="file" accept="image/*" class="mt-2 w-full text-sm">
+      <label class="flex items-center gap-2 text-sm mt-2"><input id="editRemovePhoto" type="checkbox" class="accent-pine-700 w-4 h-4"> Remove the current photo</label>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button type="submit" class="bg-pine-800 hover:bg-pine-700 text-white font-semibold px-6 py-3 rounded-full text-sm">Save changes</button>
+      <button type="button" id="editDelete" class="bg-white border border-brick-300 hover:border-brick-500 text-brick-600 font-semibold px-6 py-3 rounded-full text-sm">Delete this tool</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Phase 2: start a neighborhood library -->
+<dialog id="neighborhoodModal" class="rounded-2xl p-0 w-[min(94vw,30rem)] shadow-xl">
+  <form id="neighborhoodForm" class="p-6 space-y-4">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h3 class="font-display text-xl font-bold text-pine-950">Start a neighborhood library</h3>
+        <p class="text-sm text-stone-500 mt-1">Register your neighborhood association and pick its web address. You become the first admin of the new library.</p>
+      </div>
+      <button type="button" id="nbClose" class="text-stone-400 hover:text-stone-700 text-2xl leading-none px-1" aria-label="Close">×</button>
+    </div>
+    <div>
+      <label class="text-sm font-semibold" for="nbName">Organization name</label>
+      <input id="nbName" required maxlength="80" placeholder="For example: Brookside Neighborhood Association" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+    </div>
+    <div>
+      <label class="text-sm font-semibold" for="nbSlug">Short name (web address)</label>
+      <div class="mt-1 flex items-center gap-1">
+        <input id="nbSlug" required maxlength="30" placeholder="brookside" class="flex-1 min-w-0 rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+        <span class="text-sm text-stone-500">.toollendinglibrary.com</span>
+      </div>
+      <p id="nbSlugMsg" class="text-xs mt-1 text-stone-400">Lowercase letters, numbers, and hyphens.</p>
+    </div>
+    <div id="nbResult" class="hidden bg-pine-50 border border-pine-100 rounded-xl p-4 text-sm text-pine-900"></div>
+    <button type="submit" class="bg-brick-500 hover:bg-brick-600 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Create the library</button>
+  </form>
+</dialog>
+
 <div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 bg-pine-950 text-cream text-sm font-medium px-5 py-3 rounded-full shadow-xl z-50"></div>
 
 <script>
+/* ============================================================================
+   PHASE 2 CONFIG: fill these in at go-live (see README.md in this folder).
+   While SUPABASE_URL and SUPABASE_ANON_KEY are empty strings, this copy runs
+   exactly like the live site: localStorage data store, sign-in disabled,
+   email notifications stubbed into a local outbox.
+   ============================================================================ */
+const SUPABASE_URL = "";        // Go-live: "https://YOUR-PROJECT-REF.supabase.co"
+const SUPABASE_ANON_KEY = "";   // Go-live: the Supabase project anon (public) key
+const EMAIL_TRANSPORT = "stub"; // "stub" = local outbox only; "resend" = POST /api/notify
+const ADMIN_EMAILS = [];        // Go-live: admin sign-in emails, e.g. ["you@example.com"]. This only gates visibility of the Admin section; real enforcement is the profiles table plus RLS in schema.sql.
+
+const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+let supabaseClient = null;
+if (supabaseConfigured && window.supabase) {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+/* Tenant resolution (multi-neighborhood): when the site is served from
+   <slug>.toollendinglibrary.com, the subdomain is the neighborhood slug.
+   On any other host (the valentine-tool-library.vercel.app address,
+   localhost, a file) it falls back to the default tenant, "valentine". */
+const DEFAULT_TENANT_SLUG = "valentine";
+function resolveNeighborhoodSlug() {
+  const host = (window.location.hostname || "").toLowerCase();
+  const suffix = ".toollendinglibrary.com";
+  if (host.endsWith(suffix)) {
+    const sub = host.slice(0, host.length - suffix.length).split(".")[0];
+    if (sub) return sub;
+  }
+  return DEFAULT_TENANT_SLUG;
+}
+const CURRENT_SLUG = resolveNeighborhoodSlug();
+let allNeighborhoods = [];
+let currentNeighborhood = null;
+
 const CATEGORIES = ["Yard and Garden","Power Tools","Hand Tools","Ladders and Access","Cleaning","Events and Hosting","Moving","Painting"];
 const STORE_KEY = "valentine-tool-library-v1";
 
@@ -263,8 +421,363 @@ function loadState() {
   } catch (e) {}
   return { tools: seedTools(), requests: [] };
 }
-let state = loadState();
-function save() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+let state = { tools: [], requests: [] };
+function save() { store.persist(); }
+
+/* ================= PHASE 2: data layer =================
+   The app keeps using the same interface it always has: a global `state`
+   object ({tools, requests}) plus save(). Underneath, two stores implement
+   it. The localStorage store is the original behavior and stays the fallback
+   whenever Supabase is not configured. The Supabase store loads the shared
+   tools and borrow_requests rows for the current neighborhood, so the
+   availability on every card reflects every neighbor's activity, not just
+   this browser's. In Supabase mode a tool's status is never stored: it is
+   derived from borrow_requests exactly like the tool_availability view in
+   schema.sql (approved request covering today = on loan, pending request =
+   requested, otherwise available). */
+function visibleTools() { return state.tools.filter(t => (t.tenant || DEFAULT_TENANT_SLUG) === CURRENT_SLUG); }
+function visibleRequests() { return state.requests.filter(r => (r.tenant || DEFAULT_TENANT_SLUG) === CURRENT_SLUG); }
+
+const localStore = {
+  load() { return loadState(); },
+  persist(state) { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+};
+
+const NEIGHBORHOODS_KEY = "valentine-tool-library-neighborhoods";
+function seedNeighborhoods() {
+  return [{ id: "n-valentine", slug: "valentine", name: "Valentine Neighborhood Association", createdBy: "", createdAt: "2026-11-11T00:00:00.000Z" }];
+}
+function loadLocalNeighborhoods() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(NEIGHBORHOODS_KEY) || "null");
+    if (Array.isArray(parsed) && parsed.length) return parsed;
+  } catch (e) {}
+  return seedNeighborhoods();
+}
+function saveLocalNeighborhoods(list) { localStorage.setItem(NEIGHBORHOODS_KEY, JSON.stringify(list)); }
+
+const PROFILES_KEY = "valentine-tool-library-profiles";
+function loadLocalProfiles() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PROFILES_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) { return []; }
+}
+function saveLocalProfiles(list) { localStorage.setItem(PROFILES_KEY, JSON.stringify(list)); }
+
+const supabaseStore = {
+  neighborhoods: [],
+  currentId() { return currentNeighborhood ? currentNeighborhood.id : null; },
+  toolToRow(t) {
+    return {
+      id: t.id, neighborhood_id: this.currentId(), name: t.name, category: t.category,
+      description: t.desc, owner_name: t.owner, owner_contact: t.contact || "",
+      condition: t.condition || "Good", loan_days: t.days || 3,
+      pickup_windows: Array.isArray(t.pickupWindows) ? t.pickupWindows : [],
+      photo_url: t.photo || ""
+    };
+  },
+  requestToRow(r) {
+    return {
+      id: r.id, neighborhood_id: this.currentId(), tool_id: r.toolId,
+      borrower_name: r.borrower, borrower_contact: r.contact || "",
+      start_date: r.start, end_date: addDaysISO(r.start, r.days),
+      due_at: r.dueAt || null, pickup_at: r.pickupAt || null, pickup_window: r.pickup || "",
+      project: r.project || "", status: r.status
+    };
+  },
+  async loadNeighborhoods() {
+    const { data, error } = await supabaseClient.from("neighborhoods").select("*").order("created_at", { ascending: true });
+    if (error) throw error;
+    this.neighborhoods = (data || []).map(row => ({ id: row.id, slug: row.slug, name: row.name, createdBy: row.created_by || "", createdAt: row.created_at }));
+    return this.neighborhoods;
+  },
+  async load() {
+    const nbs = await this.loadNeighborhoods();
+    allNeighborhoods = nbs;
+    currentNeighborhood = nbs.find(n => n.slug === CURRENT_SLUG) || nbs[0] || null;
+    if (!currentNeighborhood) throw new Error("No neighborhoods exist in the database yet.");
+    const nid = currentNeighborhood.id;
+
+    let { data: toolRows, error: toolErr } = await supabaseClient.from("tools").select("*").eq("neighborhood_id", nid).order("created_at", { ascending: false });
+    if (toolErr) throw toolErr;
+    if (!toolRows || toolRows.length === 0) {
+      const seeds = seedTools();
+      const { error: seedErr } = await supabaseClient.from("tools").insert(seeds.map(t => this.toolToRow(t)));
+      if (seedErr) throw seedErr;
+      toolRows = seeds.map(t => this.toolToRow(t));
+    }
+    const { data: reqRows, error: reqErr } = await supabaseClient.from("borrow_requests").select("*").eq("neighborhood_id", nid).order("created_at", { ascending: true });
+    if (reqErr) throw reqErr;
+
+    const requests = (reqRows || []).map(row => ({
+      id: row.id, toolId: row.tool_id, tenant: CURRENT_SLUG,
+      borrower: row.borrower_name, contact: row.borrower_contact || "",
+      start: row.start_date,
+      days: Math.max(1, Math.round((new Date(row.end_date + "T12:00:00") - new Date(row.start_date + "T12:00:00")) / 86400000)),
+      dueAt: row.due_at || "", pickupAt: row.pickup_at || "", pickup: row.pickup_window || "",
+      project: row.project || "", status: row.status
+    }));
+
+    const today = todayISO();
+    const tools = toolRows.map(row => {
+      const tool = {
+        id: row.id, tenant: CURRENT_SLUG, name: row.name, category: row.category,
+        owner: row.owner_name, contact: row.owner_contact || "",
+        condition: row.condition || "Good", days: row.loan_days || 3,
+        pickupWindows: Array.isArray(row.pickup_windows) ? row.pickup_windows : [],
+        photo: row.photo_url || "", desc: row.description || "",
+        status: "available", borrower: "", due: "", dueAt: ""
+      };
+      const active = requests.find(r => r.toolId === tool.id && r.status === "approved" && r.start <= today && addDaysISO(r.start, r.days) >= today);
+      const pending = requests.find(r => r.toolId === tool.id && r.status === "pending");
+      if (active) { tool.status = "onloan"; tool.borrower = active.borrower; tool.due = addDaysISO(active.start, active.days); tool.dueAt = active.dueAt || ""; }
+      else if (pending) { tool.status = "requested"; }
+      return tool;
+    });
+    return { tools, requests };
+  },
+  async persist(state) {
+    if (state.tools.length) {
+      const { error } = await supabaseClient.from("tools").upsert(state.tools.map(t => this.toolToRow(t)));
+      if (error) throw error;
+    }
+    if (state.requests.length) {
+      const { error } = await supabaseClient.from("borrow_requests").upsert(state.requests.map(r => this.requestToRow(r)));
+      if (error) throw error;
+    }
+    // Note: persist() upserts the working set. Deletes go through
+    // store.deleteTool / store.deleteProfile so rows are actually removed.
+  }
+};
+
+const store = {
+  mode: supabaseClient ? "supabase" : "local",
+  async init() {
+    try {
+      state = await supabaseStore.load();
+    } catch (e) {
+      console.warn("Supabase load failed, falling back to local data:", e);
+      this.mode = "local";
+      allNeighborhoods = loadLocalNeighborhoods();
+      currentNeighborhood = allNeighborhoods.find(n => n.slug === CURRENT_SLUG) || allNeighborhoods[0] || null;
+      state = localStore.load();
+    }
+    render();
+    renderTenant();
+    openDeepLink();
+  },
+  persist() {
+    if (this.mode === "supabase") {
+      supabaseStore.persist(state).catch(e => console.warn("Supabase save failed:", e));
+    } else {
+      localStore.persist(state);
+    }
+  },
+  async updateTool(tool) {
+    if (this.mode === "supabase") {
+      const { error } = await supabaseClient.from("tools").upsert(supabaseStore.toolToRow(tool));
+      if (error) throw error;
+    } else {
+      localStore.persist(state);
+    }
+  },
+  async deleteTool(toolId) {
+    if (this.mode === "supabase") {
+      const { error } = await supabaseClient.from("tools").delete().eq("id", toolId);
+      if (error) throw error;
+    } else {
+      localStore.persist(state);
+    }
+  },
+  async listNeighborhoods() {
+    if (this.mode === "supabase") return supabaseStore.loadNeighborhoods();
+    return loadLocalNeighborhoods();
+  },
+  async createNeighborhood({ name, slug, createdBy }) {
+    if (this.mode === "supabase") {
+      const { data, error } = await supabaseClient.from("neighborhoods").insert({ name: name, slug: slug, created_by: createdBy || null }).select().single();
+      if (error) throw error;
+      const nb = { id: data.id, slug: data.slug, name: data.name, createdBy: data.created_by || "", createdAt: data.created_at };
+      allNeighborhoods = allNeighborhoods.concat([nb]);
+      return nb;
+    }
+    const list = loadLocalNeighborhoods();
+    if (list.some(n => n.slug === slug)) throw new Error("That short name is already taken.");
+    const nb = { id: "n-" + slug, slug: slug, name: name, createdBy: createdBy || "", createdAt: new Date().toISOString() };
+    list.push(nb);
+    saveLocalNeighborhoods(list);
+    allNeighborhoods = list;
+    return nb;
+  },
+  async listProfiles() {
+    if (this.mode === "supabase") {
+      let query = supabaseClient.from("profiles").select("*").order("created_at", { ascending: true });
+      if (supabaseStore.currentId()) query = query.eq("neighborhood_id", supabaseStore.currentId());
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data || []).map(row => ({ id: row.id, email: row.email, role: row.role, status: row.status, neighborhood: CURRENT_SLUG, createdAt: row.created_at }));
+    }
+    return loadLocalProfiles().filter(p => (p.neighborhood || DEFAULT_TENANT_SLUG) === CURRENT_SLUG);
+  },
+  async getProfile(userId) {
+    if (this.mode === "supabase") {
+      const { data, error } = await supabaseClient.from("profiles").select("*").eq("id", userId).maybeSingle();
+      if (error) throw error;
+      return data ? { id: data.id, email: data.email, role: data.role, status: data.status, neighborhood: CURRENT_SLUG, createdAt: data.created_at } : null;
+    }
+    return loadLocalProfiles().find(p => p.id === userId) || null;
+  },
+  async upsertProfile(profile) {
+    if (this.mode === "supabase") {
+      const { error } = await supabaseClient.from("profiles").upsert({
+        id: profile.id, neighborhood_id: supabaseStore.currentId(),
+        email: profile.email, role: profile.role, status: profile.status
+      });
+      if (error) throw error;
+      return profile;
+    }
+    const list = loadLocalProfiles();
+    const i = list.findIndex(p => p.id === profile.id);
+    if (i >= 0) list[i] = Object.assign({}, list[i], profile); else list.push(profile);
+    saveLocalProfiles(list);
+    return profile;
+  },
+  async setProfileStatus(userId, status) {
+    if (this.mode === "supabase") {
+      const { error } = await supabaseClient.from("profiles").update({ status: status }).eq("id", userId);
+      if (error) throw error;
+      return;
+    }
+    const list = loadLocalProfiles();
+    const p = list.find(x => x.id === userId);
+    if (p) { p.status = status; saveLocalProfiles(list); }
+  },
+  async deleteProfile(profile) {
+    // Client-side stub: removes the profile, the user's tools, and their
+    // borrow requests. Deleting the underlying auth account itself happens
+    // server-side at go-live via the Supabase Auth admin API (see README).
+    const email = String(profile.email || "").toLowerCase();
+    if (this.mode === "supabase") {
+      await supabaseClient.from("tools").delete().eq("owner_contact", profile.email);
+      await supabaseClient.from("borrow_requests").delete().eq("borrower_contact", profile.email);
+      const { error } = await supabaseClient.from("profiles").delete().eq("id", profile.id);
+      if (error) throw error;
+    } else {
+      saveLocalProfiles(loadLocalProfiles().filter(p => p.id !== profile.id));
+    }
+    state.tools = state.tools.filter(t => String(t.contact || "").toLowerCase() !== email);
+    state.requests = state.requests.filter(r => String(r.contact || "").toLowerCase() !== email);
+    save();
+  }
+};
+
+/* ================= PHASE 2: email notifications (STUBBED) =================
+   notify.sendBorrowRequestEmail(...) runs when a borrow request is submitted
+   and notify.sendCheckoutEmail(...) runs when a request is approved. With
+   EMAIL_TRANSPORT set to "stub", nothing leaves the browser: each composed
+   message is appended to the emailOutbox array in localStorage and logged to
+   the console, clearly marked STUB. The "resend" transport is written but
+   inactive; it POSTs the same message shape to a future /api/notify endpoint
+   that will hold the Resend API key server-side and send for real. */
+const EMAIL_OUTBOX_KEY = "valentine-tool-library-email-outbox";
+const notify = (() => {
+  function loadOutbox() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(EMAIL_OUTBOX_KEY) || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) { return []; }
+  }
+  function composeBorrowRequestEmail(d) {
+    const lines = [
+      "Hello,",
+      "",
+      d.borrowerName + " would like to borrow your " + d.toolName + " from the Valentine Tool Library.",
+      "",
+      "Pickup date: " + d.startDate
+    ];
+    if (d.pickupLabel || d.pickupAt) {
+      lines.push("Pickup window: " + (d.pickupLabel || "Not specified") + (d.pickupAt ? " (" + fmtDateTime(d.pickupAt) + ")" : ""));
+    }
+    lines.push(
+      "Return by: " + (d.dueAt ? fmtDateTime(d.dueAt) : d.endDate),
+      "Borrower contact: " + d.borrowerContact,
+      "",
+      "Open the Valentine Tool Library and check the Requests tab to approve or decline.",
+      "",
+      "Valentine Tool Library, a Valentine Neighborhood Association project"
+    );
+    return {
+      to: d.to,
+      cc: "",
+      subject: "Valentine Tool Library: borrow request for " + d.toolName,
+      body: lines.join("\n")
+    };
+  }
+  function composeCheckoutEmail(d) {
+    const base = d.siteUrl || (window.location.origin + window.location.pathname);
+    const link = base + "#tool-" + d.toolId;
+    return {
+      to: d.borrowerEmail || d.ownerEmail || "",
+      cc: d.borrowerEmail && d.ownerEmail ? d.ownerEmail : "",
+      subject: "Valentine Tool Library: " + d.toolName + " checked out, due back " + (d.dueAt ? fmtDateTime(d.dueAt) : ""),
+      body: [
+        "Hello " + d.borrowerName + ",",
+        "",
+        "Your borrow of " + d.toolName + " from the Valentine Tool Library is confirmed and checked out.",
+        "",
+        "Due back: " + (d.dueAt ? fmtDateTime(d.dueAt) : "see the library site"),
+        "Tool entry: " + link,
+        "",
+        "Please bring it back clean and ready for the next neighbor by the time above.",
+        "",
+        "Valentine Tool Library, a Valentine Neighborhood Association project"
+      ].join("\n")
+    };
+  }
+  const transports = {
+    stub: {
+      async send(message) {
+        const emailOutbox = loadOutbox();
+        const entry = Object.assign({}, message, {
+          transport: "stub",
+          status: "STUB: composed but NOT sent",
+          queuedAt: new Date().toISOString()
+        });
+        emailOutbox.push(entry);
+        localStorage.setItem(EMAIL_OUTBOX_KEY, JSON.stringify(emailOutbox));
+        console.log("[STUB EMAIL] queued in emailOutbox:", entry);
+        return { ok: true, stub: true };
+      }
+    },
+    resend: {
+      // INACTIVE until go-live: requires the /api/notify endpoint (see README).
+      async send(message) {
+        const res = await fetch("/api/notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(message)
+        });
+        if (!res.ok) throw new Error("Notify endpoint returned " + res.status);
+        return res.json();
+      }
+    }
+  };
+  async function deliver(message) {
+    const transport = transports[EMAIL_TRANSPORT] || transports.stub;
+    try { return await transport.send(message); }
+    catch (e) { console.warn("notify: email send failed:", e); return { ok: false, error: String(e) }; }
+  }
+  return {
+    sendBorrowRequestEmail(details) { return deliver(composeBorrowRequestEmail(details)); },
+    sendCheckoutEmail(details) {
+      const message = composeCheckoutEmail(details);
+      if (!message.to) { console.log("[STUB EMAIL] checkout email skipped, no email address on file."); return Promise.resolve({ ok: false, skipped: true }); }
+      return deliver(message);
+    },
+    get emailOutbox() { return loadOutbox(); }
+  };
+})();
 
 let activeCategory = "All";
 let borrowToolId = null;
@@ -273,22 +786,50 @@ function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"
 function todayISO() { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
 function addDaysISO(iso, n) { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
 function fmtDate(iso) { if (!iso) return ""; const d = new Date(iso + "T12:00:00"); return d.toLocaleDateString("en-US", {weekday:"short", month:"short", day:"numeric"}); }
-function isOverdue(tool) { return tool.status === "onloan" && tool.due && tool.due < todayISO(); }
+function fmtDateTime(ts) { if (!ts) return ""; const d = new Date(ts); if (isNaN(d.getTime())) return ""; return d.toLocaleDateString("en-US", {weekday:"short", month:"short", day:"numeric"}) + ", " + d.toLocaleTimeString("en-US", {hour:"numeric", minute:"2-digit"}); }
+function fmtTime(ts) { if (!ts) return ""; const d = new Date(ts); if (isNaN(d.getTime())) return ""; return d.toLocaleTimeString("en-US", {hour:"numeric", minute:"2-digit"}); }
+function combineDateTime(isoDate, timeStr) { if (!isoDate) return ""; return isoDate + "T" + (timeStr || "18:00") + ":00"; }
+function isEmail(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s == null ? "" : s).trim()); }
+const PICKUP_PRESETS = [
+  { label: "Weekday evenings, 5 to 7 PM", time: "17:00" },
+  { label: "Saturday morning, 9 AM to 12 PM", time: "09:00" },
+  { label: "Saturday afternoon, 1 to 4 PM", time: "13:00" },
+  { label: "Sunday afternoon, 1 to 4 PM", time: "13:00" }
+];
+function gatherPickupWindows(presetClass, otherId) {
+  const wins = Array.from(document.querySelectorAll("." + presetClass + ":checked")).map(cb => PICKUP_PRESETS[parseInt(cb.value, 10)]);
+  const other = document.getElementById(otherId).value.trim();
+  if (other) wins.push({ label: other, time: "" });
+  return wins;
+}
+function fillPickupPresets(containerId, presetClass, selected) {
+  const sel = Array.isArray(selected) ? selected : [];
+  document.getElementById(containerId).innerHTML = PICKUP_PRESETS.map((p, i) =>
+    '<label class="flex items-center gap-2"><input type="checkbox" class="' + presetClass + ' accent-pine-700 w-4 h-4" value="' + i + '"' + (sel.some(w => w.label === p.label) ? " checked" : "") + '> ' + esc(p.label) + '</label>'
+  ).join("");
+}
+function isOverdue(tool) {
+  if (tool.status !== "onloan") return false;
+  if (tool.dueAt) return new Date(tool.dueAt).getTime() < Date.now();
+  return Boolean(tool.due && tool.due < todayISO());
+}
 
 function statusBadge(tool) {
   if (tool.status === "available") return '<span class="bg-pine-100 text-pine-800 text-xs font-bold px-2.5 py-1 rounded-full">Available</span>';
   if (tool.status === "requested") return '<span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">Request pending</span>';
-  if (isOverdue(tool)) return '<span class="bg-brick-100 text-brick-700 text-xs font-bold px-2.5 py-1 rounded-full">Overdue, due ' + esc(fmtDate(tool.due)) + '</span>';
-  return '<span class="bg-stone-200 text-stone-700 text-xs font-bold px-2.5 py-1 rounded-full">On loan until ' + esc(fmtDate(tool.due)) + '</span>';
+  const dueText = tool.dueAt ? fmtDateTime(tool.dueAt) : fmtDate(tool.due);
+  if (isOverdue(tool)) return '<span class="bg-brick-100 text-brick-700 text-xs font-bold px-2.5 py-1 rounded-full">Overdue, due back ' + esc(dueText) + '</span>';
+  return '<span class="bg-stone-200 text-stone-700 text-xs font-bold px-2.5 py-1 rounded-full">On loan, due back ' + esc(dueText) + '</span>';
 }
 
 function initials(name) { return name.split(/\s+/).map(w => w[0]).slice(0,2).join("").toUpperCase(); }
 
 function render() {
-  const tools = state.tools;
+  const tools = visibleTools();
+  const visibleReqs = visibleRequests();
   const available = tools.filter(t => t.status === "available").length;
   const onloan = tools.filter(t => t.status === "onloan").length;
-  const pending = state.requests.filter(r => r.status === "pending").length;
+  const pending = visibleReqs.filter(r => r.status === "pending").length;
 
   document.getElementById("stats").innerHTML = [
     ["Tools in the library", tools.length],
@@ -322,7 +863,8 @@ function render() {
     if (t.status === "available") action = '<button class="borrow-btn bg-pine-800 hover:bg-pine-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Request to borrow</button>';
     else if (t.status === "onloan") action = '<button class="return-btn bg-white border border-pine-300 hover:border-pine-500 text-pine-900 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button>';
     else action = '<span class="text-sm text-amber-700 font-medium">Waiting on the owner to approve</span>';
-    return '<article class="bg-white rounded-2xl shadow-card border border-pine-100 p-5 flex flex-col fade-in">' +
+    return '<article id="tool-' + t.id + '" class="bg-white rounded-2xl shadow-card border border-pine-100 p-5 flex flex-col fade-in">' +
+      (t.photo ? '<img src="' + esc(t.photo) + '" alt="Photo of ' + esc(t.name) + '" class="w-full h-44 object-cover rounded-xl mb-4">' : '') +
       '<div class="flex items-start justify-between gap-3">' +
         '<div class="flex items-center gap-3"><div class="w-11 h-11 rounded-xl bg-pine-700 text-cream flex items-center justify-center font-display font-bold">' + esc(initials(t.name)) + '</div>' +
         '<div><h3 class="font-bold text-pine-950 leading-snug">' + esc(t.name) + '</h3><p class="text-xs text-stone-500">' + esc(t.category) + '</p></div></div>' +
@@ -336,7 +878,9 @@ function render() {
         (t.status === "onloan" ? '<div><dt class="font-semibold text-stone-400 uppercase tracking-wide">With</dt><dd class="text-sm text-stone-700">' + esc(t.borrower) + '</dd></div>' : "") +
       '</dl>' +
       '<div class="flex items-center justify-between gap-3 mt-5">' + action +
-        '<button class="remove-btn text-xs text-stone-400 hover:text-brick-600 underline decoration-dotted" data-id="' + t.id + '">Remove listing</button>' +
+        '<span class="flex items-center gap-3">' +
+        (isToolOwner(t) ? '<button class="edit-btn text-xs font-semibold text-pine-800 hover:text-pine-600 underline decoration-dotted" data-id="' + t.id + '">Edit your tool</button>' : '') +
+        '<button class="remove-btn text-xs text-stone-400 hover:text-brick-600 underline decoration-dotted" data-id="' + t.id + '">Remove listing</button></span>' +
       '</div>' +
     '</article>';
   }).join("");
@@ -347,32 +891,32 @@ function render() {
       '<div class="flex flex-wrap items-start justify-between gap-3">' +
         '<div><p class="font-bold text-pine-950">' + esc(tool ? tool.name : "Tool") + '</p>' +
         '<p class="text-sm text-stone-500 mt-0.5">Requested by <span class="font-medium text-stone-700">' + esc(r.borrower) + '</span> · ' + esc(r.contact) + '</p>' +
-        '<p class="text-sm text-stone-500">Pickup ' + esc(fmtDate(r.start)) + ' · ' + r.days + (r.days === 1 ? " day" : " days") + ' · due back ' + esc(fmtDate(addDaysISO(r.start, r.days))) + '</p>' +
+        '<p class="text-sm text-stone-500">Pickup ' + esc(fmtDate(r.start)) + (r.pickup ? ' · ' + esc(r.pickup) : '') + (r.pickupAt ? ' at ' + esc(fmtTime(r.pickupAt)) : '') + ' · ' + r.days + (r.days === 1 ? " day" : " days") + ' · due back ' + esc(r.dueAt ? fmtDateTime(r.dueAt) : fmtDate(addDaysISO(r.start, r.days))) + '</p>' +
         (r.project ? '<p class="text-sm text-stone-500 italic">Project: ' + esc(r.project) + '</p>' : "") +
         '</div>' + buttons + '</div></div>';
   };
 
-  const pendingReqs = state.requests.filter(r => r.status === "pending");
+  const pendingReqs = visibleReqs.filter(r => r.status === "pending");
   document.getElementById("pendingList").innerHTML = pendingReqs.length ? pendingReqs.map(r => reqCard(r,
     '<div class="flex gap-2"><button class="approve-btn bg-pine-800 hover:bg-pine-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Approve and check out</button>' +
     '<button class="decline-btn bg-white border border-stone-300 hover:border-brick-400 text-stone-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Decline</button></div>'
   )).join("") : '<p class="text-sm text-stone-400 bg-white border border-dashed border-pine-200 rounded-2xl p-6 text-center">No requests waiting right now.</p>';
 
-  const loans = state.tools.filter(t => t.status === "onloan");
+  const loans = tools.filter(t => t.status === "onloan");
   document.getElementById("loanList").innerHTML = loans.length ? loans.map(t =>
     '<div class="bg-white rounded-2xl shadow-card border border-pine-100 p-5 flex flex-wrap items-center justify-between gap-3 fade-in">' +
-      '<div><p class="font-bold text-pine-950">' + esc(t.name) + '</p><p class="text-sm text-stone-500">With ' + esc(t.borrower) + ' · due ' + esc(fmtDate(t.due)) + (isOverdue(t) ? ' · <span class="text-brick-600 font-semibold">overdue</span>' : "") + '</p></div>' +
+      '<div><p class="font-bold text-pine-950">' + esc(t.name) + '</p><p class="text-sm text-stone-500">With ' + esc(t.borrower) + ' · due back ' + esc(t.dueAt ? fmtDateTime(t.dueAt) : fmtDate(t.due)) + (isOverdue(t) ? ' · <span class="text-brick-600 font-semibold">overdue</span>' : "") + '</p></div>' +
       '<button class="return-btn bg-pine-800 hover:bg-pine-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button></div>'
   ).join("") : '<p class="text-sm text-stone-400 bg-white border border-dashed border-pine-200 rounded-2xl p-6 text-center">Nothing is out on loan right now.</p>';
 
-  const history = state.requests.filter(r => r.status !== "pending");
+  const history = visibleReqs.filter(r => r.status !== "pending");
   document.getElementById("historyList").innerHTML = history.length ? history.slice().reverse().map(r => reqCard(r,
     '<span class="text-xs font-bold px-2.5 py-1 rounded-full ' + (r.status === "returned" ? "bg-pine-100 text-pine-800" : r.status === "approved" ? "bg-stone-200 text-stone-700" : "bg-brick-100 text-brick-700") + '">' + (r.status === "returned" ? "Returned" : r.status === "approved" ? "Checked out" : "Declined") + '</span>'
   )).join("") : '<p class="text-sm text-stone-400 bg-white border border-dashed border-pine-200 rounded-2xl p-6 text-center">No history yet.</p>';
 }
 
 function showTab(name) {
-  ["catalog","requests","lend","how"].forEach(t => {
+  ["catalog","requests","lend","how","admin"].forEach(t => {
     document.getElementById("tab-" + t).classList.toggle("hidden", t !== name);
   });
   document.querySelectorAll(".tab-btn").forEach(b => {
@@ -380,6 +924,7 @@ function showTab(name) {
     b.classList.toggle("tab-active", active);
     b.classList.toggle("bg-white", !active);
   });
+  if (name === "admin") renderAdmin();
   window.scrollTo({top: 0, behavior: "smooth"});
 }
 
@@ -404,9 +949,11 @@ document.getElementById("availableOnly").addEventListener("change", render);
 
 const categorySelect = document.getElementById("lendCategory");
 categorySelect.innerHTML = CATEGORIES.map(c => '<option>' + esc(c) + '</option>').join("");
+fillPickupPresets("lendPickupPresets", "pickup-preset", null);
 
 document.getElementById("lendForm").addEventListener("submit", e => {
   e.preventDefault();
+  if (currentProfile && currentProfile.status === "banned") { toast("This account is banned from listing tools."); return; }
   const tool = {
     id: "t" + Date.now(),
     name: document.getElementById("lendName").value.trim(),
@@ -416,7 +963,10 @@ document.getElementById("lendForm").addEventListener("submit", e => {
     condition: document.getElementById("lendCondition").value,
     days: Math.max(1, parseInt(document.getElementById("lendDays").value, 10) || 3),
     desc: document.getElementById("lendDesc").value.trim(),
-    status: "available", borrower: "", due: ""
+    pickupWindows: gatherPickupWindows("pickup-preset", "lendPickupOther"),
+    photo: "",
+    tenant: CURRENT_SLUG,
+    status: "available", borrower: "", due: "", dueAt: ""
   };
   state.tools.unshift(tool);
   save(); e.target.reset(); document.getElementById("lendDays").value = 3;
@@ -431,28 +981,71 @@ function openBorrow(tool) {
   document.getElementById("borrowToolName").textContent = tool.name + " · lent by " + tool.owner;
   document.getElementById("borrowStart").value = todayISO();
   document.getElementById("borrowDays").value = tool.days;
+  const photo = document.getElementById("borrowToolPhoto");
+  if (tool.photo) { photo.src = tool.photo; photo.classList.remove("hidden"); } else { photo.removeAttribute("src"); photo.classList.add("hidden"); }
+  const wins = Array.isArray(tool.pickupWindows) ? tool.pickupWindows : [];
+  const pickupSel = document.getElementById("borrowPickup");
+  pickupSel.innerHTML = wins.map((w, i) => '<option value="' + i + '">' + esc(w.label) + '</option>').join("");
+  document.getElementById("borrowPickupSelectWrap").classList.toggle("hidden", wins.length === 0);
+  document.getElementById("borrowPickupTime").value = (wins[0] && wins[0].time) || "10:00";
+  document.getElementById("borrowReturnTime").value = "18:00";
   modal.showModal();
 }
+document.getElementById("borrowPickup").addEventListener("change", e => {
+  const tool = state.tools.find(t => t.id === borrowToolId);
+  const wins = tool && Array.isArray(tool.pickupWindows) ? tool.pickupWindows : [];
+  const chosen = wins[parseInt(e.target.value, 10)];
+  if (chosen && chosen.time) document.getElementById("borrowPickupTime").value = chosen.time;
+});
 document.getElementById("borrowClose").addEventListener("click", () => modal.close());
 modal.addEventListener("click", e => { if (e.target === modal) modal.close(); });
 
 document.getElementById("borrowForm").addEventListener("submit", e => {
   e.preventDefault();
+  if (currentProfile && currentProfile.status === "banned") { toast("This account is banned from making requests."); return; }
   const tool = state.tools.find(t => t.id === borrowToolId);
   if (!tool) { modal.close(); return; }
+  const start = document.getElementById("borrowStart").value || todayISO();
+  const days = Math.max(1, parseInt(document.getElementById("borrowDays").value, 10) || tool.days);
+  const wins = Array.isArray(tool.pickupWindows) ? tool.pickupWindows : [];
+  let pickupLabel = "";
+  let pickupTime = document.getElementById("borrowPickupTime").value || "";
+  if (wins.length) {
+    const chosen = wins[parseInt(document.getElementById("borrowPickup").value, 10)] || wins[0];
+    pickupLabel = chosen.label;
+    if (chosen.time) pickupTime = chosen.time;
+  }
   const req = {
     id: "r" + Date.now(),
     toolId: tool.id,
+    tenant: CURRENT_SLUG,
     borrower: document.getElementById("borrowerName").value.trim(),
     contact: document.getElementById("borrowerContact").value.trim(),
-    start: document.getElementById("borrowStart").value || todayISO(),
-    days: Math.max(1, parseInt(document.getElementById("borrowDays").value, 10) || tool.days),
+    start: start,
+    days: days,
+    pickup: pickupLabel,
+    pickupAt: pickupTime ? combineDateTime(start, pickupTime) : "",
+    dueAt: combineDateTime(addDaysISO(start, days), document.getElementById("borrowReturnTime").value || "18:00"),
     project: document.getElementById("borrowProject").value.trim(),
     status: "pending"
   };
   state.requests.push(req);
   tool.status = "requested";
   save(); modal.close(); e.target.reset(); render();
+  // Phase 2: email the owner about the new request (stub transport for now).
+  if (isEmail(tool.contact)) {
+    notify.sendBorrowRequestEmail({
+      to: tool.contact,
+      toolName: tool.name,
+      borrowerName: req.borrower,
+      borrowerContact: req.contact,
+      startDate: req.start,
+      endDate: addDaysISO(req.start, req.days),
+      dueAt: req.dueAt,
+      pickupLabel: req.pickup,
+      pickupAt: req.pickupAt
+    });
+  }
   toast("Request sent. " + tool.owner + " can approve it in the Requests tab.");
 });
 
@@ -460,11 +1053,23 @@ document.addEventListener("click", e => {
   const borrow = e.target.closest(".borrow-btn");
   if (borrow) { const t = state.tools.find(x => x.id === borrow.dataset.id); if (t) openBorrow(t); return; }
 
+  const editBtn = e.target.closest(".edit-btn");
+  if (editBtn) { const t = state.tools.find(x => x.id === editBtn.dataset.id); if (t && isToolOwner(t)) openEdit(t); return; }
+
+  const banBtn = e.target.closest(".admin-ban-btn");
+  if (banBtn) { const p = adminProfiles.find(x => x.id === banBtn.dataset.id); if (p) adminSetStatus(p, "banned"); return; }
+
+  const unbanBtn = e.target.closest(".admin-unban-btn");
+  if (unbanBtn) { const p = adminProfiles.find(x => x.id === unbanBtn.dataset.id); if (p) adminSetStatus(p, "active"); return; }
+
+  const delUserBtn = e.target.closest(".admin-delete-btn");
+  if (delUserBtn) { const p = adminProfiles.find(x => x.id === delUserBtn.dataset.id); if (p) adminDeleteUser(p); return; }
+
   const ret = e.target.closest(".return-btn");
   if (ret) {
     const t = state.tools.find(x => x.id === ret.dataset.id);
     if (t) {
-      t.status = "available"; t.borrower = ""; t.due = "";
+      t.status = "available"; t.borrower = ""; t.due = ""; t.dueAt = "";
       const open = state.requests.filter(r => r.toolId === t.id && r.status === "approved");
       open.forEach(r => r.status = "returned");
       save(); render(); toast(t.name + " is back on the shelf.");
@@ -478,8 +1083,21 @@ document.addEventListener("click", e => {
     const t = r && state.tools.find(x => x.id === r.toolId);
     if (r && t) {
       r.status = "approved";
-      t.status = "onloan"; t.borrower = r.borrower; t.due = addDaysISO(r.start, r.days);
-      save(); render(); toast(t.name + " checked out to " + r.borrower + ", due " + fmtDate(t.due) + ".");
+      t.status = "onloan"; t.borrower = r.borrower; t.due = addDaysISO(r.start, r.days); t.dueAt = r.dueAt || "";
+      save(); render();
+      // Phase 2: email the borrower (owner copied) about the checkout (stub transport for now).
+      if (isEmail(r.contact) || isEmail(t.contact)) {
+        notify.sendCheckoutEmail({
+          borrowerEmail: isEmail(r.contact) ? r.contact : "",
+          ownerEmail: isEmail(t.contact) ? t.contact : "",
+          toolName: t.name,
+          toolId: t.id,
+          borrowerName: r.borrower,
+          dueAt: t.dueAt,
+          siteUrl: window.location.origin + window.location.pathname
+        });
+      }
+      toast(t.name + " checked out to " + r.borrower + ", due back " + (t.dueAt ? fmtDateTime(t.dueAt) : fmtDate(t.due)) + ".");
     }
     return;
   }
@@ -500,9 +1118,7 @@ document.addEventListener("click", e => {
   if (remove) {
     const t = state.tools.find(x => x.id === remove.dataset.id);
     if (t && confirm("Remove " + t.name + " from the library?")) {
-      state.tools = state.tools.filter(x => x.id !== t.id);
-      state.requests = state.requests.filter(r => r.toolId !== t.id);
-      save(); render(); toast("Listing removed.");
+      removeToolEverywhere(t);
     }
   }
 });
@@ -514,7 +1130,306 @@ document.getElementById("resetBtn").addEventListener("click", () => {
   }
 });
 
-render();
+/* ================= PHASE 2: sign-in, profiles, admin ================= */
+let currentUser = null;
+let currentProfile = null;
+let adminProfiles = [];
+
+function isAdminEmail(email) {
+  return Boolean(email && ADMIN_EMAILS.some(e => e && String(e).toLowerCase() === String(email).toLowerCase()));
+}
+function isAdminUser() {
+  if (!currentUser) return false;
+  if (isAdminEmail(currentUser.email)) return true;
+  return Boolean(currentProfile && currentProfile.role === "admin" && (currentProfile.neighborhood || DEFAULT_TENANT_SLUG) === CURRENT_SLUG && currentProfile.status === "active");
+}
+function isToolOwner(t) {
+  return Boolean(currentUser && currentUser.email && t.contact && String(t.contact).trim().toLowerCase() === String(currentUser.email).toLowerCase());
+}
+
+function renderAuth() {
+  const note = document.getElementById("authNotConfigured");
+  const form = document.getElementById("authForm");
+  const signedIn = document.getElementById("authSignedIn");
+  document.getElementById("adminTabBtn").classList.toggle("hidden", !isAdminUser());
+  if (!isAdminUser() && !document.getElementById("tab-admin").classList.contains("hidden")) showTab("catalog");
+  if (!supabaseClient) {
+    note.classList.remove("hidden");
+    form.classList.add("hidden"); form.classList.remove("flex");
+    signedIn.classList.add("hidden"); signedIn.classList.remove("flex");
+    return;
+  }
+  note.classList.add("hidden");
+  if (currentUser) {
+    document.getElementById("authUserEmail").textContent = currentUser.email || "";
+    signedIn.classList.remove("hidden"); signedIn.classList.add("flex");
+    form.classList.add("hidden"); form.classList.remove("flex");
+  } else {
+    signedIn.classList.add("hidden"); signedIn.classList.remove("flex");
+    form.classList.remove("hidden"); form.classList.add("flex");
+  }
+}
+
+async function handleSession(session) {
+  currentUser = session ? session.user : null;
+  currentProfile = null;
+  if (currentUser) {
+    try {
+      let profile = await store.getProfile(currentUser.id);
+      if (!profile) {
+        profile = {
+          id: currentUser.id, email: currentUser.email,
+          role: isAdminEmail(currentUser.email) ? "admin" : "member",
+          status: "active", neighborhood: CURRENT_SLUG
+        };
+        await store.upsertProfile(profile);
+      }
+      currentProfile = profile;
+      if (profile.status === "banned") {
+        document.getElementById("authMessage").textContent = "This account has been banned from this tool library.";
+        if (supabaseClient) await supabaseClient.auth.signOut();
+        currentUser = null;
+        currentProfile = null;
+      }
+    } catch (e) { console.warn("Profile load failed:", e); }
+  }
+  renderAuth();
+  render();
+}
+
+function initAuth() {
+  renderAuth();
+  if (!supabaseClient) return;
+  supabaseClient.auth.getSession().then(({ data }) => handleSession(data.session));
+  supabaseClient.auth.onAuthStateChange((_event, session) => { handleSession(session); });
+}
+
+document.getElementById("authForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = document.getElementById("authMessage");
+  if (!supabaseClient) { msg.textContent = "Sign-in is not configured yet."; return; }
+  const email = document.getElementById("authEmail").value.trim();
+  if (!email) return;
+  msg.textContent = "Sending your sign-in link...";
+  const { error } = await supabaseClient.auth.signInWithOtp({
+    email: email,
+    options: { emailRedirectTo: window.location.href.split("#")[0] }
+  });
+  msg.textContent = error ? ("Could not send the link: " + error.message) : ("Check " + email + " for your sign-in link.");
+});
+document.getElementById("authSignOut").addEventListener("click", async () => {
+  if (supabaseClient) await supabaseClient.auth.signOut();
+  currentUser = null;
+  currentProfile = null;
+  document.getElementById("authMessage").textContent = "";
+  renderAuth();
+  render();
+});
+
+/* ================= PHASE 2: tenant display + neighborhood registration ================= */
+function renderTenant() {
+  const nb = currentNeighborhood;
+  document.getElementById("tenantName").textContent = nb ? nb.name.replace(/ Neighborhood Association$/, "") : CURRENT_SLUG;
+  document.getElementById("tenantAddress").textContent = CURRENT_SLUG + ".toollendinglibrary.com";
+}
+
+const RESERVED_SLUGS = ["www", "app", "api", "mail", "admin", "support", "valentine-toollendinglibrary"];
+function normalizeSlug(s) {
+  return String(s == null ? "" : s).toLowerCase().trim().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-+|-+$/g, "");
+}
+function slugProblem(slug) {
+  if (!slug) return "Enter a short name.";
+  if (slug.length < 3) return "Short names need at least 3 characters.";
+  if (RESERVED_SLUGS.indexOf(slug) >= 0) return "That short name is reserved.";
+  if (allNeighborhoods.some(n => n.slug === slug)) return "That short name is already taken.";
+  return "";
+}
+
+const neighborhoodModal = document.getElementById("neighborhoodModal");
+document.getElementById("startNeighborhoodBtn").addEventListener("click", async () => {
+  try { allNeighborhoods = await store.listNeighborhoods(); } catch (e) { console.warn("Neighborhood list failed:", e); }
+  document.getElementById("nbResult").classList.add("hidden");
+  neighborhoodModal.showModal();
+});
+document.getElementById("nbClose").addEventListener("click", () => neighborhoodModal.close());
+neighborhoodModal.addEventListener("click", e => { if (e.target === neighborhoodModal) neighborhoodModal.close(); });
+document.getElementById("nbSlug").addEventListener("input", e => {
+  const slug = normalizeSlug(e.target.value);
+  e.target.value = slug;
+  const msg = document.getElementById("nbSlugMsg");
+  const problem = slug ? slugProblem(slug) : "";
+  msg.textContent = problem || (slug ? slug + ".toollendinglibrary.com is available." : "Lowercase letters, numbers, and hyphens.");
+  msg.className = "text-xs mt-1 " + (problem ? "text-brick-600" : slug ? "text-pine-700" : "text-stone-400");
+});
+document.getElementById("neighborhoodForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const name = document.getElementById("nbName").value.trim();
+  const slug = normalizeSlug(document.getElementById("nbSlug").value);
+  const msg = document.getElementById("nbSlugMsg");
+  try { allNeighborhoods = await store.listNeighborhoods(); } catch (err) { console.warn("Neighborhood list failed:", err); }
+  const problem = slugProblem(slug);
+  if (!name || problem) {
+    msg.textContent = problem || "Enter the organization name.";
+    msg.className = "text-xs mt-1 text-brick-600";
+    return;
+  }
+  try {
+    const nb = await store.createNeighborhood({ name: name, slug: slug, createdBy: currentUser ? currentUser.id : "" });
+    if (currentUser) {
+      // The creator becomes the first admin of the new neighborhood.
+      const profile = {
+        id: currentUser.id, email: currentUser.email, role: "admin",
+        status: currentProfile ? currentProfile.status : "active", neighborhood: nb.slug
+      };
+      try { await store.upsertProfile(profile); currentProfile = profile; } catch (err) { console.warn("Admin profile save failed:", err); }
+    }
+    const result = document.getElementById("nbResult");
+    result.innerHTML = "<p class='font-bold'>Your library is registered.</p>" +
+      "<p class='mt-1'>Its address will be <span class='font-semibold'>https://" + esc(nb.slug) + ".toollendinglibrary.com</span>.</p>" +
+      "<p class='mt-1'>" + (currentUser ? "You are its first admin." : "Sign in with your email so you are recognized as its admin.") + " The address goes live once the domain and DNS are set up (see the phase 2 README).</p>";
+    result.classList.remove("hidden");
+    renderAuth();
+    toast(nb.name + " registered as " + nb.slug + ".toollendinglibrary.com.");
+  } catch (err) {
+    msg.textContent = "Could not register that name: " + (err && err.message ? err.message : String(err));
+    msg.className = "text-xs mt-1 text-brick-600";
+  }
+});
+
+/* ================= PHASE 2: owner tool management ================= */
+const editModal = document.getElementById("editModal");
+let editToolId = null;
+let editPhotoData = "";
+
+function updateEditPhotoPreview() {
+  const t = state.tools.find(x => x.id === editToolId);
+  const img = document.getElementById("editPhotoPreview");
+  const src = document.getElementById("editRemovePhoto").checked ? "" : (editPhotoData || (t ? t.photo : ""));
+  if (src) { img.src = src; img.classList.remove("hidden"); } else { img.removeAttribute("src"); img.classList.add("hidden"); }
+}
+function openEdit(tool) {
+  editToolId = tool.id;
+  editPhotoData = "";
+  document.getElementById("editName").value = tool.name;
+  document.getElementById("editCategory").innerHTML = CATEGORIES.map(c => '<option' + (c === tool.category ? " selected" : "") + '>' + esc(c) + '</option>').join("");
+  document.getElementById("editContact").value = tool.contact || "";
+  document.getElementById("editDesc").value = tool.desc || "";
+  fillPickupPresets("editPickupPresets", "edit-pickup-preset", tool.pickupWindows || []);
+  const otherWin = (Array.isArray(tool.pickupWindows) ? tool.pickupWindows : []).find(w => !PICKUP_PRESETS.some(p => p.label === w.label));
+  document.getElementById("editPickupOther").value = otherWin ? otherWin.label : "";
+  document.getElementById("editPhoto").value = "";
+  document.getElementById("editRemovePhoto").checked = false;
+  updateEditPhotoPreview();
+  editModal.showModal();
+}
+async function removeToolEverywhere(t) {
+  state.tools = state.tools.filter(x => x.id !== t.id);
+  state.requests = state.requests.filter(r => r.toolId !== t.id);
+  save();
+  if (store.mode === "supabase") {
+    try { await store.deleteTool(t.id); } catch (e) { console.warn("store.deleteTool failed:", e); }
+  }
+  render();
+  toast("Listing removed.");
+}
+document.getElementById("editClose").addEventListener("click", () => editModal.close());
+editModal.addEventListener("click", e => { if (e.target === editModal) editModal.close(); });
+document.getElementById("editPhoto").addEventListener("change", e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { editPhotoData = String(reader.result || ""); updateEditPhotoPreview(); };
+  reader.readAsDataURL(file);
+});
+document.getElementById("editRemovePhoto").addEventListener("change", updateEditPhotoPreview);
+document.getElementById("editForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const t = state.tools.find(x => x.id === editToolId);
+  if (!t) { editModal.close(); return; }
+  t.name = document.getElementById("editName").value.trim();
+  t.category = document.getElementById("editCategory").value;
+  t.contact = document.getElementById("editContact").value.trim();
+  t.desc = document.getElementById("editDesc").value.trim();
+  t.pickupWindows = gatherPickupWindows("edit-pickup-preset", "editPickupOther");
+  if (document.getElementById("editRemovePhoto").checked) t.photo = "";
+  else if (editPhotoData) t.photo = editPhotoData;
+  save();
+  if (store.mode === "supabase") {
+    try { await store.updateTool(t); } catch (err) { console.warn("store.updateTool failed:", err); }
+  }
+  editModal.close();
+  render();
+  toast("Tool updated.");
+});
+document.getElementById("editDelete").addEventListener("click", () => {
+  const t = state.tools.find(x => x.id === editToolId);
+  if (t && confirm("Delete " + t.name + " from the library? This cannot be undone.")) {
+    editModal.close();
+    removeToolEverywhere(t);
+  }
+});
+
+/* ================= PHASE 2: admin actions ================= */
+async function renderAdmin() {
+  const list = document.getElementById("adminUserList");
+  if (!list || !isAdminUser()) return;
+  list.innerHTML = '<p class="text-sm text-stone-400">Loading users...</p>';
+  let profiles = [];
+  try { profiles = await store.listProfiles(); } catch (e) { console.warn("listProfiles failed:", e); }
+  adminProfiles = profiles;
+  if (!profiles.length) {
+    list.innerHTML = '<p class="text-sm text-stone-400 bg-white border border-dashed border-pine-200 rounded-2xl p-6 text-center">No profiles yet. A profile is created the first time a neighbor signs in.</p>';
+    return;
+  }
+  list.innerHTML = profiles.map(p =>
+    '<div class="bg-white rounded-2xl shadow-card border border-pine-100 p-5 flex flex-wrap items-center justify-between gap-3">' +
+      '<div><p class="font-bold text-pine-950">' + esc(p.email) + '</p>' +
+      '<p class="text-sm text-stone-500">Role: ' + esc(p.role) + ' · Status: ' + esc(p.status) + '</p></div>' +
+      '<div class="flex gap-2">' +
+        (p.status === "banned"
+          ? '<button class="admin-unban-btn bg-pine-800 hover:bg-pine-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Unban</button>'
+          : '<button class="admin-ban-btn bg-white border border-stone-300 hover:border-brick-400 text-stone-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Ban</button>') +
+        '<button class="admin-delete-btn bg-brick-500 hover:bg-brick-600 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Delete user</button>' +
+      '</div></div>'
+  ).join("");
+}
+async function adminSetStatus(p, status) {
+  try { await store.setProfileStatus(p.id, status); } catch (e) { console.warn("setProfileStatus failed:", e); }
+  p.status = status;
+  renderAdmin();
+  toast(p.email + (status === "banned" ? " is banned." : " is unbanned."));
+}
+async function adminDeleteUser(p) {
+  if (!confirm("Delete " + p.email + "? Their profile, tools, and requests in this library will be removed.")) return;
+  try { await store.deleteProfile(p); } catch (e) { console.warn("deleteProfile failed:", e); }
+  render();
+  renderAdmin();
+  toast("User deleted.");
+}
+
+/* ================= PHASE 2: deep links + boot ================= */
+function openDeepLink() {
+  const m = /^#tool-(.+)$/.exec(window.location.hash || "");
+  if (!m) return;
+  const el = document.getElementById("tool-" + m[1]);
+  if (!el) return;
+  showTab("catalog");
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  el.classList.add("ring-2", "ring-brick-500");
+}
+window.addEventListener("hashchange", openDeepLink);
+
+initAuth();
+if (store.mode === "supabase") {
+  store.init();
+} else {
+  allNeighborhoods = loadLocalNeighborhoods();
+  currentNeighborhood = allNeighborhoods.find(n => n.slug === CURRENT_SLUG) || allNeighborhoods[0] || null;
+  state = localStore.load();
+  render();
+  renderTenant();
+  openDeepLink();
+}
 </script>
 </body>
 </html>
