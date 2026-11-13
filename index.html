@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Valentine Tool Library | Valentine Neighborhood Association</title>
-<meta id="metaDescription" name="description" content="Borrow and lend tools with your community. A sharing library run by the Valentine Neighborhood Association in Kansas City.">
+<title>Tool Library</title>
+<meta id="metaDescription" name="description" content="Borrow and lend tools with your community.">
 <script src="https://cdn.tailwindcss.com"></script>
 <!-- Phase 2: Supabase client library (magic-link auth + shared data store). Safe to load while unconfigured. -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -51,7 +51,7 @@ tailwind.config = {
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
     <button data-scroll-to="catalog" class="flex items-center gap-2.5 min-w-0 text-left">
       <img id="headerLogo" class="hidden h-9 w-auto shrink-0" alt="" onerror="this.classList.add('hidden')">
-      <span id="barTitle" class="font-display font-bold text-gray-950 truncate">Valentine Tool Library</span>
+      <span id="barTitle" class="font-display font-bold text-gray-950 truncate">Tool Library</span>
     </button>
     <div class="flex items-center gap-2 sm:gap-3 shrink-0">
       <span id="barUserChip" class="hidden items-center gap-2 text-sm text-gray-600">
@@ -83,8 +83,8 @@ tailwind.config = {
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <p id="tenantEyebrow" class="text-gray-500 text-xs sm:text-sm font-semibold tracking-widest uppercase">Valentine Neighborhood Association · Kansas City</p>
-        <h1 id="tenantTitle" class="font-display text-3xl sm:text-5xl font-bold mt-2">Valentine Tool Library</h1>
+        <p id="tenantEyebrow" class="text-gray-500 text-xs sm:text-sm font-semibold tracking-widest uppercase">A sharing library</p>
+        <h1 id="tenantTitle" class="font-display text-3xl sm:text-5xl font-bold mt-2">Tool Library</h1>
         <p class="text-gray-600 mt-3 max-w-xl text-sm sm:text-base">Borrow the ladder, pressure washer, or canopy you need for the weekend, from a member who already owns it. Lend the tools sitting in your garage and put them to work in your community.</p>
       </div>
       <div class="flex flex-col gap-2">
@@ -288,11 +288,11 @@ tailwind.config = {
     <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6 mt-4">
       <h3 class="font-bold text-gray-900">Library ground rules</h3>
       <ul class="list-disc pl-5 text-sm text-gray-600 space-y-1.5 mt-3">
-        <li id="ruleResidency">Members lend to members: borrowers and lenders both live in the Valentine neighborhood.</li>
+        <li id="ruleResidency">Members lend to members: borrowers and lenders both live in the area this library serves.</li>
         <li>No fees. If something breaks in normal use, tell the owner right away and work it out in good faith.</li>
         <li>Return tools clean and ready for the next person, by the due date on your loan.</li>
         <li>Chainsaws and other high risk tools are lent at the owner's discretion, sometimes only with a quick orientation.</li>
-        <li id="ruleHost">The Valentine Neighborhood Association hosts the catalog. Loans are private agreements between the two members involved.</li>
+        <li id="ruleHost">This library hosts the catalog. Loans are private agreements between the two members involved.</li>
       </ul>
     </div>
   </section>
@@ -307,7 +307,7 @@ tailwind.config = {
       </div>
     </div>
     <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-      <p class="text-sm text-gray-600">You are browsing the <span id="tenantName" class="font-semibold text-gray-900">Valentine</span> tool library · <span id="tenantAddress" class="text-gray-500">valentine.toollendinglibrary.com</span></p>
+      <p class="text-sm text-gray-600">You are browsing the <span id="tenantName" class="font-semibold text-gray-900"></span> tool library · <span id="tenantAddress" class="text-gray-500">toollendinglibrary.com</span></p>
       <button id="startNeighborhoodBtn" type="button" class="text-sm font-semibold text-gray-900 underline decoration-dotted hover:text-gray-600">Start your organization's library</button>
     </div>
     <p id="authNotConfigured" class="text-sm text-gray-500">Sign-in is not configured yet. You can still browse the catalog, request tools, and lend tools on this page.</p>
@@ -421,7 +421,7 @@ tailwind.config = {
     </div>
     <div id="adminLogoWrap" class="hidden bg-white rounded-2xl shadow-card border border-gray-200 p-5 mt-6 max-w-2xl">
       <h3 class="font-bold text-gray-900">Organization logo</h3>
-      <p class="text-sm text-gray-500 mt-1">Shown at the top of this library and used as the browser tab icon. Paste a public URL or a path on this site, for example /valentine-heart-mark.png, or upload an image file below. A PNG with a transparent background works best.</p>
+      <p class="text-sm text-gray-500 mt-1">Shown at the top of this library and used as the browser tab icon. Paste a public URL or a path on this site, for example /logo.png, or upload an image file below. A PNG with a transparent background works best.</p>
       <div class="flex flex-wrap items-center gap-3 mt-3">
         <img id="adminLogoPreview" class="hidden h-10 w-auto shrink-0" alt="" onerror="this.classList.add('hidden')">
         <input id="adminLogoUrl" maxlength="300" placeholder="/your-logo.png or https://example.org/logo.png" class="flex-1 min-w-[14rem] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
@@ -443,7 +443,7 @@ tailwind.config = {
 
 <footer class="border-t border-gray-200 mt-4">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row justify-between gap-3 text-sm text-gray-500">
-    <p class="flex items-center gap-2.5"><img id="footerLogo" class="hidden h-7 w-auto opacity-80 shrink-0" alt="" onerror="this.classList.add('hidden')"><span><span id="footerLibraryName" class="font-semibold text-gray-900">Valentine Tool Library</span> · <span id="footerOrgLine">A Valentine Neighborhood Association project · Kansas City, Missouri</span></span></p>
+    <p class="flex items-center gap-2.5"><img id="footerLogo" class="hidden h-7 w-auto opacity-80 shrink-0" alt="" onerror="this.classList.add('hidden')"><span><span id="footerLibraryName" class="font-semibold text-gray-900">Tool Library</span> · <span id="footerOrgLine">Run by members, for members</span></span></p>
     <div class="flex items-center gap-4">
       <button id="footerTermsBtn" type="button" class="underline decoration-dotted hover:text-gray-700">Terms and conditions</button>
       <button id="footerCookieBtn" type="button" class="underline decoration-dotted hover:text-gray-700">Cookie policy</button>
@@ -802,10 +802,17 @@ const PRIVACY_TEXT = [
 /* Phase 5.7: tenant-driven names for chrome and email copy. Generic
    product copy never hardcodes an organization's name or assumes the
    organization is a neighborhood: the display names below always come
-   from the current library's own record. The fallback is the default
-   tenant (Valentine), used only before tenant data loads. */
+   from the current library's own record.
+   Phase 5.11 (S12): when no library record has loaded yet, or the slug
+   has no record at all, the fallback is this neutral placeholder,
+   never a real library. Before this fix the fallback was Valentine's
+   own record, so the terms, the privacy text, and anything composed
+   before the tenant load finished wore Valentine's name on every
+   other library's site. With the neutral placeholder the helpers
+   below produce plain "Tool Library" wording instead. */
+const NEUTRAL_TENANT = { name: "", residencyArea: "" };
 function tenantRecord() {
-  return currentNeighborhood || { name: "Valentine Neighborhood Association", residencyArea: "the Valentine neighborhood" };
+  return currentNeighborhood || NEUTRAL_TENANT;
 }
 function tenantShortName() {
   return String(tenantRecord().name || "").replace(/ Neighborhood Association$/, "");
@@ -814,34 +821,48 @@ function libraryOrgName() {
   return tenantRecord().name || tenantShortName();
 }
 function libraryLabel() {
-  return tenantShortName() + " Tool Library";
+  const short = tenantShortName();
+  return short ? short + " Tool Library" : "Tool Library";
 }
 function librarySignoff() {
-  return libraryLabel() + ", a " + libraryOrgName() + " project";
+  const org = libraryOrgName();
+  return org ? libraryLabel() + ", a " + org + " project" : libraryLabel();
 }
 function tenantResidency() {
   const nb = tenantRecord();
-  return nb.residencyArea || ("the " + tenantShortName() + " area");
+  if (nb.residencyArea) return nb.residencyArea;
+  const short = tenantShortName();
+  return short ? "the " + short + " area" : "the area this library serves";
 }
 
-/* Render the privacy policy for the neighborhood currently being browsed. */
+/* Fill the tenant tokens in the terms and privacy templates. With a
+   loaded library the organization token is its own name, exactly as
+   before. In the neutral state (no library loaded, Phase 5.11) the
+   welcome line names just the Tool Library and the residency token
+   reads "the area this library serves", so the texts stay generic
+   rather than borrowing another library's name. */
+function fillTenantTokens(text) {
+  const nb = tenantRecord();
+  let out = text
+    .split("[Organization Name / residency area]").join(tenantResidency())
+    .split("[slug]").join(CURRENT_SLUG);
+  if (nb.name) {
+    out = out.split("[Organization Name]").join(nb.name);
+  } else {
+    out = out.split("[Organization Name] Tool Library").join("Tool Library")
+             .split("[Organization Name]").join("this library");
+  }
+  return out;
+}
+
+/* Render the privacy policy for the library currently being browsed. */
 function privacyText() {
-  const nb = tenantRecord();
-  const residency = tenantResidency();
-  return PRIVACY_TEXT
-    .split("[Organization Name / residency area]").join(residency)
-    .split("[Organization Name]").join(nb.name)
-    .split("[slug]").join(CURRENT_SLUG);
+  return fillTenantTokens(PRIVACY_TEXT);
 }
 
-/* Render the terms for the neighborhood currently being browsed. */
+/* Render the terms for the library currently being browsed. */
 function termsText() {
-  const nb = tenantRecord();
-  const residency = tenantResidency();
-  return TERMS_TEXT
-    .split("[Organization Name / residency area]").join(residency)
-    .split("[Organization Name]").join(nb.name)
-    .split("[slug]").join(CURRENT_SLUG);
+  return fillTenantTokens(TERMS_TEXT);
 }
 
 const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
@@ -1061,9 +1082,15 @@ const supabaseStore = {
   async load() {
     const nbs = await this.loadNeighborhoods();
     allNeighborhoods = nbs;
-    currentNeighborhood = nbs.find(n => n.slug === CURRENT_SLUG) || nbs[0] || null;
-    if (!currentNeighborhood) throw new Error("No libraries exist in the database yet.");
-    const nid = currentNeighborhood.id;
+    /* Phase 5.11 (S12): no fallback to another library's record. If
+       this slug has no library, currentNeighborhood stays null and the
+       page keeps its neutral shell with an empty catalog, rather than
+       wearing the first library's name (which was Valentine). Only a
+       completely empty libraries table is an error, and it drops to
+       the local fallback in store.init as before. */
+    currentNeighborhood = nbs.find(n => n.slug === CURRENT_SLUG) || null;
+    if (!currentNeighborhood && !nbs.length) throw new Error("No libraries exist in the database yet.");
+    const nid = currentNeighborhood ? currentNeighborhood.id : null;
 
     let { data: toolRows, error: toolErr } = await supabaseClient.from("tools").select("*").eq("neighborhood_id", nid).order("created_at", { ascending: false });
     if (toolErr) throw toolErr;
@@ -1192,7 +1219,10 @@ const store = {
       console.warn("Supabase load failed, falling back to local data:", e);
       this.mode = "local";
       allNeighborhoods = loadLocalNeighborhoods();
-      currentNeighborhood = allNeighborhoods.find(n => n.slug === CURRENT_SLUG) || allNeighborhoods[0] || null;
+      /* Phase 5.11 (S12): find-only, as in supabaseStore.load. A slug
+         with no local record stays on the neutral shell instead of
+         borrowing the first library's branding. */
+      currentNeighborhood = allNeighborhoods.find(n => n.slug === CURRENT_SLUG) || null;
       state = localStore.load();
     }
     catalogLoading = false;
@@ -1635,7 +1665,12 @@ const notify = (() => {
      library admin hears about the join. The note names the member and
      gives their email, home address, and the join time. The address is
      included only for admins, so they can confirm the member lives in
-     the library's area and is part of the community, and for safety. */
+     the library's area and is part of the community, and for safety.
+     Phase 5.9: this email is no longer sent from the browser. The
+     server-side notifications_check.js owns delivery and stamps
+     profiles.join_notified_at; its composeMemberJoinedEmail mirrors
+     this text exactly. This copy stays as the reference wording beside
+     the other composers; keep the two in step. */
   function composeMemberJoinedEmail(d) {
     const base = d.siteUrl || (window.location.origin + window.location.pathname);
     const lines = [
@@ -1667,7 +1702,12 @@ const notify = (() => {
   /* Phase 5.6: a member has reported another member to the admin. The
      note carries the reporter's name and email, who was reported, the
      context the report came from, and the reporter's message verbatim,
-     so the admin can act from the member list below it. */
+     so the admin can act from the member list below it.
+     Phase 5.9: this email is no longer sent from the browser. The
+     server-side notifications_check.js owns delivery and stamps
+     reports.report_notified_at; its composeReportEmail mirrors this
+     text exactly. This copy stays as the reference wording beside the
+     other composers; keep the two in step. */
   function composeReportEmail(d) {
     const base = d.siteUrl || (window.location.origin + window.location.pathname);
     const lines = [
@@ -1758,16 +1798,10 @@ const notify = (() => {
       if (!message.to) { console.log("[STUB EMAIL] release email skipped, no email address on file."); return Promise.resolve({ ok: false, skipped: true }); }
       return deliver(message);
     },
-    sendMemberJoinedEmail(details) {
-      const message = composeMemberJoinedEmail(details);
-      if (!message.to) { console.log("[STUB EMAIL] member joined email skipped, no email address on file."); return Promise.resolve({ ok: false, skipped: true }); }
-      return deliver(message);
-    },
-    sendReportEmail(details) {
-      const message = composeReportEmail(details);
-      if (!message.to) { console.log("[STUB EMAIL] member report email skipped, no email address on file."); return Promise.resolve({ ok: false, skipped: true }); }
-      return deliver(message);
-    },
+    /* Phase 5.9: no sendMemberJoinedEmail or sendReportEmail here any
+       more. Those two admin notes are sent by the server-side
+       notifications_check.js (see the mirror notes on the composers
+       above), so a closed browser tab can no longer lose them. */
     get emailOutbox() { return loadOutbox(); }
   };
 })();
@@ -2543,47 +2577,17 @@ function applyIdentityToForms() {
     contactInput.readOnly = signedIn;
   }
 }
-/* Phase 5.5: tell the library's admins that a new member has joined.
-   Recipients are the current library's active admin profiles, plus the
-   platform ADMIN_EMAILS list as a fallback, deduplicated and never
-   including the person who just joined. Every failure is swallowed:
-   a notification problem must never break sign-up. */
-async function notifyAdminsOfMemberJoined(memberProfile) {
-  try {
-    if (!memberProfile || !memberProfile.email) return;
-    const joiner = String(memberProfile.email).trim().toLowerCase();
-    const recipients = new Map();
-    const addRecipient = raw => {
-      const email = String(raw || "").trim();
-      if (email && email.toLowerCase() !== joiner) recipients.set(email.toLowerCase(), email);
-    };
-    let profiles = [];
-    try { profiles = await store.listProfiles(); } catch (e) { profiles = []; }
-    (profiles || []).forEach(p => {
-      if (p && p.role === "admin" && p.status === "active") addRecipient(p.email);
-    });
-    (ADMIN_EMAILS || []).forEach(addRecipient);
-    if (!recipients.size) return;
-    const libraryName = libraryOrgName();
-    const details = {
-      memberName: memberProfile.fullName || "",
-      memberEmail: memberProfile.email,
-      memberAddress: memberProfile.address || "",
-      libraryName: libraryName,
-      joinedAt: memberProfile.termsAcceptedAt || new Date().toISOString(),
-      siteUrl: window.location.origin + window.location.pathname
-    };
-    await Promise.all(Array.from(recipients.values()).map(to =>
-      notify.sendMemberJoinedEmail(Object.assign({ to: to }, details))
-    ));
-  } catch (e) {
-    console.warn("Admin join notification failed:", e);
-  }
-}
+/* Phase 5.5 told the library's admins about a new member from this
+   browser; Phase 5.9 moved that email to the server. The saved profile
+   is the record: notifications_check.js finds complete memberships
+   whose profiles.join_notified_at stamp is still null and emails that
+   library's admins itself, so the note can no longer be lost when this
+   tab closes or a send fails here. Recipient resolution (the library's
+   active admins plus ADMIN_EMAILS, deduplicated, the joiner excluded)
+   lives in the checker now, mirroring what this page used to do. */
 document.getElementById("signupForm").addEventListener("submit", async e => {
   e.preventDefault();
   if (!currentUser) return;
-  const wasComplete = signupComplete();
   const fullName = document.getElementById("signupName").value.trim();
   const address = document.getElementById("signupAddress").value.trim();
   if (!fullName || !address) { toast("Please add your full name and home address to finish signing up."); return; }
@@ -2604,7 +2608,9 @@ document.getElementById("signupForm").addEventListener("submit", async e => {
   try {
     currentProfile = await store.upsertProfile(profile);
     anyProfile = currentProfile;
-    if (!wasComplete) await notifyAdminsOfMemberJoined(currentProfile);
+    /* Phase 5.9: no admin join email from here. The saved profile is
+       stamped by notifications_check.js once it has emailed the
+       library's admins (see the note above this form's handler). */
     syncCookieBannerWithProfile();
   } catch (err) {
     console.warn("Sign-up save failed:", err);
@@ -2858,47 +2864,14 @@ async function resolveReportedUserId(identityEmail) {
     return match ? match.id : "";
   } catch (e) { return ""; }
 }
-async function libraryAdminRecipients(excludedEmail) {
-  const excluded = String(excludedEmail || "").trim().toLowerCase();
-  const recipients = new Map();
-  const addRecipient = raw => {
-    const email = String(raw || "").trim();
-    if (email && email.toLowerCase() !== excluded) recipients.set(email.toLowerCase(), email);
-  };
-  let profiles = [];
-  try { profiles = await store.listProfiles(); } catch (e) { profiles = []; }
-  (profiles || []).forEach(p => {
-    if (p && p.role === "admin" && p.status === "active") addRecipient(p.email);
-  });
-  (ADMIN_EMAILS || []).forEach(addRecipient);
-  return Array.from(recipients.values());
-}
 /* The saved report is the record; the admin email is a notification
-   about it. Every failure here is swallowed so a mail problem never
-   undoes the filing or blocks its confirmation. */
-async function notifyAdminsOfReport(report) {
-  try {
-    if (!report) return;
-    const recipients = await libraryAdminRecipients(report.reporterEmail);
-    if (!recipients.length) return;
-    const libraryName = libraryOrgName();
-    const details = {
-      reporterName: report.reporterName || "",
-      reporterEmail: report.reporterEmail || "",
-      reportedName: report.reportedName || "",
-      context: report.context || "",
-      message: report.message || "",
-      libraryName: libraryName,
-      filedAt: report.createdAt || new Date().toISOString(),
-      siteUrl: window.location.origin + window.location.pathname
-    };
-    await Promise.all(recipients.map(to =>
-      notify.sendReportEmail(Object.assign({ to: to }, details))
-    ));
-  } catch (e) {
-    console.warn("Admin report notification failed:", e);
-  }
-}
+   about it. Phase 5.6 sent that email from this browser; Phase 5.9
+   moved it to the server: notifications_check.js finds reports whose
+   reports.report_notified_at stamp is still null and emails that
+   library's admins itself (the library's active admins plus
+   ADMIN_EMAILS, deduplicated, the reporter excluded), so a mail
+   problem here can never undo a filing or block its confirmation,
+   and a closed tab can no longer lose the note. */
 const reportModal = document.getElementById("reportModal");
 let reportDraft = null;
 async function openReport(target) {
@@ -2957,7 +2930,10 @@ document.getElementById("reportForm").addEventListener("submit", async e => {
   reportModal.close();
   messageEl.value = "";
   reportDraft = null;
-  await notifyAdminsOfReport(report);
+  /* Phase 5.9: the admin email is sent by notifications_check.js, not
+     from this browser; the confirmation below still holds, because the
+     filed report is in the admin's queue and the checker guarantees
+     the email follows within one of its runs. */
   toast("Your report has been sent to the library admin.");
   if (isAdminUser()) renderAdmin();
 });
@@ -4008,7 +3984,10 @@ if (store.mode === "supabase") {
   store.init();
 } else {
   allNeighborhoods = loadLocalNeighborhoods();
-  currentNeighborhood = allNeighborhoods.find(n => n.slug === CURRENT_SLUG) || allNeighborhoods[0] || null;
+  /* Phase 5.11 (S12): find-only, as in supabaseStore.load. A slug with
+     no local record stays on the neutral shell instead of borrowing
+     the first library's branding. */
+  currentNeighborhood = allNeighborhoods.find(n => n.slug === CURRENT_SLUG) || null;
   state = localStore.load();
   render();
   renderTenant();
