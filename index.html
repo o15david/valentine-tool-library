@@ -12,18 +12,12 @@
 tailwind.config = {
   theme: {
     extend: {
-      colors: {
-        pine: {50:'#f2f7f3',100:'#e0eee3',200:'#c2dcc9',300:'#97c2a3',400:'#67a179',500:'#46845a',600:'#356847',700:'#2b543b',800:'#243f2f',900:'#1e3527',950:'#0f1f16'},
-        brick: {50:'#fbf3f1',100:'#f6e3de',200:'#eec6bc',300:'#e29e8d',400:'#d06f57',500:'#bd4f34',600:'#a03e28',700:'#843322',800:'#6d2c20',900:'#5b281e'},
-        cream: '#faf6ee',
-        sand: '#f1e8d5'
-      },
       fontFamily: {
-        display: ['Georgia','Cambria','serif'],
-        sans: ['system-ui','-apple-system','Segoe UI','Roboto','Helvetica','Arial','sans-serif']
-      },
+          display: ['system-ui','-apple-system','Segoe UI','Roboto','Helvetica','Arial','sans-serif'],
+          sans: ['system-ui','-apple-system','Segoe UI','Roboto','Helvetica','Arial','sans-serif']
+        },
       boxShadow: {
-        card: '0 1px 3px rgba(30,53,39,.08), 0 8px 24px rgba(30,53,39,.06)'
+        card: '0 1px 3px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.05)'
       }
     }
   }
@@ -31,28 +25,28 @@ tailwind.config = {
 </script>
 <style>
   html { scroll-behavior: smooth; }
-  body { background-color: #faf6ee; }
-  .chip-active { background-color: #1e3527; color: #fff; border-color: #1e3527; }
-  .tab-active { background-color: #1e3527; color: #fff; }
-  dialog::backdrop { background: rgba(15,31,22,.55); }
+  body { background-color: #ffffff; }
+  .chip-active { background-color: #171717; color: #fff; border-color: #171717; }
+  .tab-active { background-color: #171717; color: #fff; }
+  dialog::backdrop { background: rgba(0,0,0,.45); }
   .fade-in { animation: fadeIn .18s ease-out; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: none; } }
 </style>
 </head>
-<body class="font-sans text-stone-800 antialiased">
+<body class="font-sans text-gray-800 antialiased">
 
 <!-- Header -->
-<header class="bg-pine-900 text-cream">
+<header class="bg-white text-gray-900 border-b border-gray-200">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <p class="text-pine-200 text-xs sm:text-sm font-semibold tracking-widest uppercase">Valentine Neighborhood Association · Kansas City</p>
+        <p class="text-gray-500 text-xs sm:text-sm font-semibold tracking-widest uppercase">Valentine Neighborhood Association · Kansas City</p>
         <h1 class="font-display text-3xl sm:text-5xl font-bold mt-2">Valentine Tool Library</h1>
-        <p class="text-pine-100 mt-3 max-w-xl text-sm sm:text-base">Borrow the ladder, pressure washer, or canopy you need for the weekend, from a neighbor who already owns it. Lend the tools sitting in your garage and put them to work on your street.</p>
+        <p class="text-gray-600 mt-3 max-w-xl text-sm sm:text-base">Borrow the ladder, pressure washer, or canopy you need for the weekend, from a neighbor who already owns it. Lend the tools sitting in your garage and put them to work on your street.</p>
       </div>
       <div class="flex flex-col gap-2">
-        <button data-tab-link="lend" class="bg-brick-500 hover:bg-brick-600 text-white font-semibold px-5 py-2.5 rounded-full text-sm shadow">Lend a tool</button>
-        <button data-tab-link="requests" class="bg-pine-800 hover:bg-pine-700 text-cream font-semibold px-5 py-2.5 rounded-full text-sm border border-pine-600">Borrow requests <span id="pendingBadge" class="ml-1 inline-flex items-center justify-center bg-brick-500 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></button>
+        <button data-tab-link="lend" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shadow">Lend a tool</button>
+        <button data-tab-link="requests" class="bg-white hover:bg-gray-50 text-gray-900 font-semibold px-5 py-2.5 rounded-full text-sm border border-gray-300">Borrow requests <span id="pendingBadge" class="ml-1 inline-flex items-center justify-center bg-gray-900 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></button>
       </div>
     </div>
     <div id="stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8"></div>
@@ -60,34 +54,67 @@ tailwind.config = {
 </header>
 
 <!-- Tabs -->
-<nav class="bg-cream border-b border-sand sticky top-0 z-30">
+<nav class="bg-white border-b border-gray-200 sticky top-0 z-30">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap gap-2">
-    <button class="tab-btn tab-active px-4 py-2 rounded-full text-sm font-semibold border border-pine-200" data-tab="catalog">Tool catalog</button>
-    <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-pine-200 bg-white" data-tab="requests">Requests and loans</button>
-    <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-pine-200 bg-white" data-tab="lend">Lend a tool</button>
-    <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-pine-200 bg-white" data-tab="how">How it works</button>
-    <button id="adminTabBtn" class="tab-btn hidden px-4 py-2 rounded-full text-sm font-semibold border border-pine-200 bg-white" data-tab="admin">Admin</button>
+    <button class="tab-btn tab-active px-4 py-2 rounded-full text-sm font-semibold border border-gray-200" data-tab="catalog">Tool catalog</button>
+    <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-gray-200 bg-white" data-tab="requests">Requests and loans</button>
+    <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-gray-200 bg-white" data-tab="lend">Lend a tool</button>
+    <button class="tab-btn px-4 py-2 rounded-full text-sm font-semibold border border-gray-200 bg-white" data-tab="how">How it works</button>
+    <button id="adminTabBtn" class="tab-btn hidden px-4 py-2 rounded-full text-sm font-semibold border border-gray-200 bg-white" data-tab="admin">Admin</button>
   </div>
 </nav>
 
 <!-- Phase 2: sign-in bar (Supabase magic link; configured in the script below) -->
-<section class="bg-white border-b border-sand">
+<section class="bg-white border-b border-gray-200">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3">
     <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-      <p class="text-sm text-stone-600">You are browsing the <span id="tenantName" class="font-semibold text-pine-900">Valentine</span> tool library · <span id="tenantAddress" class="text-stone-500">valentine.toollendinglibrary.com</span></p>
-      <button id="startNeighborhoodBtn" type="button" class="text-sm font-semibold text-pine-800 underline decoration-dotted hover:text-pine-600">Start a neighborhood library</button>
+      <p class="text-sm text-gray-600">You are browsing the <span id="tenantName" class="font-semibold text-gray-900">Valentine</span> tool library · <span id="tenantAddress" class="text-gray-500">valentine.toollendinglibrary.com</span></p>
+      <button id="startNeighborhoodBtn" type="button" class="text-sm font-semibold text-gray-900 underline decoration-dotted hover:text-gray-600">Start a neighborhood library</button>
     </div>
-    <p id="authNotConfigured" class="text-sm text-stone-500">Sign-in is not configured yet. You can still browse the catalog, request tools, and lend tools below.</p>
+    <p id="authNotConfigured" class="text-sm text-gray-500">Sign-in is not configured yet. You can still browse the catalog, request tools, and lend tools below.</p>
     <form id="authForm" class="hidden flex-wrap items-center gap-2">
-      <label class="text-sm font-semibold text-pine-900" for="authEmail">Neighbor sign-in</label>
-      <input id="authEmail" type="email" required placeholder="you@example.com" class="flex-1 min-w-[12rem] rounded-lg border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
-      <button type="submit" class="bg-pine-800 hover:bg-pine-700 text-white font-semibold px-4 py-2 rounded-full text-sm">Email me a sign-in link</button>
+      <label class="text-sm font-semibold text-gray-900" for="authEmail">Neighbor sign-in</label>
+      <input id="authEmail" type="email" required placeholder="you@example.com" class="flex-1 min-w-[12rem] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+      <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-4 py-2 rounded-full text-sm">Email me a sign-in link</button>
     </form>
     <div id="authSignedIn" class="hidden flex-wrap items-center gap-3">
-      <p class="text-sm text-stone-600">Signed in as <span id="authUserEmail" class="font-semibold text-pine-900"></span></p>
-      <button id="authSignOut" type="button" class="text-sm font-semibold text-brick-600 underline decoration-dotted">Sign out</button>
+      <p class="text-sm text-gray-600">Signed in as <span id="authUserEmail" class="font-semibold text-gray-900"></span></p>
+      <button id="authSignOut" type="button" class="text-sm font-semibold text-gray-700 underline decoration-dotted">Sign out</button>
     </div>
-    <p id="authMessage" class="text-sm text-stone-500 mt-1"></p>
+    <p id="authMessage" class="text-sm text-gray-500 mt-1"></p>
+    <p class="text-xs text-gray-400 mt-1">Sign-in links can only be used once and they expire quickly. If a link stops working, just ask for a fresh one, that is normal.</p>
+  </div>
+</section>
+
+<!-- Sign-up: shown to signed-in neighbors who have not finished signing up.
+     Until it is complete they can browse, but not list or borrow. -->
+<section id="signupSection" class="hidden bg-gray-50 border-b border-gray-200">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <h2 class="font-display text-2xl font-bold text-gray-950">Finish signing up</h2>
+    <p class="text-sm text-gray-500 mt-2 max-w-2xl">You are signed in. Add your name and home address to finish, it takes about a minute. Your address stays private: it is never shown in the library. Only a pickup spot you confirm is shared with a borrower, and only after you approve their request.</p>
+    <form id="signupForm" class="mt-5 grid gap-4 max-w-2xl">
+      <div>
+        <label class="text-sm font-semibold" for="signupName">Full name</label>
+        <input id="signupName" required maxlength="80" placeholder="Your full name" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
+      </div>
+      <div>
+        <label class="text-sm font-semibold" for="signupAddress">Home address</label>
+        <input id="signupAddress" required maxlength="160" placeholder="Street address, city, ZIP" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
+        <p class="text-xs text-gray-400 mt-1">The home you actually live in. The library is for neighbors, so the address has to be your real home.</p>
+      </div>
+      <div>
+        <span class="text-sm font-semibold">Terms</span>
+        <div id="signupTerms" class="mt-1 bg-white border border-gray-200 rounded-xl p-4 text-sm text-gray-600 whitespace-pre-wrap max-h-64 overflow-y-auto"></div>
+        <p id="signupCookie" class="text-xs text-gray-400 mt-2"></p>
+        <label class="flex items-start gap-2 text-sm mt-3">
+          <input id="signupTermsAgree" type="checkbox" required class="accent-gray-900 w-4 h-4 mt-0.5">
+          <span>I agree to the terms above, and I accept the cookie note.</span>
+        </label>
+      </div>
+      <div>
+        <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm">Finish signing up</button>
+      </div>
+    </form>
   </div>
 </section>
 
@@ -97,31 +124,31 @@ tailwind.config = {
   <section id="tab-catalog">
     <div class="flex flex-col lg:flex-row lg:items-center gap-3">
       <div class="relative flex-1">
-        <input id="searchInput" type="search" placeholder="Search tools, for example ladder, drill, canopy" class="w-full rounded-xl border border-pine-200 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+        <input id="searchInput" type="search" placeholder="Search tools, for example ladder, drill, canopy" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
       </div>
-      <label class="inline-flex items-center gap-2 text-sm font-medium bg-white border border-pine-200 rounded-xl px-4 py-3 cursor-pointer">
-        <input id="availableOnly" type="checkbox" class="accent-pine-700 w-4 h-4"> Available only
+      <label class="inline-flex items-center gap-2 text-sm font-medium bg-white border border-gray-200 rounded-xl px-4 py-3 cursor-pointer">
+        <input id="availableOnly" type="checkbox" class="accent-gray-900 w-4 h-4"> Available only
       </label>
     </div>
     <div id="categoryChips" class="flex flex-wrap gap-2 mt-4"></div>
-    <p id="resultCount" class="text-sm text-stone-500 mt-5"></p>
+    <p id="resultCount" class="text-sm text-gray-500 mt-5"></p>
     <div id="toolGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3"></div>
-    <div id="catalogEmpty" class="hidden bg-white border border-dashed border-pine-300 rounded-2xl p-10 text-center">
-      <p class="font-display text-xl font-bold text-pine-900">Nothing matches that search</p>
-      <p class="text-sm text-stone-500 mt-2">Try a different word, or be the first neighbor to lend this tool.</p>
-      <button data-tab-link="lend" class="mt-4 bg-pine-800 hover:bg-pine-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Lend a tool</button>
+    <div id="catalogEmpty" class="hidden bg-white border border-dashed border-gray-300 rounded-2xl p-10 text-center">
+      <p class="font-display text-xl font-bold text-gray-900">No tools match, yet</p>
+      <p class="text-sm text-gray-500 mt-2">Try another word, or be the first neighbor to lend one like it. Your garage might hold exactly what someone on your street needs.</p>
+      <button data-tab-link="lend" class="mt-4 bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Lend a tool</button>
     </div>
   </section>
 
   <!-- Requests -->
   <section id="tab-requests" class="hidden">
-    <h2 class="font-display text-2xl font-bold text-pine-950">Requests and loans</h2>
-    <p class="text-sm text-stone-500 mt-1 max-w-2xl">Neighbors approve requests for their own tools here. Approving checks the tool out and sets the due date. When it comes back, mark it returned and it goes back on the shelf.</p>
-    <h3 class="font-bold text-pine-900 mt-8 mb-3">Waiting for approval</h3>
+    <h2 class="font-display text-2xl font-bold text-gray-950">Requests and loans</h2>
+    <p class="text-sm text-gray-500 mt-1 max-w-2xl">Neighbors approve requests for their own tools here. Approving checks the tool out and sets the due date. When it comes back, mark it returned and it goes back on the shelf.</p>
+    <h3 class="font-bold text-gray-900 mt-8 mb-3">Waiting for approval</h3>
     <div id="pendingList" class="space-y-3"></div>
-    <h3 class="font-bold text-pine-900 mt-10 mb-3">Out on loan</h3>
+    <h3 class="font-bold text-gray-900 mt-10 mb-3">Out on loan</h3>
     <div id="loanList" class="space-y-3"></div>
-    <h3 class="font-bold text-pine-900 mt-10 mb-3">History</h3>
+    <h3 class="font-bold text-gray-900 mt-10 mb-3">History</h3>
     <div id="historyList" class="space-y-3"></div>
   </section>
 
@@ -129,82 +156,87 @@ tailwind.config = {
   <section id="tab-lend" class="hidden">
     <div class="grid lg:grid-cols-5 gap-8">
       <div class="lg:col-span-2">
-        <h2 class="font-display text-2xl font-bold text-pine-950">Lend a tool</h2>
-        <p class="text-sm text-stone-500 mt-2">List a tool you own and are happy to lend to Valentine neighbors. You set the loan length, you approve every request, and borrowers arrange pickup with you directly. You can remove your listing at any time from the catalog.</p>
-        <div class="bg-pine-50 border border-pine-100 rounded-2xl p-5 mt-5 text-sm space-y-2">
-          <p class="font-bold text-pine-900">Good candidates</p>
+        <h2 class="font-display text-2xl font-bold text-gray-950">Lend a tool</h2>
+        <p class="text-sm text-gray-500 mt-2">List a tool you own and are happy to lend to Valentine neighbors. You set the loan length, you approve every request, and borrowers arrange pickup with you directly. You can remove your listing at any time from the catalog.</p>
+        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5 mt-5 text-sm space-y-2">
+          <p class="font-bold text-gray-900">Good candidates</p>
           <p>Extension ladders, pressure washers, carpet cleaners, folding tables and chairs, canopies, post hole diggers, tile saws, and anything else that spends most of the year in the garage.</p>
         </div>
       </div>
-      <form id="lendForm" class="lg:col-span-3 bg-white rounded-2xl shadow-card border border-pine-100 p-6 space-y-4">
+      <form id="lendForm" class="lg:col-span-3 bg-white rounded-2xl shadow-card border border-gray-200 p-6 space-y-4">
         <div>
           <label class="text-sm font-semibold" for="lendName">Tool name</label>
-          <input id="lendName" required maxlength="60" placeholder="For example: 24 ft extension ladder" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+          <input id="lendName" required maxlength="60" placeholder="For example: 24 ft extension ladder" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
         </div>
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label class="text-sm font-semibold" for="lendCategory">Category</label>
-            <select id="lendCategory" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pine-500"></select>
+            <select id="lendCategory" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"></select>
           </div>
           <div>
             <label class="text-sm font-semibold" for="lendDays">Standard loan length (days)</label>
-            <input id="lendDays" type="number" min="1" max="30" value="3" required class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+            <input id="lendDays" type="number" min="1" max="30" value="3" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
           </div>
         </div>
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label class="text-sm font-semibold" for="lendOwner">Your name</label>
-            <input id="lendOwner" required maxlength="40" placeholder="For example: Dana W." class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+            <input id="lendOwner" required maxlength="40" placeholder="For example: Dana W." class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
           </div>
           <div>
             <label class="text-sm font-semibold" for="lendContact">Your email or phone</label>
-            <input id="lendContact" required maxlength="60" placeholder="How borrowers reach you" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+            <input id="lendContact" required maxlength="60" placeholder="How borrowers reach you" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
           </div>
         </div>
         <div>
           <label class="text-sm font-semibold" for="lendCondition">Condition</label>
-          <select id="lendCondition" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pine-500">
+          <select id="lendCondition" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
             <option>Excellent</option><option selected>Good</option><option>Fair, works fine</option>
           </select>
         </div>
         <div>
           <label class="text-sm font-semibold" for="lendDesc">Description and what is included</label>
-          <textarea id="lendDesc" required maxlength="280" rows="3" placeholder="What it is, what comes with it, anything a borrower should know" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500"></textarea>
+          <textarea id="lendDesc" required maxlength="280" rows="3" placeholder="What it is, what comes with it, anything a borrower should know" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></textarea>
         </div>
         <div>
           <span class="text-sm font-semibold">Pickup windows</span>
-          <p class="text-xs text-stone-400 mt-0.5">When can neighbors pick up from you? Tick any that work, or write your own. Borrowers pick one when they request.</p>
+          <p class="text-xs text-gray-400 mt-0.5">When can neighbors pick up from you? Tick any that work, or write your own. Borrowers pick one when they request.</p>
           <div id="lendPickupPresets" class="mt-2 space-y-1.5 text-sm"></div>
-          <input id="lendPickupOther" maxlength="80" placeholder="Other window, for example: weekday mornings before 9" class="mt-2 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+          <input id="lendPickupOther" maxlength="80" placeholder="Other window, for example: weekday mornings before 9" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
         </div>
-        <button type="submit" class="bg-brick-500 hover:bg-brick-600 text-white font-semibold px-6 py-3 rounded-full text-sm w-full sm:w-auto">Add to the library</button>
+        <div>
+          <label class="text-sm font-semibold" for="lendPickupLocation">Pickup location <span class="font-normal text-gray-400">(optional)</span></label>
+          <input id="lendPickupLocation" maxlength="120" placeholder="Leave blank for your home address, or name another spot" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <p class="text-xs text-gray-400 mt-1">Your address stays private. This spot is only shared with a borrower after you approve their request.</p>
+        </div>
+        <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full sm:w-auto">Add to the library</button>
       </form>
     </div>
   </section>
 
   <!-- How it works -->
   <section id="tab-how" class="hidden">
-    <h2 class="font-display text-2xl font-bold text-pine-950">How it works</h2>
+    <h2 class="font-display text-2xl font-bold text-gray-950">How it works</h2>
     <div class="grid md:grid-cols-3 gap-4 mt-5">
-      <div class="bg-white rounded-2xl shadow-card border border-pine-100 p-6">
-        <p class="font-display text-3xl font-bold text-brick-500">1</p>
-        <h3 class="font-bold text-pine-900 mt-2">Find and request</h3>
-        <p class="text-sm text-stone-500 mt-1">Search the catalog and send a borrow request with your name, contact, and the dates you need the tool.</p>
+      <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+        <p class="font-display text-3xl font-bold text-gray-900">1</p>
+        <h3 class="font-bold text-gray-900 mt-2">Find and request</h3>
+        <p class="text-sm text-gray-500 mt-1">Search the catalog and send a borrow request with your name, contact, and the dates you need the tool.</p>
       </div>
-      <div class="bg-white rounded-2xl shadow-card border border-pine-100 p-6">
-        <p class="font-display text-3xl font-bold text-brick-500">2</p>
-        <h3 class="font-bold text-pine-900 mt-2">Owner approves</h3>
-        <p class="text-sm text-stone-500 mt-1">The owner approves the request and arranges pickup with you. Most loans run 3 days, and owners set their own terms.</p>
+      <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+        <p class="font-display text-3xl font-bold text-gray-900">2</p>
+        <h3 class="font-bold text-gray-900 mt-2">Owner approves</h3>
+        <p class="text-sm text-gray-500 mt-1">The owner approves the request and arranges pickup with you. Most loans run 3 days, and owners set their own terms.</p>
       </div>
-      <div class="bg-white rounded-2xl shadow-card border border-pine-100 p-6">
-        <p class="font-display text-3xl font-bold text-brick-500">3</p>
-        <h3 class="font-bold text-pine-900 mt-2">Return it ready</h3>
-        <p class="text-sm text-stone-500 mt-1">Bring it back clean, fueled or charged, and on time, so the next neighbor can use it. The owner marks it returned here.</p>
+      <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+        <p class="font-display text-3xl font-bold text-gray-900">3</p>
+        <h3 class="font-bold text-gray-900 mt-2">Return it ready</h3>
+        <p class="text-sm text-gray-500 mt-1">Bring it back clean, fueled or charged, and on time, so the next neighbor can use it. The owner marks it returned here.</p>
       </div>
     </div>
-    <div class="bg-white rounded-2xl shadow-card border border-pine-100 p-6 mt-4">
-      <h3 class="font-bold text-pine-900">Library ground rules</h3>
-      <ul class="list-disc pl-5 text-sm text-stone-600 space-y-1.5 mt-3">
+    <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6 mt-4">
+      <h3 class="font-bold text-gray-900">Library ground rules</h3>
+      <ul class="list-disc pl-5 text-sm text-gray-600 space-y-1.5 mt-3">
         <li>Neighbors lend to neighbors: borrowers and lenders both live in Valentine.</li>
         <li>No fees. If something breaks in normal use, tell the owner right away and work it out in good faith.</li>
         <li>Return tools clean and ready for the next person, by the due date on your loan.</li>
@@ -216,16 +248,16 @@ tailwind.config = {
 
   <!-- Phase 2: admin (visible only to admins of this neighborhood) -->
   <section id="tab-admin" class="hidden">
-    <h2 class="font-display text-2xl font-bold text-pine-950">Admin</h2>
-    <p class="text-sm text-stone-500 mt-1 max-w-2xl">Neighbor accounts for this library, from the profiles table. Banning blocks sign-in and new requests. Deleting removes the profile, their tools, and their requests in this app; the underlying login account is removed separately at go-live (see the phase 2 README).</p>
+    <h2 class="font-display text-2xl font-bold text-gray-950">Admin</h2>
+    <p class="text-sm text-gray-500 mt-1 max-w-2xl">Neighbor accounts for this library, from the profiles table. Banning blocks sign-in and new requests. Deleting removes the profile, their tools, and their requests in this app; the underlying login account is removed separately at go-live (see the phase 2 README).</p>
     <div id="adminUserList" class="space-y-3 mt-6"></div>
   </section>
 </main>
 
-<footer class="border-t border-sand mt-4">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row justify-between gap-3 text-sm text-stone-500">
-    <p><span class="font-semibold text-pine-900">Valentine Tool Library</span> · A Valentine Neighborhood Association project · Kansas City, Missouri</p>
-    <button id="resetBtn" class="text-left sm:text-right underline decoration-dotted hover:text-brick-600">Reset the starter catalog</button>
+<footer class="border-t border-gray-200 mt-4">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row justify-between gap-3 text-sm text-gray-500">
+    <p><span class="font-semibold text-gray-900">Valentine Tool Library</span> · A Valentine Neighborhood Association project · Kansas City, Missouri</p>
+    <button id="resetBtn" class="text-left sm:text-right underline decoration-dotted hover:text-gray-700">Reset the starter catalog</button>
   </div>
 </footer>
 
@@ -235,51 +267,41 @@ tailwind.config = {
     <img id="borrowToolPhoto" class="hidden w-full h-44 object-cover rounded-xl" alt="Photo of the tool">
     <div class="flex items-start justify-between gap-4">
       <div>
-        <h3 class="font-display text-xl font-bold text-pine-950">Request to borrow</h3>
-        <p id="borrowToolName" class="text-sm text-brick-600 font-semibold mt-0.5"></p>
+        <h3 class="font-display text-xl font-bold text-gray-950">Request to borrow</h3>
+        <p id="borrowToolName" class="text-sm text-gray-700 font-semibold mt-0.5"></p>
       </div>
-      <button type="button" id="borrowClose" class="text-stone-400 hover:text-stone-700 text-2xl leading-none px-1" aria-label="Close">×</button>
+      <button type="button" id="borrowClose" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Close">×</button>
     </div>
     <div class="grid sm:grid-cols-2 gap-4">
       <div>
         <label class="text-sm font-semibold" for="borrowerName">Your name</label>
-        <input id="borrowerName" required maxlength="40" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+        <input id="borrowerName" required maxlength="40" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
       </div>
       <div>
         <label class="text-sm font-semibold" for="borrowerContact">Email or phone</label>
-        <input id="borrowerContact" required maxlength="60" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+        <input id="borrowerContact" required maxlength="60" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
       </div>
     </div>
     <div class="grid sm:grid-cols-2 gap-4">
       <div>
         <label class="text-sm font-semibold" for="borrowStart">Pickup date</label>
-        <input id="borrowStart" type="date" required class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+        <input id="borrowStart" type="date" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
       </div>
       <div>
         <label class="text-sm font-semibold" for="borrowDays">Days needed</label>
-        <input id="borrowDays" type="number" min="1" max="30" value="3" required class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+        <input id="borrowDays" type="number" min="1" max="30" value="3" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
       </div>
     </div>
     <div id="borrowPickupSelectWrap">
       <label class="text-sm font-semibold" for="borrowPickup">Pickup window</label>
-      <select id="borrowPickup" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pine-500"></select>
-    </div>
-    <div class="grid sm:grid-cols-2 gap-4">
-      <div>
-        <label class="text-sm font-semibold" for="borrowPickupTime">Pickup time</label>
-        <input id="borrowPickupTime" type="time" value="10:00" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
-      </div>
-      <div>
-        <label class="text-sm font-semibold" for="borrowReturnTime">Return time</label>
-        <input id="borrowReturnTime" type="time" value="18:00" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
-      </div>
+      <select id="borrowPickup" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"></select>
     </div>
     <div>
-      <label class="text-sm font-semibold" for="borrowProject">What is the project? <span class="font-normal text-stone-400">(optional)</span></label>
-      <input id="borrowProject" maxlength="120" placeholder="For example: gutters before the leaf drop" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+      <label class="text-sm font-semibold" for="borrowProject">What is the project? <span class="font-normal text-gray-400">(optional)</span></label>
+      <input id="borrowProject" maxlength="120" placeholder="For example: gutters before the leaf drop" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
     </div>
-    <p class="text-xs text-stone-400">The owner sees this request in the Requests tab and approves it there. Pickup details are arranged between you and the owner.</p>
-    <button type="submit" class="bg-pine-800 hover:bg-pine-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Send request</button>
+    <p class="text-xs text-gray-400">Just pick a window here. The owner confirms the exact pickup time and place when they approve, and you get an email with the details.</p>
+    <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Send request</button>
   </form>
 </dialog>
 
@@ -287,43 +309,95 @@ tailwind.config = {
 <dialog id="editModal" class="rounded-2xl p-0 w-[min(94vw,32rem)] shadow-xl">
   <form id="editForm" class="p-6 space-y-4">
     <div class="flex items-start justify-between gap-4">
-      <h3 class="font-display text-xl font-bold text-pine-950">Edit your tool</h3>
-      <button type="button" id="editClose" class="text-stone-400 hover:text-stone-700 text-2xl leading-none px-1" aria-label="Close">×</button>
+      <h3 class="font-display text-xl font-bold text-gray-950">Edit your tool</h3>
+      <button type="button" id="editClose" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Close">×</button>
     </div>
     <div>
       <label class="text-sm font-semibold" for="editName">Tool name</label>
-      <input id="editName" required maxlength="60" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+      <input id="editName" required maxlength="60" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
     </div>
     <div class="grid sm:grid-cols-2 gap-4">
       <div>
         <label class="text-sm font-semibold" for="editCategory">Category</label>
-        <select id="editCategory" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pine-500"></select>
+        <select id="editCategory" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"></select>
       </div>
       <div>
         <label class="text-sm font-semibold" for="editContact">Your email or phone</label>
-        <input id="editContact" required maxlength="60" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+        <input id="editContact" required maxlength="60" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
       </div>
     </div>
     <div>
       <label class="text-sm font-semibold" for="editDesc">Description and what is included</label>
-      <textarea id="editDesc" required maxlength="280" rows="3" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500"></textarea>
+      <textarea id="editDesc" required maxlength="280" rows="3" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></textarea>
     </div>
     <div>
       <span class="text-sm font-semibold">Pickup windows</span>
-      <p class="text-xs text-stone-400 mt-0.5">When can neighbors pick up from you? Tick any that work, or write your own.</p>
+      <p class="text-xs text-gray-400 mt-0.5">When can neighbors pick up from you? Tick any that work, or write your own.</p>
       <div id="editPickupPresets" class="mt-2 space-y-1.5 text-sm"></div>
-      <input id="editPickupOther" maxlength="80" placeholder="Other window, for example: weekday mornings before 9" class="mt-2 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+      <input id="editPickupOther" maxlength="80" placeholder="Other window, for example: weekday mornings before 9" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+    </div>
+    <div>
+      <label class="text-sm font-semibold" for="editPickupLocation">Pickup location <span class="font-normal text-gray-400">(optional)</span></label>
+      <input id="editPickupLocation" maxlength="120" placeholder="Leave blank for your home address, or name another spot" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+      <p class="text-xs text-gray-400 mt-1">Shared with a borrower only after you approve their request.</p>
     </div>
     <div>
       <label class="text-sm font-semibold" for="editPhoto">Tool photo</label>
       <img id="editPhotoPreview" class="hidden w-full h-44 object-cover rounded-xl mt-2" alt="Current tool photo">
       <input id="editPhoto" type="file" accept="image/*" class="mt-2 w-full text-sm">
-      <label class="flex items-center gap-2 text-sm mt-2"><input id="editRemovePhoto" type="checkbox" class="accent-pine-700 w-4 h-4"> Remove the current photo</label>
+      <label class="flex items-center gap-2 text-sm mt-2"><input id="editRemovePhoto" type="checkbox" class="accent-gray-900 w-4 h-4"> Remove the current photo</label>
     </div>
     <div class="flex flex-wrap gap-2">
-      <button type="submit" class="bg-pine-800 hover:bg-pine-700 text-white font-semibold px-6 py-3 rounded-full text-sm">Save changes</button>
-      <button type="button" id="editDelete" class="bg-white border border-brick-300 hover:border-brick-500 text-brick-600 font-semibold px-6 py-3 rounded-full text-sm">Delete this tool</button>
+      <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm">Save changes</button>
+      <button type="button" id="editDelete" class="bg-white border border-gray-300 hover:border-gray-500 text-gray-700 font-semibold px-6 py-3 rounded-full text-sm">Delete this tool</button>
     </div>
+  </form>
+</dialog>
+
+<!-- Approve dialog: the lender sets the exact pickup time and place -->
+<dialog id="approveModal" class="rounded-2xl p-0 w-[min(94vw,30rem)] shadow-xl">
+  <form id="approveForm" class="p-6 space-y-4">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h3 class="font-display text-xl font-bold text-gray-950">Approve this request</h3>
+        <p id="approveSummary" class="text-sm text-gray-500 mt-1"></p>
+      </div>
+      <button type="button" id="approveClose" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Close">×</button>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="text-sm font-semibold" for="approvePickupDate">Pickup date</label>
+        <input id="approvePickupDate" type="date" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+      </div>
+      <div>
+        <label class="text-sm font-semibold" for="approvePickupTime">Exact pickup time</label>
+        <input id="approvePickupTime" type="time" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+      </div>
+    </div>
+    <div>
+      <label class="text-sm font-semibold" for="approvePickupLocation">Pickup location</label>
+      <input id="approvePickupLocation" maxlength="120" placeholder="Leave blank for your home address, or name another spot" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+      <p class="text-xs text-gray-400 mt-1">The borrower picked the window; you set the exact time and place. They are only shown this spot now that you are approving.</p>
+    </div>
+    <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Approve and check out</button>
+  </form>
+</dialog>
+
+<!-- Return dialog: optional one-line thank-you from the borrower (S6) -->
+<dialog id="returnModal" class="rounded-2xl p-0 w-[min(94vw,30rem)] shadow-xl">
+  <form id="returnForm" class="p-6 space-y-4">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h3 class="font-display text-xl font-bold text-gray-950">Mark returned</h3>
+        <p id="returnSummary" class="text-sm text-gray-500 mt-1"></p>
+      </div>
+      <button type="button" id="returnClose" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Close">×</button>
+    </div>
+    <div id="returnThanksWrap">
+      <label class="text-sm font-semibold" for="returnThanks">Say thanks to the lender <span class="font-normal text-gray-400">(optional)</span></label>
+      <input id="returnThanks" maxlength="140" placeholder="For example: Thanks, the gutters are done!" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+    </div>
+    <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Record the return</button>
   </form>
 </dialog>
 
@@ -332,29 +406,34 @@ tailwind.config = {
   <form id="neighborhoodForm" class="p-6 space-y-4">
     <div class="flex items-start justify-between gap-4">
       <div>
-        <h3 class="font-display text-xl font-bold text-pine-950">Start a neighborhood library</h3>
-        <p class="text-sm text-stone-500 mt-1">Register your neighborhood association and pick its web address. You become the first admin of the new library.</p>
+        <h3 class="font-display text-xl font-bold text-gray-950">Start a neighborhood library</h3>
+        <p class="text-sm text-gray-500 mt-1">Register your neighborhood association and pick its web address. You become the first admin of the new library.</p>
       </div>
-      <button type="button" id="nbClose" class="text-stone-400 hover:text-stone-700 text-2xl leading-none px-1" aria-label="Close">×</button>
+      <button type="button" id="nbClose" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Close">×</button>
     </div>
     <div>
       <label class="text-sm font-semibold" for="nbName">Organization name</label>
-      <input id="nbName" required maxlength="80" placeholder="For example: Brookside Neighborhood Association" class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
+      <input id="nbName" required maxlength="80" placeholder="For example: Brookside Neighborhood Association" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
     </div>
     <div>
       <label class="text-sm font-semibold" for="nbSlug">Short name (web address)</label>
       <div class="mt-1 flex items-center gap-1">
-        <input id="nbSlug" required maxlength="30" placeholder="brookside" class="flex-1 min-w-0 rounded-lg border border-stone-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pine-500">
-        <span class="text-sm text-stone-500">.toollendinglibrary.com</span>
+        <input id="nbSlug" required maxlength="30" placeholder="brookside" class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+        <span class="text-sm text-gray-500">.toollendinglibrary.com</span>
       </div>
-      <p id="nbSlugMsg" class="text-xs mt-1 text-stone-400">Lowercase letters, numbers, and hyphens.</p>
+      <p id="nbSlugMsg" class="text-xs mt-1 text-gray-400">Lowercase letters, numbers, and hyphens.</p>
     </div>
-    <div id="nbResult" class="hidden bg-pine-50 border border-pine-100 rounded-xl p-4 text-sm text-pine-900"></div>
-    <button type="submit" class="bg-brick-500 hover:bg-brick-600 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Create the library</button>
+    <div id="nbResult" class="hidden bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-900"></div>
+    <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Create the library</button>
   </form>
 </dialog>
 
-<div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 bg-pine-950 text-cream text-sm font-medium px-5 py-3 rounded-full shadow-xl z-50"></div>
+<div id="cookieBanner" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 w-[min(94vw,34rem)] bg-gray-900 text-white text-sm px-5 py-4 rounded-2xl shadow-xl z-50">
+  <p id="cookieBannerText"></p>
+  <button id="cookieAccept" type="button" class="mt-3 bg-white text-gray-900 font-semibold px-4 py-2 rounded-full text-sm">That is fine</button>
+</div>
+
+<div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-950 text-white text-sm font-medium px-5 py-3 rounded-full shadow-xl z-50"></div>
 
 <script>
 /* ============================================================================
@@ -367,6 +446,45 @@ const SUPABASE_URL = "https://wosdfxvdsovlcahcszvv.supabase.co"; // valentine-to
 const SUPABASE_ANON_KEY = "sb_publishable_wGfrf12c6yeiqGtflBEIgA_FPNXEAu9"; // Supabase publishable (public) key, filled Nov 13, 2026
 const EMAIL_TRANSPORT = "resend"; // flipped Nov 13, 2026: /api/notify is deployed and RESEND_API_KEY is set in Vercel ("stub" = local outbox only)
 const ADMIN_EMAILS = ["david.snodgrass@gmail.com"]; // David, platform admin (filled Nov 13, 2026). This only gates visibility of the Admin section; real enforcement is the profiles table plus RLS in schema.sql.
+
+/* TERMS_TEXT: the terms and cookie note shown in the sign-up form.
+   This wording was APPROVED by David on Nov 13, 2026 (he noted it can be
+   revised as the library learns). The bracketed tokens are filled in from
+   the current neighborhood's record (its name and its residency_area from
+   the neighborhoods table) when the form renders, so every tenant's terms
+   name its own neighborhood and residency area. */
+const TERMS_VERSION = "2026-11-13";
+const TERMS_TEXT = [
+  "Welcome to the [Neighborhood Name] Tool Library, run by neighbors, for neighbors, at [slug].toollendinglibrary.com.",
+  "",
+  "1. Who can join. You must be 18 years old or older. You must live in [Neighborhood Name / residency area], and the address on your account must be the home you actually live in.",
+  "",
+  "2. Lending. Only list tools that you own. You choose who you lend to, and you can say no to any request, for any reason.",
+  "",
+  "3. Borrowing. Ask kindly, pick the tool up at the agreed time and place, take good care of it, and bring it back on time and in the condition you received it.",
+  "",
+  "4. Agreements are between neighbors. Every loan is an agreement strictly between the borrower and the lender. The library only provides the bulletin board that helps you find each other.",
+  "",
+  "5. No liability to omni15, llc. omni15, llc operates the website only. It is not a party to any loan and is not responsible for any tool, damage, loss, injury, or disagreement between members. If something goes wrong, it is between the borrower and the lender to work out, like neighbors.",
+  "",
+  "6. Use your best judgment. Lend and borrow with people you know and trust. You are never obligated to lend to or borrow from a stranger, and you should not if you are not comfortable.",
+  "",
+  "7. Be a good neighbor. Admins may remove listings or members who misuse the library. Breaking these terms can end your membership.",
+  "",
+  "By creating an account you agree to these terms."
+].join("\n");
+const COOKIE_NOTE = "This site uses only the cookies and browser storage it needs to keep you signed in and remember your library. No advertising trackers. By continuing you accept that.";
+
+/* Render the terms for the neighborhood currently being browsed. */
+function termsText() {
+  const nb = currentNeighborhood || { name: "Valentine Neighborhood Association", residencyArea: "" };
+  const shortName = String(nb.name || "").replace(/ Neighborhood Association$/, "");
+  const residency = nb.residencyArea || ("the " + shortName + " neighborhood");
+  return TERMS_TEXT
+    .split("[Neighborhood Name / residency area]").join(residency)
+    .split("[Neighborhood Name]").join(nb.name)
+    .split("[slug]").join(CURRENT_SLUG);
+}
 
 const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 let supabaseClient = null;
@@ -422,6 +540,7 @@ function loadState() {
   return { tools: seedTools(), requests: [] };
 }
 let state = { tools: [], requests: [] };
+let catalogLoading = Boolean(supabaseClient);
 function save() { store.persist(); }
 
 /* ================= PHASE 2: data layer =================
@@ -445,7 +564,7 @@ const localStore = {
 
 const NEIGHBORHOODS_KEY = "valentine-tool-library-neighborhoods";
 function seedNeighborhoods() {
-  return [{ id: "n-valentine", slug: "valentine", name: "Valentine Neighborhood Association", createdBy: "", createdAt: "2026-11-11T00:00:00.000Z" }];
+  return [{ id: "n-valentine", slug: "valentine", name: "Valentine Neighborhood Association", residencyArea: "the Valentine neighborhood", createdBy: "", createdAt: "2026-11-11T00:00:00.000Z" }];
 }
 function loadLocalNeighborhoods() {
   try {
@@ -474,6 +593,7 @@ const supabaseStore = {
       description: t.desc, owner_name: t.owner, owner_contact: t.contact || "",
       condition: t.condition || "Good", loan_days: t.days || 3,
       pickup_windows: Array.isArray(t.pickupWindows) ? t.pickupWindows : [],
+      pickup_location: t.pickupLocation || null,
       photo_url: t.photo || ""
     };
   },
@@ -483,13 +603,16 @@ const supabaseStore = {
       borrower_name: r.borrower, borrower_contact: r.contact || "",
       start_date: r.start, end_date: addDaysISO(r.start, r.days),
       due_at: r.dueAt || null, pickup_at: r.pickupAt || null, pickup_window: r.pickup || "",
+      pickup_location: r.pickupLocation || null, thanks_note: r.thanksNote || null,
+      reminder_day_before_sent: Boolean(r.reminderDayBeforeSent),
+      reminder_overdue_sent: Boolean(r.reminderOverdueSent),
       project: r.project || "", status: r.status
     };
   },
   async loadNeighborhoods() {
     const { data, error } = await supabaseClient.from("neighborhoods").select("*").order("created_at", { ascending: true });
     if (error) throw error;
-    this.neighborhoods = (data || []).map(row => ({ id: row.id, slug: row.slug, name: row.name, createdBy: row.created_by || "", createdAt: row.created_at }));
+    this.neighborhoods = (data || []).map(row => ({ id: row.id, slug: row.slug, name: row.name, residencyArea: row.residency_area || "", createdBy: row.created_by || "", createdAt: row.created_at }));
     return this.neighborhoods;
   },
   async load() {
@@ -516,6 +639,8 @@ const supabaseStore = {
       start: row.start_date,
       days: Math.max(1, Math.round((new Date(row.end_date + "T12:00:00") - new Date(row.start_date + "T12:00:00")) / 86400000)),
       dueAt: row.due_at || "", pickupAt: row.pickup_at || "", pickup: row.pickup_window || "",
+      pickupLocation: row.pickup_location || "", thanksNote: row.thanks_note || "",
+      reminderDayBeforeSent: Boolean(row.reminder_day_before_sent), reminderOverdueSent: Boolean(row.reminder_overdue_sent),
       project: row.project || "", status: row.status
     }));
 
@@ -526,6 +651,7 @@ const supabaseStore = {
         owner: row.owner_name, contact: row.owner_contact || "",
         condition: row.condition || "Good", days: row.loan_days || 3,
         pickupWindows: Array.isArray(row.pickup_windows) ? row.pickup_windows : [],
+        pickupLocation: row.pickup_location || "",
         photo: row.photo_url || "", desc: row.description || "",
         status: "available", borrower: "", due: "", dueAt: ""
       };
@@ -563,9 +689,11 @@ const store = {
       currentNeighborhood = allNeighborhoods.find(n => n.slug === CURRENT_SLUG) || allNeighborhoods[0] || null;
       state = localStore.load();
     }
+    catalogLoading = false;
     render();
     renderTenant();
     openDeepLink();
+    tryOpenRequestLink();
   },
   persist() {
     if (this.mode === "supabase") {
@@ -598,13 +726,13 @@ const store = {
     if (this.mode === "supabase") {
       const { data, error } = await supabaseClient.from("neighborhoods").insert({ name: name, slug: slug, created_by: createdBy || null }).select().single();
       if (error) throw error;
-      const nb = { id: data.id, slug: data.slug, name: data.name, createdBy: data.created_by || "", createdAt: data.created_at };
+      const nb = { id: data.id, slug: data.slug, name: data.name, residencyArea: data.residency_area || "", createdBy: data.created_by || "", createdAt: data.created_at };
       allNeighborhoods = allNeighborhoods.concat([nb]);
       return nb;
     }
     const list = loadLocalNeighborhoods();
     if (list.some(n => n.slug === slug)) throw new Error("That short name is already taken.");
-    const nb = { id: "n-" + slug, slug: slug, name: name, createdBy: createdBy || "", createdAt: new Date().toISOString() };
+    const nb = { id: "n-" + slug, slug: slug, name: name, residencyArea: "", createdBy: createdBy || "", createdAt: new Date().toISOString() };
     list.push(nb);
     saveLocalNeighborhoods(list);
     allNeighborhoods = list;
@@ -616,7 +744,7 @@ const store = {
       if (supabaseStore.currentId()) query = query.eq("neighborhood_id", supabaseStore.currentId());
       const { data, error } = await query;
       if (error) throw error;
-      return (data || []).map(row => ({ id: row.id, email: row.email, role: row.role, status: row.status, neighborhood: CURRENT_SLUG, createdAt: row.created_at }));
+      return (data || []).map(row => ({ id: row.id, email: row.email, role: row.role, status: row.status, neighborhood: CURRENT_SLUG, createdAt: row.created_at, fullName: row.full_name || "", address: row.address || "", termsAcceptedAt: row.terms_accepted_at || "", termsVersion: row.terms_version || "" }));
     }
     return loadLocalProfiles().filter(p => (p.neighborhood || DEFAULT_TENANT_SLUG) === CURRENT_SLUG);
   },
@@ -624,18 +752,25 @@ const store = {
     if (this.mode === "supabase") {
       const { data, error } = await supabaseClient.from("profiles").select("*").eq("id", userId).maybeSingle();
       if (error) throw error;
-      return data ? { id: data.id, email: data.email, role: data.role, status: data.status, neighborhood: CURRENT_SLUG, createdAt: data.created_at } : null;
+      return data ? { id: data.id, email: data.email, role: data.role, status: data.status, neighborhood: CURRENT_SLUG, createdAt: data.created_at, fullName: data.full_name || "", address: data.address || "", termsAcceptedAt: data.terms_accepted_at || "", termsVersion: data.terms_version || "" } : null;
     }
     return loadLocalProfiles().find(p => p.id === userId) || null;
   },
   async upsertProfile(profile) {
     if (this.mode === "supabase") {
+      // Merge with whatever is already stored so a partial update (for
+      // example a role change) never wipes the sign-up details.
+      let existing = null;
+      try { existing = await this.getProfile(profile.id); } catch (e) { existing = null; }
+      const merged = Object.assign({}, existing || {}, profile);
       const { error } = await supabaseClient.from("profiles").upsert({
-        id: profile.id, neighborhood_id: supabaseStore.currentId(),
-        email: profile.email, role: profile.role, status: profile.status
+        id: merged.id, neighborhood_id: supabaseStore.currentId(),
+        email: merged.email, role: merged.role, status: merged.status,
+        full_name: merged.fullName || null, address: merged.address || null,
+        terms_accepted_at: merged.termsAcceptedAt || null, terms_version: merged.termsVersion || null
       });
       if (error) throw error;
-      return profile;
+      return merged;
     }
     const list = loadLocalProfiles();
     const i = list.findIndex(p => p.id === profile.id);
@@ -689,6 +824,7 @@ const notify = (() => {
     } catch (e) { return []; }
   }
   function composeBorrowRequestEmail(d) {
+    const base = d.siteUrl || (window.location.origin + window.location.pathname);
     const lines = [
       "Hello,",
       "",
@@ -696,14 +832,15 @@ const notify = (() => {
       "",
       "Pickup date: " + d.startDate
     ];
-    if (d.pickupLabel || d.pickupAt) {
-      lines.push("Pickup window: " + (d.pickupLabel || "Not specified") + (d.pickupAt ? " (" + fmtDateTime(d.pickupAt) + ")" : ""));
+    if (d.pickupLabel) {
+      lines.push("Pickup window they picked: " + d.pickupLabel);
     }
     lines.push(
-      "Return by: " + (d.dueAt ? fmtDateTime(d.dueAt) : d.endDate),
+      "Return by: " + d.endDate,
       "Borrower contact: " + d.borrowerContact,
       "",
-      "Open the Valentine Tool Library and check the Requests tab to approve or decline.",
+      "Review the request here: " + base + "?request=" + d.requestId,
+      "That link opens your Requests tab right at this request. When you approve, you set the exact pickup time and place inside the window they picked.",
       "",
       "Valentine Tool Library, a Valentine Neighborhood Association project"
     );
@@ -717,22 +854,29 @@ const notify = (() => {
   function composeCheckoutEmail(d) {
     const base = d.siteUrl || (window.location.origin + window.location.pathname);
     const link = base + "#tool-" + d.toolId;
+    const lines = [
+      "Hello " + d.borrowerName + ",",
+      "",
+      "Your borrow of " + d.toolName + " from the Valentine Tool Library is confirmed and checked out.",
+      ""
+    ];
+    if (d.pickupAt) lines.push("Pickup: " + fmtDateTime(d.pickupAt));
+    if (d.pickupAt || d.pickupLocation) {
+      lines.push("Pickup spot: " + (d.pickupLocation || "The lender's home. Please contact the lender for the exact address"));
+    }
+    lines.push(
+      "Due back: " + (d.dueAt ? fmtDateTime(d.dueAt) : "see the library site"),
+      "Tool entry: " + link,
+      "",
+      "Please bring it back clean and ready for the next neighbor by the time above.",
+      "",
+      "Valentine Tool Library, a Valentine Neighborhood Association project"
+    );
     return {
       to: d.borrowerEmail || d.ownerEmail || "",
       cc: d.borrowerEmail && d.ownerEmail ? d.ownerEmail : "",
       subject: "Valentine Tool Library: " + d.toolName + " checked out, due back " + (d.dueAt ? fmtDateTime(d.dueAt) : ""),
-      body: [
-        "Hello " + d.borrowerName + ",",
-        "",
-        "Your borrow of " + d.toolName + " from the Valentine Tool Library is confirmed and checked out.",
-        "",
-        "Due back: " + (d.dueAt ? fmtDateTime(d.dueAt) : "see the library site"),
-        "Tool entry: " + link,
-        "",
-        "Please bring it back clean and ready for the next neighbor by the time above.",
-        "",
-        "Valentine Tool Library, a Valentine Neighborhood Association project"
-      ].join("\n")
+      body: lines.join("\n")
     };
   }
   const transports = {
@@ -786,9 +930,39 @@ function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"
 function todayISO() { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
 function addDaysISO(iso, n) { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
 function fmtDate(iso) { if (!iso) return ""; const d = new Date(iso + "T12:00:00"); return d.toLocaleDateString("en-US", {weekday:"short", month:"short", day:"numeric"}); }
-function fmtDateTime(ts) { if (!ts) return ""; const d = new Date(ts); if (isNaN(d.getTime())) return ""; return d.toLocaleDateString("en-US", {weekday:"short", month:"short", day:"numeric"}) + ", " + d.toLocaleTimeString("en-US", {hour:"numeric", minute:"2-digit"}); }
-function fmtTime(ts) { if (!ts) return ""; const d = new Date(ts); if (isNaN(d.getTime())) return ""; return d.toLocaleTimeString("en-US", {hour:"numeric", minute:"2-digit"}); }
+function fmtDateTime(ts) { if (!ts) return ""; const d = new Date(ts); if (isNaN(d.getTime())) return ""; return d.toLocaleDateString("en-US", {timeZone:"America/Chicago", weekday:"short", month:"short", day:"numeric"}) + ", " + d.toLocaleTimeString("en-US", {timeZone:"America/Chicago", hour:"numeric", minute:"2-digit"}); }
+function fmtTime(ts) { if (!ts) return ""; const d = new Date(ts); if (isNaN(d.getTime())) return ""; return d.toLocaleTimeString("en-US", {timeZone:"America/Chicago", hour:"numeric", minute:"2-digit"}); }
 function combineDateTime(isoDate, timeStr) { if (!isoDate) return ""; return isoDate + "T" + (timeStr || "18:00") + ":00"; }
+/* Central time conversion: pickup and due times are agreed in
+   America/Chicago wall-clock time, so they are converted to UTC explicitly
+   instead of trusting the viewer's timezone. This fixes the old bug where a
+   window's start hour was stored as if it were already UTC (a 5 PM Central
+   pickup came back displayed as 11 AM). */
+function centralOffsetMinutes(date) {
+  const dtf = new Intl.DateTimeFormat("en-US", { timeZone: "America/Chicago", hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const parts = {};
+  dtf.formatToParts(date).forEach(p => { parts[p.type] = p.value; });
+  const asUTC = Date.UTC(parseInt(parts.year, 10), parseInt(parts.month, 10) - 1, parseInt(parts.day, 10), parseInt(parts.hour, 10) % 24, parseInt(parts.minute, 10), parseInt(parts.second, 10));
+  return Math.round((asUTC - date.getTime()) / 60000);
+}
+function centralDateTimeToISO(isoDate, timeStr) {
+  if (!isoDate) return "";
+  const dp = isoDate.split("-").map(Number);
+  const tp = (timeStr || "18:00").split(":").map(Number);
+  let utc = Date.UTC(dp[0], dp[1] - 1, dp[2], tp[0] || 0, tp[1] || 0);
+  for (let i = 0; i < 2; i++) {
+    utc = Date.UTC(dp[0], dp[1] - 1, dp[2], tp[0] || 0, tp[1] || 0) - centralOffsetMinutes(new Date(utc)) * 60000;
+  }
+  return new Date(utc).toISOString();
+}
+function centralTimeHHMM(ts) {
+  if (!ts) return "";
+  const d = new Date(ts);
+  if (isNaN(d.getTime())) return "";
+  const parts = {};
+  new Intl.DateTimeFormat("en-US", { timeZone: "America/Chicago", hourCycle: "h23", hour: "2-digit", minute: "2-digit" }).formatToParts(d).forEach(p => { parts[p.type] = p.value; });
+  return String(parseInt(parts.hour, 10) % 24).padStart(2, "0") + ":" + parts.minute;
+}
 function isEmail(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s == null ? "" : s).trim()); }
 const PICKUP_PRESETS = [
   { label: "Weekday evenings, 5 to 7 PM", time: "17:00" },
@@ -805,7 +979,7 @@ function gatherPickupWindows(presetClass, otherId) {
 function fillPickupPresets(containerId, presetClass, selected) {
   const sel = Array.isArray(selected) ? selected : [];
   document.getElementById(containerId).innerHTML = PICKUP_PRESETS.map((p, i) =>
-    '<label class="flex items-center gap-2"><input type="checkbox" class="' + presetClass + ' accent-pine-700 w-4 h-4" value="' + i + '"' + (sel.some(w => w.label === p.label) ? " checked" : "") + '> ' + esc(p.label) + '</label>'
+    '<label class="flex items-center gap-2"><input type="checkbox" class="' + presetClass + ' accent-gray-900 w-4 h-4" value="' + i + '"' + (sel.some(w => w.label === p.label) ? " checked" : "") + '> ' + esc(p.label) + '</label>'
   ).join("");
 }
 function isOverdue(tool) {
@@ -815,14 +989,23 @@ function isOverdue(tool) {
 }
 
 function statusBadge(tool) {
-  if (tool.status === "available") return '<span class="bg-pine-100 text-pine-800 text-xs font-bold px-2.5 py-1 rounded-full">Available</span>';
-  if (tool.status === "requested") return '<span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">Request pending</span>';
+  if (tool.status === "available") return '<span class="bg-gray-100 text-gray-900 text-xs font-bold px-2.5 py-1 rounded-full">Available</span>';
+  if (tool.status === "requested") return '<span class="bg-gray-100 text-gray-800 text-xs font-bold px-2.5 py-1 rounded-full">Request pending</span>';
   const dueText = tool.dueAt ? fmtDateTime(tool.dueAt) : fmtDate(tool.due);
-  if (isOverdue(tool)) return '<span class="bg-brick-100 text-brick-700 text-xs font-bold px-2.5 py-1 rounded-full">Overdue, due back ' + esc(dueText) + '</span>';
-  return '<span class="bg-stone-200 text-stone-700 text-xs font-bold px-2.5 py-1 rounded-full">On loan, due back ' + esc(dueText) + '</span>';
+  if (isOverdue(tool)) return '<span class="bg-gray-100 text-gray-800 text-xs font-bold px-2.5 py-1 rounded-full">Overdue, due back ' + esc(dueText) + '</span>';
+  return '<span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-1 rounded-full">On loan, due back ' + esc(dueText) + '</span>';
 }
 
 function initials(name) { return name.split(/\s+/).map(w => w[0]).slice(0,2).join("").toUpperCase(); }
+
+/* The confirmed pickup spot for a loan. Only rendered once a request is
+   approved (a match): before that, no pickup location is shown anywhere,
+   and a member's home address is never rendered by the app at all. */
+function pickupSpotHTML(r) {
+  if (!r) return "";
+  if (r.status !== "approved" && r.status !== "checked_out" && r.status !== "returned") return "";
+  return '<p class="text-sm text-gray-500">Pickup spot: ' + esc(r.pickupLocation || "The lender's home") + (r.pickupAt ? ' · ' + esc(fmtDateTime(r.pickupAt)) : '') + '</p>';
+}
 
 function render() {
   const tools = visibleTools();
@@ -836,14 +1019,14 @@ function render() {
     ["Available now", available],
     ["Out on loan", onloan],
     ["Requests waiting", pending]
-  ].map(([label, n]) => '<div class="bg-pine-800 rounded-2xl px-4 py-3 border border-pine-700"><p class="font-display text-2xl sm:text-3xl font-bold">' + n + '</p><p class="text-pine-200 text-xs sm:text-sm">' + label + '</p></div>').join("");
+  ].map(([label, n]) => '<div class="bg-gray-100 rounded-2xl px-4 py-3 border border-gray-200"><p class="font-display text-2xl sm:text-3xl font-bold">' + (catalogLoading ? "…" : n) + '</p><p class="text-gray-500 text-xs sm:text-sm">' + label + '</p></div>').join("");
 
   const badge = document.getElementById("pendingBadge");
   if (pending > 0) { badge.textContent = pending; badge.classList.remove("hidden"); } else { badge.classList.add("hidden"); }
 
   const chips = ["All"].concat(CATEGORIES);
   document.getElementById("categoryChips").innerHTML = chips.map(c =>
-    '<button class="chip px-3.5 py-1.5 rounded-full text-sm font-medium border border-pine-200 bg-white hover:border-pine-400 ' + (c === activeCategory ? "chip-active" : "") + '" data-category="' + esc(c) + '">' + esc(c) + '</button>'
+    '<button class="chip px-3.5 py-1.5 rounded-full text-sm font-medium border border-gray-200 bg-white hover:border-gray-400 ' + (c === activeCategory ? "chip-active" : "") + '" data-category="' + esc(c) + '">' + esc(c) + '</button>'
   ).join("");
 
   const q = document.getElementById("searchInput").value.trim().toLowerCase();
@@ -855,64 +1038,76 @@ function render() {
     return true;
   });
 
+  if (catalogLoading) {
+    document.getElementById("resultCount").textContent = "Loading tools...";
+    document.getElementById("catalogEmpty").classList.add("hidden");
+    document.getElementById("toolGrid").innerHTML = '<div class="sm:col-span-2 lg:col-span-3 bg-white border border-gray-200 rounded-2xl p-10 text-center text-sm text-gray-500">Loading tools...</div>';
+  } else {
   document.getElementById("resultCount").textContent = filtered.length + (filtered.length === 1 ? " tool" : " tools") + (activeCategory !== "All" ? " in " + activeCategory : "") + (q ? ' matching "' + q + '"' : "");
   document.getElementById("catalogEmpty").classList.toggle("hidden", filtered.length > 0);
 
   document.getElementById("toolGrid").innerHTML = filtered.map(t => {
     let action = "";
-    if (t.status === "available") action = '<button class="borrow-btn bg-pine-800 hover:bg-pine-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Request to borrow</button>';
-    else if (t.status === "onloan") action = '<button class="return-btn bg-white border border-pine-300 hover:border-pine-500 text-pine-900 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button>';
-    else action = '<span class="text-sm text-amber-700 font-medium">Waiting on the owner to approve</span>';
-    return '<article id="tool-' + t.id + '" class="bg-white rounded-2xl shadow-card border border-pine-100 p-5 flex flex-col fade-in">' +
+    if (t.status === "available") action = '<button class="borrow-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Request to borrow</button>';
+    else if (t.status === "onloan") action = canReturnTool(t) ? '<button class="return-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-900 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button>' : '<span class="text-sm text-gray-500 font-medium">Out on loan</span>';
+    else action = '<span class="text-sm text-gray-600 font-medium">Waiting on the owner to approve</span>';
+    return '<article id="tool-' + t.id + '" class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-col fade-in">' +
       (t.photo ? '<img src="' + esc(t.photo) + '" alt="Photo of ' + esc(t.name) + '" class="w-full h-44 object-cover rounded-xl mb-4">' : '') +
       '<div class="flex items-start justify-between gap-3">' +
-        '<div class="flex items-center gap-3"><div class="w-11 h-11 rounded-xl bg-pine-700 text-cream flex items-center justify-center font-display font-bold">' + esc(initials(t.name)) + '</div>' +
-        '<div><h3 class="font-bold text-pine-950 leading-snug">' + esc(t.name) + '</h3><p class="text-xs text-stone-500">' + esc(t.category) + '</p></div></div>' +
+        '<div class="flex items-center gap-3"><div class="w-11 h-11 rounded-xl bg-gray-700 text-white flex items-center justify-center font-display font-bold">' + esc(initials(t.name)) + '</div>' +
+        '<div><h3 class="font-bold text-gray-950 leading-snug">' + esc(t.name) + '</h3><p class="text-xs text-gray-500">' + esc(t.category) + '</p></div></div>' +
         statusBadge(t) +
       '</div>' +
-      '<p class="text-sm text-stone-600 mt-3 flex-1">' + esc(t.desc) + '</p>' +
-      '<dl class="text-xs text-stone-500 grid grid-cols-2 gap-y-1.5 mt-4">' +
-        '<div><dt class="font-semibold text-stone-400 uppercase tracking-wide">Lent by</dt><dd class="text-sm text-stone-700">' + esc(t.owner) + '</dd></div>' +
-        '<div><dt class="font-semibold text-stone-400 uppercase tracking-wide">Loan</dt><dd class="text-sm text-stone-700">' + t.days + (t.days === 1 ? " day" : " days") + '</dd></div>' +
-        '<div><dt class="font-semibold text-stone-400 uppercase tracking-wide">Condition</dt><dd class="text-sm text-stone-700">' + esc(t.condition) + '</dd></div>' +
-        (t.status === "onloan" ? '<div><dt class="font-semibold text-stone-400 uppercase tracking-wide">With</dt><dd class="text-sm text-stone-700">' + esc(t.borrower) + '</dd></div>' : "") +
+      '<p class="text-sm text-gray-600 mt-3 flex-1">' + esc(t.desc) + '</p>' +
+      '<dl class="text-xs text-gray-500 grid grid-cols-2 gap-y-1.5 mt-4">' +
+        '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Lent by</dt><dd class="text-sm text-gray-700">' + esc(t.owner) + '</dd></div>' +
+        '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Loan</dt><dd class="text-sm text-gray-700">' + t.days + (t.days === 1 ? " day" : " days") + '</dd></div>' +
+        '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Condition</dt><dd class="text-sm text-gray-700">' + esc(t.condition) + '</dd></div>' +
+        (Array.isArray(t.pickupWindows) && t.pickupWindows.length ? '<div class="col-span-2"><dt class="font-semibold text-gray-400 uppercase tracking-wide">Pickup windows</dt><dd class="text-sm text-gray-700">' + esc(t.pickupWindows.map(w => w.label).join(" · ")) + '</dd></div>' : "") +
+        (t.status === "onloan" ? '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">With</dt><dd class="text-sm text-gray-700">' + esc(t.borrower) + '</dd></div>' : "") +
       '</dl>' +
       '<div class="flex items-center justify-between gap-3 mt-5">' + action +
         '<span class="flex items-center gap-3">' +
-        (isToolOwner(t) ? '<button class="edit-btn text-xs font-semibold text-pine-800 hover:text-pine-600 underline decoration-dotted" data-id="' + t.id + '">Edit your tool</button>' : '') +
-        '<button class="remove-btn text-xs text-stone-400 hover:text-brick-600 underline decoration-dotted" data-id="' + t.id + '">Remove listing</button></span>' +
+        (isToolOwner(t) ? '<button class="edit-btn text-xs font-semibold text-gray-900 hover:text-gray-600 underline decoration-dotted" data-id="' + t.id + '">Edit your tool</button>' : '') +
+        (canManageTool(t) ? '<button class="remove-btn text-xs text-gray-400 hover:text-gray-700 underline decoration-dotted" data-id="' + t.id + '">Remove listing</button>' : '') + '</span>' +
       '</div>' +
     '</article>';
   }).join("");
+  }
 
   const reqCard = (r, buttons) => {
     const tool = state.tools.find(t => t.id === r.toolId);
-    return '<div class="bg-white rounded-2xl shadow-card border border-pine-100 p-5 fade-in">' +
+    return '<div id="request-' + r.id + '" class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 fade-in">' +
       '<div class="flex flex-wrap items-start justify-between gap-3">' +
-        '<div><p class="font-bold text-pine-950">' + esc(tool ? tool.name : "Tool") + '</p>' +
-        '<p class="text-sm text-stone-500 mt-0.5">Requested by <span class="font-medium text-stone-700">' + esc(r.borrower) + '</span> · ' + esc(r.contact) + '</p>' +
-        '<p class="text-sm text-stone-500">Pickup ' + esc(fmtDate(r.start)) + (r.pickup ? ' · ' + esc(r.pickup) : '') + (r.pickupAt ? ' at ' + esc(fmtTime(r.pickupAt)) : '') + ' · ' + r.days + (r.days === 1 ? " day" : " days") + ' · due back ' + esc(r.dueAt ? fmtDateTime(r.dueAt) : fmtDate(addDaysISO(r.start, r.days))) + '</p>' +
-        (r.project ? '<p class="text-sm text-stone-500 italic">Project: ' + esc(r.project) + '</p>' : "") +
+        '<div><p class="font-bold text-gray-950">' + esc(tool ? tool.name : "Tool") + '</p>' +
+        '<p class="text-sm text-gray-500 mt-0.5">Requested by <span class="font-medium text-gray-700">' + esc(r.borrower) + '</span> · ' + esc(r.contact) + '</p>' +
+        '<p class="text-sm text-gray-500">Pickup ' + esc(fmtDate(r.start)) + (r.pickup ? ' · ' + esc(r.pickup) : '') + (r.pickupAt ? ' at ' + esc(fmtTime(r.pickupAt)) : '') + ' · ' + r.days + (r.days === 1 ? " day" : " days") + ' · due back ' + esc(r.dueAt ? fmtDateTime(r.dueAt) : fmtDate(addDaysISO(r.start, r.days))) + '</p>' +
+        pickupSpotHTML(r) +
+        (r.project ? '<p class="text-sm text-gray-500 italic">Project: ' + esc(r.project) + '</p>' : "") +
+        (r.thanksNote ? '<p class="text-sm text-gray-500">Thank-you from ' + esc(r.borrower) + ': "' + esc(r.thanksNote) + '"</p>' : "") +
         '</div>' + buttons + '</div></div>';
   };
 
   const pendingReqs = visibleReqs.filter(r => r.status === "pending");
-  document.getElementById("pendingList").innerHTML = pendingReqs.length ? pendingReqs.map(r => reqCard(r,
-    '<div class="flex gap-2"><button class="approve-btn bg-pine-800 hover:bg-pine-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Approve and check out</button>' +
-    '<button class="decline-btn bg-white border border-stone-300 hover:border-brick-400 text-stone-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Decline</button></div>'
-  )).join("") : '<p class="text-sm text-stone-400 bg-white border border-dashed border-pine-200 rounded-2xl p-6 text-center">No requests waiting right now.</p>';
+  document.getElementById("pendingList").innerHTML = pendingReqs.length ? pendingReqs.map(r => {
+    const pTool = state.tools.find(t => t.id === r.toolId);
+    return reqCard(r, canManageTool(pTool)
+      ? '<div class="flex gap-2"><button class="approve-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Approve and check out</button>' +
+        '<button class="decline-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Decline</button></div>'
+      : '<span class="text-sm text-gray-400 font-medium">Waiting for the owner to review</span>');
+  }).join("") : '<p class="text-sm text-gray-400 bg-white border border-dashed border-gray-200 rounded-2xl p-6 text-center">No requests waiting right now.</p>';
 
   const loans = tools.filter(t => t.status === "onloan");
   document.getElementById("loanList").innerHTML = loans.length ? loans.map(t =>
-    '<div class="bg-white rounded-2xl shadow-card border border-pine-100 p-5 flex flex-wrap items-center justify-between gap-3 fade-in">' +
-      '<div><p class="font-bold text-pine-950">' + esc(t.name) + '</p><p class="text-sm text-stone-500">With ' + esc(t.borrower) + ' · due back ' + esc(t.dueAt ? fmtDateTime(t.dueAt) : fmtDate(t.due)) + (isOverdue(t) ? ' · <span class="text-brick-600 font-semibold">overdue</span>' : "") + '</p></div>' +
-      '<button class="return-btn bg-pine-800 hover:bg-pine-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button></div>'
-  ).join("") : '<p class="text-sm text-stone-400 bg-white border border-dashed border-pine-200 rounded-2xl p-6 text-center">Nothing is out on loan right now.</p>';
+    '<div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-wrap items-center justify-between gap-3 fade-in">' +
+      '<div><p class="font-bold text-gray-950">' + esc(t.name) + '</p><p class="text-sm text-gray-500">With ' + esc(t.borrower) + ' · due back ' + esc(t.dueAt ? fmtDateTime(t.dueAt) : fmtDate(t.due)) + (isOverdue(t) ? ' · <span class="text-gray-700 font-semibold">overdue</span>' : "") + '</p>' + pickupSpotHTML(visibleReqs.find(r => r.toolId === t.id && (r.status === "approved" || r.status === "checked_out"))) + '</div>' +
+      (canReturnTool(t) ? '<button class="return-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button>' : '<span class="text-sm text-gray-400 font-medium">Out on loan</span>') + '</div>'
+  ).join("") : '<p class="text-sm text-gray-400 bg-white border border-dashed border-gray-200 rounded-2xl p-6 text-center">Nothing is out on loan right now.</p>';
 
   const history = visibleReqs.filter(r => r.status !== "pending");
   document.getElementById("historyList").innerHTML = history.length ? history.slice().reverse().map(r => reqCard(r,
-    '<span class="text-xs font-bold px-2.5 py-1 rounded-full ' + (r.status === "returned" ? "bg-pine-100 text-pine-800" : r.status === "approved" ? "bg-stone-200 text-stone-700" : "bg-brick-100 text-brick-700") + '">' + (r.status === "returned" ? "Returned" : r.status === "approved" ? "Checked out" : "Declined") + '</span>'
-  )).join("") : '<p class="text-sm text-stone-400 bg-white border border-dashed border-pine-200 rounded-2xl p-6 text-center">No history yet.</p>';
+    '<span class="text-xs font-bold px-2.5 py-1 rounded-full ' + (r.status === "returned" ? "bg-gray-100 text-gray-900" : r.status === "approved" ? "bg-gray-200 text-gray-700" : "bg-gray-100 text-gray-800") + '">' + (r.status === "returned" ? "Returned" : r.status === "approved" ? "Checked out" : "Declined") + '</span>'
+  )).join("") : '<p class="text-sm text-gray-400 bg-white border border-dashed border-gray-200 rounded-2xl p-6 text-center">No history yet.</p>';
 }
 
 function showTab(name) {
@@ -954,6 +1149,7 @@ fillPickupPresets("lendPickupPresets", "pickup-preset", null);
 document.getElementById("lendForm").addEventListener("submit", e => {
   e.preventDefault();
   if (currentProfile && currentProfile.status === "banned") { toast("This account is banned from listing tools."); return; }
+  if (!gateSignup("list tools")) return;
   const tool = {
     id: "t" + Date.now(),
     name: document.getElementById("lendName").value.trim(),
@@ -964,12 +1160,13 @@ document.getElementById("lendForm").addEventListener("submit", e => {
     days: Math.max(1, parseInt(document.getElementById("lendDays").value, 10) || 3),
     desc: document.getElementById("lendDesc").value.trim(),
     pickupWindows: gatherPickupWindows("pickup-preset", "lendPickupOther"),
+    pickupLocation: document.getElementById("lendPickupLocation").value.trim(),
     photo: "",
     tenant: CURRENT_SLUG,
     status: "available", borrower: "", due: "", dueAt: ""
   };
   state.tools.unshift(tool);
-  save(); e.target.reset(); document.getElementById("lendDays").value = 3;
+  save(); e.target.reset(); document.getElementById("lendDays").value = 3; applyIdentityToForms();
   activeCategory = "All";
   showTab("catalog"); render();
   toast("Your tool is listed. Neighbors can request it now.");
@@ -987,34 +1184,36 @@ function openBorrow(tool) {
   const pickupSel = document.getElementById("borrowPickup");
   pickupSel.innerHTML = wins.map((w, i) => '<option value="' + i + '">' + esc(w.label) + '</option>').join("");
   document.getElementById("borrowPickupSelectWrap").classList.toggle("hidden", wins.length === 0);
-  document.getElementById("borrowPickupTime").value = (wins[0] && wins[0].time) || "10:00";
-  document.getElementById("borrowReturnTime").value = "18:00";
+  const bn = document.getElementById("borrowerName");
+  const bc = document.getElementById("borrowerContact");
+  if (currentUser) {
+    bn.value = (currentProfile && currentProfile.fullName) || currentUser.email;
+    bc.value = currentUser.email;
+  }
+  bn.readOnly = Boolean(currentUser);
+  bc.readOnly = Boolean(currentUser);
   modal.showModal();
 }
-document.getElementById("borrowPickup").addEventListener("change", e => {
-  const tool = state.tools.find(t => t.id === borrowToolId);
-  const wins = tool && Array.isArray(tool.pickupWindows) ? tool.pickupWindows : [];
-  const chosen = wins[parseInt(e.target.value, 10)];
-  if (chosen && chosen.time) document.getElementById("borrowPickupTime").value = chosen.time;
-});
 document.getElementById("borrowClose").addEventListener("click", () => modal.close());
 modal.addEventListener("click", e => { if (e.target === modal) modal.close(); });
 
 document.getElementById("borrowForm").addEventListener("submit", e => {
   e.preventDefault();
   if (currentProfile && currentProfile.status === "banned") { toast("This account is banned from making requests."); return; }
+  if (!gateSignup("borrow tools")) { modal.close(); return; }
   const tool = state.tools.find(t => t.id === borrowToolId);
   if (!tool) { modal.close(); return; }
   const start = document.getElementById("borrowStart").value || todayISO();
   const days = Math.max(1, parseInt(document.getElementById("borrowDays").value, 10) || tool.days);
   const wins = Array.isArray(tool.pickupWindows) ? tool.pickupWindows : [];
   let pickupLabel = "";
-  let pickupTime = document.getElementById("borrowPickupTime").value || "";
   if (wins.length) {
     const chosen = wins[parseInt(document.getElementById("borrowPickup").value, 10)] || wins[0];
     pickupLabel = chosen.label;
-    if (chosen.time) pickupTime = chosen.time;
   }
+  // The borrower picks only a window. The lender sets the exact pickup time
+  // and place at approval, which is when pickupAt, pickupLocation, and
+  // dueAt are filled in.
   const req = {
     id: "r" + Date.now(),
     toolId: tool.id,
@@ -1024,8 +1223,12 @@ document.getElementById("borrowForm").addEventListener("submit", e => {
     start: start,
     days: days,
     pickup: pickupLabel,
-    pickupAt: pickupTime ? combineDateTime(start, pickupTime) : "",
-    dueAt: combineDateTime(addDaysISO(start, days), document.getElementById("borrowReturnTime").value || "18:00"),
+    pickupAt: "",
+    pickupLocation: "",
+    dueAt: "",
+    thanksNote: "",
+    reminderDayBeforeSent: false,
+    reminderOverdueSent: false,
     project: document.getElementById("borrowProject").value.trim(),
     status: "pending"
   };
@@ -1041,17 +1244,17 @@ document.getElementById("borrowForm").addEventListener("submit", e => {
       borrowerContact: req.contact,
       startDate: req.start,
       endDate: addDaysISO(req.start, req.days),
-      dueAt: req.dueAt,
       pickupLabel: req.pickup,
-      pickupAt: req.pickupAt
+      requestId: req.id,
+      siteUrl: window.location.origin + window.location.pathname
     });
   }
-  toast("Request sent. " + tool.owner + " can approve it in the Requests tab.");
+  toast("Request sent to " + tool.owner + ". We emailed them a link straight to your request.");
 });
 
 document.addEventListener("click", e => {
   const borrow = e.target.closest(".borrow-btn");
-  if (borrow) { const t = state.tools.find(x => x.id === borrow.dataset.id); if (t) openBorrow(t); return; }
+  if (borrow) { if (!gateSignup("borrow tools")) return; const t = state.tools.find(x => x.id === borrow.dataset.id); if (t) openBorrow(t); return; }
 
   const editBtn = e.target.closest(".edit-btn");
   if (editBtn) { const t = state.tools.find(x => x.id === editBtn.dataset.id); if (t && isToolOwner(t)) openEdit(t); return; }
@@ -1068,37 +1271,14 @@ document.addEventListener("click", e => {
   const ret = e.target.closest(".return-btn");
   if (ret) {
     const t = state.tools.find(x => x.id === ret.dataset.id);
-    if (t) {
-      t.status = "available"; t.borrower = ""; t.due = ""; t.dueAt = "";
-      const open = state.requests.filter(r => r.toolId === t.id && r.status === "approved");
-      open.forEach(r => r.status = "returned");
-      save(); render(); toast(t.name + " is back on the shelf.");
-    }
+    if (t) openReturn(t);
     return;
   }
 
   const approve = e.target.closest(".approve-btn");
   if (approve) {
     const r = state.requests.find(x => x.id === approve.dataset.id);
-    const t = r && state.tools.find(x => x.id === r.toolId);
-    if (r && t) {
-      r.status = "approved";
-      t.status = "onloan"; t.borrower = r.borrower; t.due = addDaysISO(r.start, r.days); t.dueAt = r.dueAt || "";
-      save(); render();
-      // Phase 2: email the borrower (owner copied) about the checkout (stub transport for now).
-      if (isEmail(r.contact) || isEmail(t.contact)) {
-        notify.sendCheckoutEmail({
-          borrowerEmail: isEmail(r.contact) ? r.contact : "",
-          ownerEmail: isEmail(t.contact) ? t.contact : "",
-          toolName: t.name,
-          toolId: t.id,
-          borrowerName: r.borrower,
-          dueAt: t.dueAt,
-          siteUrl: window.location.origin + window.location.pathname
-        });
-      }
-      toast(t.name + " checked out to " + r.borrower + ", due back " + (t.dueAt ? fmtDateTime(t.dueAt) : fmtDate(t.due)) + ".");
-    }
+    if (r) openApprove(r);
     return;
   }
 
@@ -1130,6 +1310,214 @@ document.getElementById("resetBtn").addEventListener("click", () => {
   }
 });
 
+/* ================= Sign-up flow, approve and return dialogs, request deep links =================
+   A profile row is created when a neighbor finishes the sign-up form below
+   (full name, home address, terms acceptance), not at sign-in. Until then a
+   signed-in neighbor can browse but cannot list or borrow. Addresses are
+   never rendered anywhere in the app; only a confirmed pickup spot is
+   shown, and only after a request is approved. */
+const LOCAL_USER_KEY = "valentine-tool-library-local-user";
+
+function signupComplete() {
+  return Boolean(currentProfile && currentProfile.fullName && currentProfile.address && currentProfile.termsAcceptedAt);
+}
+function gateSignup(what) {
+  if (!currentUser || signupComplete()) return true;
+  toast("Finish signing up first, it only takes a minute, and then you can " + what + ".");
+  const sec = document.getElementById("signupSection");
+  if (sec) sec.scrollIntoView({ behavior: "smooth" });
+  return false;
+}
+function renderSignup() {
+  const sec = document.getElementById("signupSection");
+  if (!sec) return;
+  const show = Boolean(currentUser && !signupComplete());
+  sec.classList.toggle("hidden", !show);
+  if (show) {
+    document.getElementById("signupTerms").textContent = termsText();
+    document.getElementById("signupCookie").textContent = COOKIE_NOTE;
+    if (currentProfile) {
+      const nameInput = document.getElementById("signupName");
+      const addrInput = document.getElementById("signupAddress");
+      if (currentProfile.fullName && !nameInput.value) nameInput.value = currentProfile.fullName;
+      if (currentProfile.address && !addrInput.value) addrInput.value = currentProfile.address;
+    }
+  }
+}
+function applyIdentityToForms() {
+  const signedIn = Boolean(currentUser);
+  const name = currentProfile && currentProfile.fullName ? currentProfile.fullName : (currentUser ? currentUser.email : "");
+  const ownerInput = document.getElementById("lendOwner");
+  const contactInput = document.getElementById("lendContact");
+  if (ownerInput && contactInput) {
+    if (signedIn) { ownerInput.value = name; contactInput.value = currentUser.email; }
+    ownerInput.readOnly = signedIn;
+    contactInput.readOnly = signedIn;
+  }
+}
+document.getElementById("signupForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!currentUser) return;
+  const fullName = document.getElementById("signupName").value.trim();
+  const address = document.getElementById("signupAddress").value.trim();
+  if (!fullName || !address) { toast("Please add your full name and home address to finish signing up."); return; }
+  if (!document.getElementById("signupTermsAgree").checked) { toast("Please tick the box to agree to the terms."); return; }
+  const base = currentProfile || {
+    id: currentUser.id, email: currentUser.email,
+    role: isAdminEmail(currentUser.email) ? "admin" : "member",
+    status: "active", neighborhood: CURRENT_SLUG
+  };
+  const profile = Object.assign({}, base, {
+    id: currentUser.id, email: currentUser.email, neighborhood: CURRENT_SLUG,
+    fullName: fullName, address: address,
+    termsAcceptedAt: new Date().toISOString(), termsVersion: TERMS_VERSION
+  });
+  try {
+    currentProfile = await store.upsertProfile(profile);
+  } catch (err) {
+    console.warn("Sign-up save failed:", err);
+    toast("That did not save. Please try again in a moment.");
+    return;
+  }
+  renderAuth();
+  render();
+  toast("Welcome to the library, " + fullName.split(" ")[0] + ". Your sign-up is complete.");
+});
+
+/* Approve dialog: the lender confirms the exact pickup time inside the
+   window the borrower picked, plus the pickup spot for this loan. Times
+   are converted from America/Chicago wall time to UTC for storage. */
+const approveModal = document.getElementById("approveModal");
+let approveRequestId = null;
+function openApprove(r) {
+  const t = state.tools.find(x => x.id === r.toolId);
+  if (!t) return;
+  approveRequestId = r.id;
+  document.getElementById("approveSummary").textContent =
+    t.name + " · requested by " + r.borrower +
+    (r.pickup ? " · window: " + r.pickup : "") +
+    " · " + r.days + (r.days === 1 ? " day" : " days");
+  document.getElementById("approvePickupDate").value = r.start || todayISO();
+  const wins = Array.isArray(t.pickupWindows) ? t.pickupWindows : [];
+  const win = wins.find(w => w.label === r.pickup) || wins[0];
+  document.getElementById("approvePickupTime").value =
+    (win && win.time) || (r.pickupAt ? centralTimeHHMM(r.pickupAt) : "") || "17:00";
+  document.getElementById("approvePickupLocation").value = t.pickupLocation || "";
+  approveModal.showModal();
+}
+document.getElementById("approveClose").addEventListener("click", () => approveModal.close());
+approveModal.addEventListener("click", e => { if (e.target === approveModal) approveModal.close(); });
+document.getElementById("approveForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const r = state.requests.find(x => x.id === approveRequestId);
+  const t = r && state.tools.find(x => x.id === r.toolId);
+  if (!r || !t) { approveModal.close(); return; }
+  const pDate = document.getElementById("approvePickupDate").value || r.start || todayISO();
+  const pTime = document.getElementById("approvePickupTime").value || "17:00";
+  r.start = pDate;
+  r.pickupAt = centralDateTimeToISO(pDate, pTime);
+  r.pickupLocation = document.getElementById("approvePickupLocation").value.trim();
+  r.dueAt = centralDateTimeToISO(addDaysISO(pDate, r.days), "18:00");
+  r.status = "approved";
+  t.status = "onloan"; t.borrower = r.borrower; t.due = addDaysISO(pDate, r.days); t.dueAt = r.dueAt;
+  save();
+  approveModal.close();
+  render();
+  if (isEmail(r.contact) || isEmail(t.contact)) {
+    notify.sendCheckoutEmail({
+      borrowerEmail: isEmail(r.contact) ? r.contact : "",
+      ownerEmail: isEmail(t.contact) ? t.contact : "",
+      toolName: t.name,
+      toolId: t.id,
+      borrowerName: r.borrower,
+      dueAt: t.dueAt,
+      pickupAt: r.pickupAt,
+      pickupLocation: r.pickupLocation,
+      siteUrl: window.location.origin + window.location.pathname
+    });
+  }
+  toast("Approved. " + r.borrower + " has been notified by email, due back " + fmtDateTime(r.dueAt) + ".");
+});
+
+/* Return dialog: records the return, with an optional thank-you from the
+   borrower to the lender (S6), stored on the request as thanksNote. */
+const returnModal = document.getElementById("returnModal");
+let returnToolId = null;
+let returnIsBorrower = false;
+function openReturn(t) {
+  returnToolId = t.id;
+  const active = state.requests.find(r => r.toolId === t.id && (r.status === "approved" || r.status === "checked_out"));
+  document.getElementById("returnSummary").textContent =
+    t.name + (active ? " · borrowed by " + active.borrower : "");
+  returnIsBorrower = Boolean(active && currentUser && active.contact &&
+    String(active.contact).trim().toLowerCase() === String(currentUser.email).toLowerCase());
+  document.getElementById("returnThanksWrap").classList.toggle("hidden", !returnIsBorrower);
+  document.getElementById("returnThanks").value = "";
+  returnModal.showModal();
+}
+document.getElementById("returnClose").addEventListener("click", () => returnModal.close());
+returnModal.addEventListener("click", e => { if (e.target === returnModal) returnModal.close(); });
+document.getElementById("returnForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const t = state.tools.find(x => x.id === returnToolId);
+  if (!t) { returnModal.close(); return; }
+  const thanks = returnIsBorrower ? document.getElementById("returnThanks").value.trim() : "";
+  t.status = "available"; t.borrower = ""; t.due = ""; t.dueAt = "";
+  const openReqs = state.requests.filter(r => r.toolId === t.id && r.status === "approved");
+  openReqs.forEach(r => { r.status = "returned"; if (thanks) r.thanksNote = thanks; });
+  save();
+  returnModal.close();
+  render();
+  toast(thanks
+    ? "Return recorded, and your thank-you is on its way to the lender. " + t.name + " is back on the shelf."
+    : "Thanks! " + t.name + " is back on the shelf, ready for the next neighbor.");
+});
+
+/* Request deep links: the borrow-request email links to ?request=<id>.
+   When the tool's owner is signed in, open the Requests view right at
+   that request. If they are not signed in yet, the id stays pending and
+   is honored as soon as sign-in completes. */
+let pendingRequestId = "";
+try { pendingRequestId = new URLSearchParams(window.location.search).get("request") || ""; } catch (e) { pendingRequestId = ""; }
+function tryOpenRequestLink() {
+  if (!pendingRequestId) return;
+  const r = state.requests.find(x => x.id === pendingRequestId);
+  if (!r) return;
+  const t = state.tools.find(x => x.id === r.toolId);
+  if (!t) return;
+  if (!currentUser || !isToolOwner(t)) return;
+  pendingRequestId = "";
+  showTab("requests");
+  requestAnimationFrame(() => {
+    const el = document.getElementById("request-" + r.id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("ring-2", "ring-gray-900");
+    }
+  });
+}
+
+/* Local preview sign-in: only active on copies where Supabase is not
+   configured. The "user" lives in this browser's localStorage so the
+   member flows (sign-up gate, lending, borrowing, approving) can be
+   exercised end to end without a backend. */
+function localUserId(email) { return "local-" + String(email).toLowerCase().replace(/[^a-z0-9]+/g, "-"); }
+async function initLocalAuth() {
+  let email = "";
+  try { email = localStorage.getItem(LOCAL_USER_KEY) || ""; } catch (e) { email = ""; }
+  if (!email) { renderAuth(); return; }
+  currentUser = { id: localUserId(email), email: email };
+  try { currentProfile = await store.getProfile(currentUser.id); } catch (e) { console.warn("Local profile load failed:", e); }
+  if (currentProfile && currentProfile.status === "banned") {
+    currentUser = null;
+    currentProfile = null;
+    document.getElementById("authMessage").textContent = "This account has been banned from this tool library.";
+  }
+  renderAuth();
+  render();
+  tryOpenRequestLink();
+}
+
 /* ================= PHASE 2: sign-in, profiles, admin ================= */
 let currentUser = null;
 let currentProfile = null;
@@ -1147,6 +1535,27 @@ function isToolOwner(t) {
   return Boolean(currentUser && currentUser.email && t.contact && String(t.contact).trim().toLowerCase() === String(currentUser.email).toLowerCase());
 }
 
+/* Live-test finding (Nov 13, 2026): owner and approval controls (Remove
+   listing, Approve, Decline, Mark returned) must not be shown to signed-out
+   visitors or to neighbors who are not a party to the item. They render
+   only for the signed-in owner, the borrower on the loan, or an admin.
+   In local preview mode there is no account enforcement, so controls stay
+   visible there exactly as before. (RLS tightening remains deferred; this
+   is the UI-level fix.) */
+function controlsGated() { return store.mode === "supabase"; }
+function canManageTool(t) {
+  if (!controlsGated()) return true;
+  return Boolean(t && (isToolOwner(t) || isAdminUser()));
+}
+function canReturnTool(t) {
+  if (!controlsGated()) return true;
+  if (!t) return false;
+  if (isToolOwner(t) || isAdminUser()) return true;
+  if (!currentUser || !currentUser.email) return false;
+  const open = state.requests.find(r => r.toolId === t.id && (r.status === "approved" || r.status === "checked_out"));
+  return Boolean(open && open.contact && String(open.contact).trim().toLowerCase() === String(currentUser.email).toLowerCase());
+}
+
 function renderAuth() {
   const note = document.getElementById("authNotConfigured");
   const form = document.getElementById("authForm");
@@ -1154,9 +1563,22 @@ function renderAuth() {
   document.getElementById("adminTabBtn").classList.toggle("hidden", !isAdminUser());
   if (!isAdminUser() && !document.getElementById("tab-admin").classList.contains("hidden")) showTab("catalog");
   if (!supabaseClient) {
-    note.classList.remove("hidden");
-    form.classList.add("hidden"); form.classList.remove("flex");
-    signedIn.classList.add("hidden"); signedIn.classList.remove("flex");
+    // Local preview mode (Supabase not configured on this copy): a
+    // device-local sign-in stands in for magic links so the member flows
+    // can be tried end to end on this device.
+    note.classList.add("hidden");
+    const submitBtn = form.querySelector("button[type=submit]");
+    if (submitBtn) submitBtn.textContent = "Sign in (local preview)";
+    if (currentUser) {
+      document.getElementById("authUserEmail").textContent = currentUser.email || "";
+      signedIn.classList.remove("hidden"); signedIn.classList.add("flex");
+      form.classList.add("hidden"); form.classList.remove("flex");
+    } else {
+      signedIn.classList.add("hidden"); signedIn.classList.remove("flex");
+      form.classList.remove("hidden"); form.classList.add("flex");
+    }
+    applyIdentityToForms();
+    renderSignup();
     return;
   }
   note.classList.add("hidden");
@@ -1168,6 +1590,8 @@ function renderAuth() {
     signedIn.classList.add("hidden"); signedIn.classList.remove("flex");
     form.classList.remove("hidden"); form.classList.add("flex");
   }
+  applyIdentityToForms();
+  renderSignup();
 }
 
 async function handleSession(session) {
@@ -1175,17 +1599,12 @@ async function handleSession(session) {
   currentProfile = null;
   if (currentUser) {
     try {
-      let profile = await store.getProfile(currentUser.id);
-      if (!profile) {
-        profile = {
-          id: currentUser.id, email: currentUser.email,
-          role: isAdminEmail(currentUser.email) ? "admin" : "member",
-          status: "active", neighborhood: CURRENT_SLUG
-        };
-        await store.upsertProfile(profile);
-      }
+      // No auto-create here: a profile row is written when the neighbor
+      // finishes the sign-up form (name, address, terms), so the admin
+      // user list shows real, completed profiles.
+      const profile = await store.getProfile(currentUser.id);
       currentProfile = profile;
-      if (profile.status === "banned") {
+      if (profile && profile.status === "banned") {
         document.getElementById("authMessage").textContent = "This account has been banned from this tool library.";
         if (supabaseClient) await supabaseClient.auth.signOut();
         currentUser = null;
@@ -1195,6 +1614,7 @@ async function handleSession(session) {
   }
   renderAuth();
   render();
+  tryOpenRequestLink();
 }
 
 function initAuth() {
@@ -1207,7 +1627,28 @@ function initAuth() {
 document.getElementById("authForm").addEventListener("submit", async e => {
   e.preventDefault();
   const msg = document.getElementById("authMessage");
-  if (!supabaseClient) { msg.textContent = "Sign-in is not configured yet."; return; }
+  if (!supabaseClient) {
+    const localEmail = document.getElementById("authEmail").value.trim();
+    if (!isEmail(localEmail)) { msg.textContent = "Please enter a valid email address."; return; }
+    try { localStorage.setItem(LOCAL_USER_KEY, localEmail); } catch (err) {}
+    currentUser = { id: localUserId(localEmail), email: localEmail };
+    currentProfile = null;
+    try { currentProfile = await store.getProfile(currentUser.id); } catch (err) { console.warn("Local profile load failed:", err); }
+    if (currentProfile && currentProfile.status === "banned") {
+      currentUser = null;
+      currentProfile = null;
+      msg.textContent = "This account has been banned from this tool library.";
+      renderAuth();
+      render();
+      return;
+    }
+    msg.textContent = "";
+    renderAuth();
+    render();
+    tryOpenRequestLink();
+    toast("Signed in (local preview) as " + localEmail + ".");
+    return;
+  }
   const email = document.getElementById("authEmail").value.trim();
   if (!email) return;
   msg.textContent = "Sending your sign-in link...";
@@ -1215,10 +1656,19 @@ document.getElementById("authForm").addEventListener("submit", async e => {
     email: email,
     options: { emailRedirectTo: window.location.href.split("#")[0] }
   });
-  msg.textContent = error ? ("Could not send the link: " + error.message) : ("Check " + email + " for your sign-in link.");
+  msg.textContent = error ? "That link did not send. Double-check the email address, and try again in a moment." : ("Check " + email + " for your sign-in link.");
 });
 document.getElementById("authSignOut").addEventListener("click", async () => {
-  if (supabaseClient) await supabaseClient.auth.signOut();
+  if (!supabaseClient) {
+    try { localStorage.removeItem(LOCAL_USER_KEY); } catch (err) {}
+    currentUser = null;
+    currentProfile = null;
+    document.getElementById("authMessage").textContent = "";
+    renderAuth();
+    render();
+    return;
+  }
+  await supabaseClient.auth.signOut();
   currentUser = null;
   currentProfile = null;
   document.getElementById("authMessage").textContent = "";
@@ -1259,7 +1709,7 @@ document.getElementById("nbSlug").addEventListener("input", e => {
   const msg = document.getElementById("nbSlugMsg");
   const problem = slug ? slugProblem(slug) : "";
   msg.textContent = problem || (slug ? slug + ".toollendinglibrary.com is available." : "Lowercase letters, numbers, and hyphens.");
-  msg.className = "text-xs mt-1 " + (problem ? "text-brick-600" : slug ? "text-pine-700" : "text-stone-400");
+  msg.className = "text-xs mt-1 " + (problem ? "text-gray-700" : slug ? "text-gray-700" : "text-gray-400");
 });
 document.getElementById("neighborhoodForm").addEventListener("submit", async e => {
   e.preventDefault();
@@ -1270,7 +1720,7 @@ document.getElementById("neighborhoodForm").addEventListener("submit", async e =
   const problem = slugProblem(slug);
   if (!name || problem) {
     msg.textContent = problem || "Enter the organization name.";
-    msg.className = "text-xs mt-1 text-brick-600";
+    msg.className = "text-xs mt-1 text-gray-700";
     return;
   }
   try {
@@ -1292,7 +1742,7 @@ document.getElementById("neighborhoodForm").addEventListener("submit", async e =
     toast(nb.name + " registered as " + nb.slug + ".toollendinglibrary.com.");
   } catch (err) {
     msg.textContent = "Could not register that name: " + (err && err.message ? err.message : String(err));
-    msg.className = "text-xs mt-1 text-brick-600";
+    msg.className = "text-xs mt-1 text-gray-700";
   }
 });
 
@@ -1316,6 +1766,10 @@ function openEdit(tool) {
   document.getElementById("editCategory").innerHTML = CATEGORIES.map(c => '<option' + (c === tool.category ? " selected" : "") + '>' + esc(c) + '</option>').join("");
   document.getElementById("editContact").value = tool.contact || "";
   document.getElementById("editDesc").value = tool.desc || "";
+  document.getElementById("editPickupLocation").value = tool.pickupLocation || "";
+  const editContactInput = document.getElementById("editContact");
+  editContactInput.readOnly = Boolean(currentUser && isToolOwner(tool));
+  if (currentUser && isToolOwner(tool)) editContactInput.value = currentUser.email;
   fillPickupPresets("editPickupPresets", "edit-pickup-preset", tool.pickupWindows || []);
   const otherWin = (Array.isArray(tool.pickupWindows) ? tool.pickupWindows : []).find(w => !PICKUP_PRESETS.some(p => p.label === w.label));
   document.getElementById("editPickupOther").value = otherWin ? otherWin.label : "";
@@ -1370,6 +1824,7 @@ document.getElementById("editForm").addEventListener("submit", async e => {
   t.category = document.getElementById("editCategory").value;
   t.contact = document.getElementById("editContact").value.trim();
   t.desc = document.getElementById("editDesc").value.trim();
+  t.pickupLocation = document.getElementById("editPickupLocation").value.trim();
   t.pickupWindows = gatherPickupWindows("edit-pickup-preset", "editPickupOther");
   if (document.getElementById("editRemovePhoto").checked) t.photo = "";
   else if (editPhotoData) {
@@ -1396,23 +1851,23 @@ document.getElementById("editDelete").addEventListener("click", () => {
 async function renderAdmin() {
   const list = document.getElementById("adminUserList");
   if (!list || !isAdminUser()) return;
-  list.innerHTML = '<p class="text-sm text-stone-400">Loading users...</p>';
+  list.innerHTML = '<p class="text-sm text-gray-400">Loading users...</p>';
   let profiles = [];
   try { profiles = await store.listProfiles(); } catch (e) { console.warn("listProfiles failed:", e); }
   adminProfiles = profiles;
   if (!profiles.length) {
-    list.innerHTML = '<p class="text-sm text-stone-400 bg-white border border-dashed border-pine-200 rounded-2xl p-6 text-center">No profiles yet. A profile is created the first time a neighbor signs in.</p>';
+    list.innerHTML = '<p class="text-sm text-gray-400 bg-white border border-dashed border-gray-200 rounded-2xl p-6 text-center">No profiles yet. A profile appears here once a neighbor finishes signing up.</p>';
     return;
   }
   list.innerHTML = profiles.map(p =>
-    '<div class="bg-white rounded-2xl shadow-card border border-pine-100 p-5 flex flex-wrap items-center justify-between gap-3">' +
-      '<div><p class="font-bold text-pine-950">' + esc(p.email) + '</p>' +
-      '<p class="text-sm text-stone-500">Role: ' + esc(p.role) + ' · Status: ' + esc(p.status) + '</p></div>' +
+    '<div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-wrap items-center justify-between gap-3">' +
+      '<div><p class="font-bold text-gray-950">' + esc(p.fullName || p.email) + '</p>' +
+      '<p class="text-sm text-gray-500">' + (p.fullName ? esc(p.email) + ' · ' : '') + 'Role: ' + esc(p.role) + ' · Status: ' + esc(p.status) + '</p></div>' +
       '<div class="flex gap-2">' +
         (p.status === "banned"
-          ? '<button class="admin-unban-btn bg-pine-800 hover:bg-pine-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Unban</button>'
-          : '<button class="admin-ban-btn bg-white border border-stone-300 hover:border-brick-400 text-stone-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Ban</button>') +
-        '<button class="admin-delete-btn bg-brick-500 hover:bg-brick-600 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Delete user</button>' +
+          ? '<button class="admin-unban-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Unban</button>'
+          : '<button class="admin-ban-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Ban</button>') +
+        '<button class="admin-delete-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Delete user</button>' +
       '</div></div>'
   ).join("");
 }
@@ -1438,9 +1893,24 @@ function openDeepLink() {
   if (!el) return;
   showTab("catalog");
   el.scrollIntoView({ behavior: "smooth", block: "center" });
-  el.classList.add("ring-2", "ring-brick-500");
+  el.classList.add("ring-2", "ring-gray-900");
 }
 window.addEventListener("hashchange", openDeepLink);
+
+/* Cookie notice banner: shown once per browser and remembered in
+   localStorage. The same note is part of the sign-up terms acceptance. */
+(function initCookieBanner() {
+  const banner = document.getElementById("cookieBanner");
+  if (!banner) return;
+  document.getElementById("cookieBannerText").textContent = COOKIE_NOTE;
+  let ok = false;
+  try { ok = Boolean(localStorage.getItem("tl-cookie-ok")); } catch (e) {}
+  if (!ok) banner.classList.remove("hidden");
+  document.getElementById("cookieAccept").addEventListener("click", () => {
+    try { localStorage.setItem("tl-cookie-ok", "1"); } catch (e) {}
+    banner.classList.add("hidden");
+  });
+})();
 
 initAuth();
 if (store.mode === "supabase") {
@@ -1452,6 +1922,7 @@ if (store.mode === "supabase") {
   render();
   renderTenant();
   openDeepLink();
+  initLocalAuth();
 }
 </script>
 </body>
