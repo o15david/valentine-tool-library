@@ -109,20 +109,20 @@ tailwind.config = {
         <p class="text-sm text-gray-500 mt-0.5">Tools members are lending. Search or filter, then send a request.</p>
       </div>
     </div>
-    <!-- Phase 5: unmistakable sign-up gate for borrowing. Shown only to a
-         signed-in member whose sign-up is unfinished (the state that used
-         to surface as a lone toast). -->
+    <!-- Phase 5.5: the catalog itself stays behind the profile gate.
+         Until a viewer has created a complete profile, this card is the
+         catalog: no listings, counts, search, or filters are revealed. -->
     <div id="catalogGateNotice" class="hidden bg-white border border-gray-300 shadow-card rounded-2xl p-5 mb-6 flex-wrap items-center justify-between gap-3">
       <div class="flex items-start gap-3 min-w-0">
         <span class="w-9 h-9 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
         <div>
-          <p class="font-bold text-gray-950">Your sign-up is not finished yet</p>
-          <p class="text-sm text-gray-500 mt-0.5 max-w-xl">You are signed in, but borrowing is paused until the library has your name, home address, and terms agreement. It takes about a minute, and then every borrow button works.</p>
+          <p id="catalogGateTitle" class="font-bold text-gray-950">The catalog is for members</p>
+          <p id="catalogGateText" class="text-sm text-gray-500 mt-0.5 max-w-xl">This library is for members of this organization. Sign in and create your profile to browse the tools members are lending.</p>
         </div>
       </div>
-      <button data-scroll-to="signupSection" type="button" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shrink-0">Finish signing up</button>
+      <button id="catalogGateButton" data-scroll-to="signin" type="button" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shrink-0">Sign in and create your profile</button>
     </div>
-    <div class="flex flex-col lg:flex-row lg:items-center gap-3">
+    <div id="catalogControls" class="flex flex-col lg:flex-row lg:items-center gap-3">
       <div class="relative flex-1">
         <span data-icon="search" data-icon-class="w-5 h-5" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none flex"></span>
         <input id="searchInput" type="search" placeholder="Search tools, for example ladder, drill, canopy" class="w-full rounded-xl border border-gray-200 bg-white pl-12 pr-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
@@ -348,6 +348,14 @@ tailwind.config = {
           </label>
         </div>
         <div>
+          <span class="text-sm font-semibold flex items-center gap-1.5"><span data-icon="shield" data-icon-class="w-4 h-4" class="text-gray-400 flex shrink-0"></span>Privacy policy</span>
+          <div id="signupPrivacy" class="mt-1 bg-white border border-gray-200 rounded-xl p-4 text-sm text-gray-600 whitespace-pre-wrap max-h-64 overflow-y-auto"></div>
+          <label class="flex items-start gap-2 text-sm mt-3">
+            <input id="signupPrivacyAgree" type="checkbox" required class="accent-gray-900 w-4 h-4 mt-0.5">
+            <span>I agree to the privacy policy above.</span>
+          </label>
+        </div>
+        <div>
           <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm">Finish signing up</button>
         </div>
       </form>
@@ -428,6 +436,7 @@ tailwind.config = {
       </div>
       <p id="adminLogoMsg" class="text-sm text-gray-500 mt-2"></p>
     </div>
+    <div id="adminReports" class="mt-6"></div>
     <div id="adminUserList" class="space-y-3 mt-6"></div>
   </section>
 </main>
@@ -438,6 +447,7 @@ tailwind.config = {
     <div class="flex items-center gap-4">
       <button id="footerTermsBtn" type="button" class="underline decoration-dotted hover:text-gray-700">Terms and conditions</button>
       <button id="footerCookieBtn" type="button" class="underline decoration-dotted hover:text-gray-700">Cookie policy</button>
+      <button id="footerPrivacyBtn" type="button" class="underline decoration-dotted hover:text-gray-700">Privacy policy</button>
     </div>
   </div>
 </footer>
@@ -558,7 +568,7 @@ tailwind.config = {
     <div>
       <label class="text-sm font-semibold" for="approvePickupLocation">Pickup location</label>
       <input id="approvePickupLocation" maxlength="120" placeholder="Leave blank for your home address, or name another spot" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-      <p class="text-xs text-gray-400 mt-1">The borrower picked the window; you set the exact time and place. They are only shown this spot now that you are approving.</p>
+      <p class="text-xs text-gray-400 mt-1">The borrower picked the window; you set the exact time and place. The exact spot entered here is shared with the borrower in their approval email once you approve.</p>
     </div>
     <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Approve</button>
   </form>
@@ -603,6 +613,27 @@ tailwind.config = {
       <button type="button" id="unavailableCancel" autofocus class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Cancel</button>
       <button type="submit" class="bg-white border border-gray-400 hover:border-gray-600 text-gray-900 font-semibold px-5 py-2.5 rounded-full text-sm">Yes, mark it unavailable</button>
     </div>
+  </form>
+</dialog>
+
+<!-- Report a member: the report goes only to the library admin. The
+     reported member is not notified and is not told who reported them. -->
+<dialog id="reportModal" class="rounded-2xl p-0 w-[min(94vw,30rem)] shadow-xl">
+  <form id="reportForm" class="p-6 space-y-4">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h3 class="font-display text-xl font-bold text-gray-950">Report a member</h3>
+        <p id="reportWho" class="text-sm text-gray-700 font-semibold mt-0.5"></p>
+        <p id="reportContext" class="hidden text-sm text-gray-500 mt-0.5"></p>
+      </div>
+      <button type="button" id="reportClose" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Close">×</button>
+    </div>
+    <p class="text-sm text-gray-600">Your report goes only to the library admin. The other member is not told who reported them.</p>
+    <div>
+      <label class="text-sm font-semibold" for="reportMessage">What happened?</label>
+      <textarea id="reportMessage" required maxlength="2000" rows="5" placeholder="Tell the admin what happened" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></textarea>
+    </div>
+    <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Send report</button>
   </form>
 </dialog>
 
@@ -659,6 +690,19 @@ tailwind.config = {
     <div id="termsDialogText" class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-600 whitespace-pre-wrap max-h-80 overflow-y-auto"></div>
     <div class="flex justify-end">
       <button type="button" id="termsCloseBtn" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="privacyModal" class="rounded-2xl p-0 w-[min(94vw,34rem)] shadow-xl">
+  <div class="p-6 space-y-4">
+    <div class="flex items-start justify-between gap-4">
+      <h3 class="font-display text-xl font-bold text-gray-950">Privacy policy</h3>
+      <button type="button" id="privacyClose" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Close privacy policy">×</button>
+    </div>
+    <div id="privacyDialogText" class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-600 whitespace-pre-wrap max-h-80 overflow-y-auto"></div>
+    <div class="flex justify-end">
+      <button type="button" id="privacyCloseBtn" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Close</button>
     </div>
   </div>
 </dialog>
@@ -722,6 +766,49 @@ const TERMS_TEXT = [
   "By creating an account you agree to these terms."
 ].join("\n");
 const COOKIE_NOTE = "This site uses only the cookies and browser storage it needs to keep you signed in and remember your library. No advertising trackers. By continuing you accept that.";
+
+/* PRIVACY_TEXT: the privacy policy shown in the sign-up form and in the
+   footer dialog. Like the terms, the bracketed tokens are filled in from
+   the current neighborhood's record when the text renders. Every claim
+   here matches the app's actual behavior in this build: if a sentence
+   would not be true, it does not belong in the policy. */
+const PRIVACY_VERSION = "2026-11-13.1";
+const PRIVACY_TEXT = [
+  "Welcome to the [Neighborhood Name] Tool Library at [slug].toollendinglibrary.com. This policy explains, in plain language, what information the library holds, why it holds it, and who can see it.",
+  "",
+  "What we collect. When you create an account we collect your email address, your full name, and your home address, and an optional profile photo if you add one. When you lend, we keep your tool listings and their photos. When you borrow or lend, we keep the borrow requests, the pickup window you pick, the confirmed pickup spot and time, and the loan and return records. We also keep a record of when you accepted the terms, this policy, and the cookie note, so the library knows which version you agreed to.",
+  "",
+  "Why we use it. We use this information only to run the lending library: signing you in, matching lenders and borrowers, sending notifications and reminders about your requests and loans, and letting the library admin check that members live in [Neighborhood Name / residency area] and are part of the community, and for safety. It is not used for anything else.",
+  "",
+  "We never sell your information. We never sell your information, and we never share it with third parties for their own use or for marketing. The only services that handle it are the ones that run this site, such as hosting, the database and sign-in service, and email delivery, and they handle it only so the library works.",
+  "",
+  "Who can see what. The catalog is visible only to members who have completed their profile. On public pages a member is shown as first name plus last initial. Full names appear only inside a transaction, between the lender and borrower on that request or loan, and in the admin area. Home addresses are visible to the library admin only, for the area and community check and for safety, and are never shown to other members. A pickup spot is shared only with the borrower on that loan, and only after the lender approves. Member email addresses and phone numbers are never shown to other members; messages about a loan go through the site instead. A member can report another member to the admin; the report, including the reporter's name, goes only to the admin, and the reported member is not told about it.",
+  "",
+  "What is shared when you lend or borrow.",
+  "Listing a tool: the tool name, description, photo, category, condition, loan length, and general pickup windows are shown to members with a complete profile. The lender is shown as first name plus last initial, with their profile photo if they have one.",
+  "Requesting a tool: the lender sees the borrower's full name and profile photo, the pickup window the borrower picked, and their project note, so the lender can decide. Nothing about the borrower goes to anyone else.",
+  "Approval: once the lender approves, the borrower is told the exact pickup time and the pickup spot for that loan, and both sides see each other's full names on the request. The pickup spot is whatever the lender confirms for that loan, which may be their home or another spot they choose.",
+  "During the loan and at return: both sides see the due date and the loan status. A thank-you note written at return is shared with the lender. Reasons typed for a release, a no-show, or a no-longer-available close are shared only with the other person on that request.",
+  "Reminders: pickup and due reminders go only to the two people on the loan, and they carry that loan's time, spot, and due details.",
+  "Never revealed: a member's email address or phone number is never shown to any other member. A member's home address is never shown to anyone except the admin, and a pickup spot is only ever the spot the lender confirms for that one loan. Nothing about a loan is shown to members who are not part of it, and the catalog itself is not shown to anyone without a complete profile.",
+  "",
+  "Cookies. This site uses only the cookies and browser storage it needs to keep you signed in and remember your library. There are no advertising trackers. The cookie note shown at sign-up and in the footer has the short version.",
+  "",
+  "Keeping and deleting your information. You can update your name, home address, and profile photo any time in Your account. You can also delete your account there; deleting removes your profile, your listings, and your request history from the library. Your sign-in login record itself is managed by the sign-in provider, separate from the library.",
+  "",
+  "Questions. If you have a question about your information, contact your library's admin."
+].join("\n");
+
+/* Render the privacy policy for the neighborhood currently being browsed. */
+function privacyText() {
+  const nb = currentNeighborhood || { name: "Valentine Neighborhood Association", residencyArea: "" };
+  const shortName = String(nb.name || "").replace(/ Neighborhood Association$/, "");
+  const residency = nb.residencyArea || ("the " + shortName + " area");
+  return PRIVACY_TEXT
+    .split("[Neighborhood Name / residency area]").join(residency)
+    .split("[Neighborhood Name]").join(nb.name)
+    .split("[slug]").join(CURRENT_SLUG);
+}
 
 /* Render the terms for the neighborhood currently being browsed. */
 function termsText() {
@@ -861,6 +948,40 @@ function loadLocalProfiles() {
   } catch (e) { return []; }
 }
 function saveLocalProfiles(list) { localStorage.setItem(PROFILES_KEY, JSON.stringify(list)); }
+
+/* Phase 5.6: member reports to the admin live in their own store list,
+   separate from the tools and requests state, in both data modes. A
+   report carries name snapshots from filing time because profiles are
+   not readable across members, so the admin can still read the report
+   after accounts change. */
+const REPORTS_KEY = "valentine-tool-library-reports";
+function loadLocalReports() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(REPORTS_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) { return []; }
+}
+function saveLocalReports(list) { localStorage.setItem(REPORTS_KEY, JSON.stringify(list)); }
+function reportFromRow(row) {
+  return {
+    id: row.id, neighborhood: CURRENT_SLUG,
+    reporterId: row.reporter_id || "", reporterName: row.reporter_name || "", reporterEmail: row.reporter_email || "",
+    reportedUserId: row.reported_user_id || "", reportedName: row.reported_name || "", reportedEmail: row.reported_email || "",
+    context: row.context || "", message: row.message || "",
+    status: row.status || "open", createdAt: row.created_at || ""
+  };
+}
+function reportToRow(report) {
+  return {
+    id: report.id, neighborhood_id: supabaseStore.currentId(),
+    reporter_id: report.reporterId || null, reporter_name: report.reporterName || "",
+    reporter_email: report.reporterEmail || "",
+    reported_user_id: report.reportedUserId || null, reported_name: report.reportedName || "",
+    reported_email: report.reportedEmail || null,
+    context: report.context || null, message: report.message || "",
+    status: report.status || "open", created_at: report.createdAt || new Date().toISOString()
+  };
+}
 
 const supabaseStore = {
   neighborhoods: [],
@@ -1065,7 +1186,7 @@ const store = {
       if (supabaseStore.currentId()) query = query.eq("neighborhood_id", supabaseStore.currentId());
       const { data, error } = await query;
       if (error) throw error;
-      return (data || []).map(row => ({ id: row.id, email: row.email, role: row.role, status: row.status, neighborhood: CURRENT_SLUG, createdAt: row.created_at, fullName: row.full_name || "", address: row.address || "", termsAcceptedAt: row.terms_accepted_at || "", termsVersion: row.terms_version || "", cookieAcceptedAt: row.cookie_accepted_at || "", avatarUrl: row.avatar_url || "" }));
+      return (data || []).map(row => ({ id: row.id, email: row.email, role: row.role, status: row.status, neighborhood: CURRENT_SLUG, createdAt: row.created_at, fullName: row.full_name || "", address: row.address || "", termsAcceptedAt: row.terms_accepted_at || "", termsVersion: row.terms_version || "", privacyAcceptedAt: row.privacy_accepted_at || "", privacyVersion: row.privacy_version || "", cookieAcceptedAt: row.cookie_accepted_at || "", avatarUrl: row.avatar_url || "" }));
     }
     return loadLocalProfiles().filter(p => (p.neighborhood || DEFAULT_TENANT_SLUG) === CURRENT_SLUG);
   },
@@ -1073,7 +1194,7 @@ const store = {
     if (this.mode === "supabase") {
       const { data, error } = await supabaseClient.from("profiles").select("*").eq("id", userId).maybeSingle();
       if (error) throw error;
-      return data ? { id: data.id, email: data.email, role: data.role, status: data.status, neighborhood: CURRENT_SLUG, createdAt: data.created_at, fullName: data.full_name || "", address: data.address || "", termsAcceptedAt: data.terms_accepted_at || "", termsVersion: data.terms_version || "", cookieAcceptedAt: data.cookie_accepted_at || "", avatarUrl: data.avatar_url || "" } : null;
+      return data ? { id: data.id, email: data.email, role: data.role, status: data.status, neighborhood: CURRENT_SLUG, createdAt: data.created_at, fullName: data.full_name || "", address: data.address || "", termsAcceptedAt: data.terms_accepted_at || "", termsVersion: data.terms_version || "", privacyAcceptedAt: data.privacy_accepted_at || "", privacyVersion: data.privacy_version || "", cookieAcceptedAt: data.cookie_accepted_at || "", avatarUrl: data.avatar_url || "" } : null;
     }
     return loadLocalProfiles().find(p => p.id === userId) || null;
   },
@@ -1089,6 +1210,7 @@ const store = {
         email: merged.email, role: merged.role, status: merged.status,
         full_name: merged.fullName || null, address: merged.address || null,
         terms_accepted_at: merged.termsAcceptedAt || null, terms_version: merged.termsVersion || null,
+        privacy_accepted_at: merged.privacyAcceptedAt || null, privacy_version: merged.privacyVersion || null,
         cookie_accepted_at: merged.cookieAcceptedAt || null,
         avatar_url: merged.avatarUrl || null
       });
@@ -1127,6 +1249,44 @@ const store = {
     state.tools = state.tools.filter(t => String(t.contact || "").toLowerCase() !== email);
     state.requests = state.requests.filter(r => String(r.contact || "").toLowerCase() !== email);
     save();
+  },
+  /* Phase 5.6: reports filed by members for the admin. Creation stores
+     the filing-time snapshots; listing is newest first and scoped to
+     the current library; status changes persist in place so resolved
+     reports stay on the record. */
+  async createReport(report) {
+    if (this.mode === "supabase") {
+      const { error } = await supabaseClient.from("reports").insert(reportToRow(report));
+      if (error) throw error;
+      return report;
+    }
+    const list = loadLocalReports();
+    list.push(report);
+    saveLocalReports(list);
+    return report;
+  },
+  async listReports() {
+    if (this.mode === "supabase") {
+      let query = supabaseClient.from("reports").select("*").order("created_at", { ascending: false });
+      if (supabaseStore.currentId()) query = query.eq("neighborhood_id", supabaseStore.currentId());
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data || []).map(reportFromRow);
+    }
+    return loadLocalReports()
+      .filter(r => (r.neighborhood || DEFAULT_TENANT_SLUG) === CURRENT_SLUG)
+      .slice()
+      .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+  },
+  async setReportStatus(reportId, status) {
+    if (this.mode === "supabase") {
+      const { error } = await supabaseClient.from("reports").update({ status: status }).eq("id", reportId);
+      if (error) throw error;
+      return;
+    }
+    const list = loadLocalReports();
+    const report = list.find(r => r.id === reportId);
+    if (report) { report.status = status; saveLocalReports(list); }
   }
 };
 
@@ -1189,7 +1349,7 @@ const notify = (() => {
     ];
     if (d.pickupAt) lines.push("Pickup: " + fmtDateTime(d.pickupAt));
     if (d.pickupAt || d.pickupLocation) {
-      lines.push("Pickup spot: " + (d.pickupLocation || "The lender's home. Please contact the lender for the exact address"));
+      lines.push("Pickup spot: " + (d.pickupLocation || "The lender's home"));
     }
     lines.push(
       "Due back: " + (d.dueAt ? fmtDateTime(d.dueAt) : "see the library site"),
@@ -1221,7 +1381,7 @@ const notify = (() => {
     ];
     if (d.pickupAt) lines.push("Pickup time: " + fmtDateTime(d.pickupAt));
     if (d.pickupAt || d.pickupLocation) {
-      lines.push("Pickup spot: " + (d.pickupLocation || "The lender's home. Please contact the lender for the exact address"));
+      lines.push("Pickup spot: " + (d.pickupLocation || "The lender's home"));
     }
     lines.push(
       "Your loan runs " + d.days + (d.days === 1 ? " day" : " days") + " from the moment you pick the tool up. Once the lender marks it picked up, we will email you the exact due date.",
@@ -1310,6 +1470,73 @@ const notify = (() => {
       body: lines.join("\n")
     };
   }
+  /* Phase 5.5: when a member finishes creating their profile, each
+     library admin hears about the join. The note names the member and
+     gives their email, home address, and the join time. The address is
+     included only for admins, so they can confirm the member lives in
+     the library's area and is part of the community, and for safety. */
+  function composeMemberJoinedEmail(d) {
+    const base = d.siteUrl || (window.location.origin + window.location.pathname);
+    const lines = [
+      "Hello,",
+      "",
+      "A new member has joined " + d.libraryName + ".",
+      "",
+      "Name: " + d.memberName,
+      "Email: " + d.memberEmail
+    ];
+    if (d.memberAddress) {
+      lines.push("Home address: " + d.memberAddress);
+      lines.push("This address is shown only to admins so you can confirm the member lives in the area and is part of the community, and for safety.");
+    }
+    if (d.joinedAt) lines.push("Joined: " + fmtDateTime(d.joinedAt));
+    lines.push(
+      "",
+      "Admin area: " + base + "#admin",
+      "",
+      d.libraryName
+    );
+    return {
+      to: d.to || "",
+      cc: "",
+      subject: "New member joined " + d.libraryName,
+      body: lines.join("\n")
+    };
+  }
+  /* Phase 5.6: a member has reported another member to the admin. The
+     note carries the reporter's name and email, who was reported, the
+     context the report came from, and the reporter's message verbatim,
+     so the admin can act from the member list below it. */
+  function composeReportEmail(d) {
+    const base = d.siteUrl || (window.location.origin + window.location.pathname);
+    const lines = [
+      "Hello,",
+      "",
+      "A member has reported another member to the library admin.",
+      "",
+      "Reported: " + d.reportedName
+    ];
+    if (d.context) lines.push("Context: " + d.context);
+    lines.push(
+      "Reported by: " + d.reporterName + " (" + d.reporterEmail + ")"
+    );
+    if (d.filedAt) lines.push("Filed: " + fmtDateTime(d.filedAt));
+    lines.push(
+      "",
+      "Message:",
+      d.message || "",
+      "",
+      "Admin area: " + base + "#admin",
+      "",
+      d.libraryName
+    );
+    return {
+      to: d.to || "",
+      cc: "",
+      subject: "Member report: " + d.reportedName + " (" + d.libraryName + ")",
+      body: lines.join("\n")
+    };
+  }
   const transports = {
     stub: {
       async send(message) {
@@ -1368,6 +1595,16 @@ const notify = (() => {
     sendReleaseEmail(details) {
       const message = composeReleaseEmail(details);
       if (!message.to) { console.log("[STUB EMAIL] release email skipped, no email address on file."); return Promise.resolve({ ok: false, skipped: true }); }
+      return deliver(message);
+    },
+    sendMemberJoinedEmail(details) {
+      const message = composeMemberJoinedEmail(details);
+      if (!message.to) { console.log("[STUB EMAIL] member joined email skipped, no email address on file."); return Promise.resolve({ ok: false, skipped: true }); }
+      return deliver(message);
+    },
+    sendReportEmail(details) {
+      const message = composeReportEmail(details);
+      if (!message.to) { console.log("[STUB EMAIL] member report email skipped, no email address on file."); return Promise.resolve({ ok: false, skipped: true }); }
       return deliver(message);
     },
     get emailOutbox() { return loadOutbox(); }
@@ -1443,10 +1680,18 @@ function isOverdue(tool) {
   return Boolean(tool.due && tool.due < todayISO());
 }
 
+/* Phase 5.4: the borrower on an awaiting-pickup tool gets wording that
+   distinguishes borrowing from lending. Everyone else keeps the plain
+   status. */
+function awaitingPickupLabel(tool) {
+  const req = state.requests.find(r => r.toolId === tool.id && r.status === "approved");
+  return req && isRequestBorrower(req) ? "Waiting for you to pick up" : "Waiting for pickup";
+}
+
 function statusBadge(tool) {
   if (tool.status === "available") return '<span class="bg-gray-100 text-gray-900 text-xs font-bold px-2.5 py-1 rounded-full">Available</span>';
   if (tool.status === "requested") return '<span class="bg-gray-100 text-gray-800 text-xs font-bold px-2.5 py-1 rounded-full">Request pending</span>';
-  if (tool.status === "awaiting") return '<span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-1 rounded-full">Waiting for pickup</span>';
+  if (tool.status === "awaiting") return '<span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-1 rounded-full">' + awaitingPickupLabel(tool) + '</span>';
   /* On loan: the due-back and overdue timing is a detail of that loan,
      so on the public catalog card only the lender and the borrower see
      it. Everyone else gets the general status alone. */
@@ -1457,6 +1702,18 @@ function statusBadge(tool) {
 }
 
 function initials(name) { return name.split(/\s+/).map(w => w[0]).slice(0,2).join("").toUpperCase(); }
+
+/* Phase 5.5: public browsing surfaces never carry a member's full name.
+   Until two people are parties to the same transaction, a name renders
+   as first name plus last initial ("David Snodgrass" becomes "David
+   S."). Single-word names and empty values pass through unchanged. */
+function publicName(name) {
+  const clean = String(name == null ? "" : name).trim().replace(/\s+/g, " ");
+  if (!clean) return "";
+  const parts = clean.split(" ");
+  if (parts.length < 2) return clean;
+  return parts[0] + " " + parts[parts.length - 1].charAt(0).toUpperCase() + ".";
+}
 
 /* Phase 5.1: member avatars travel as snapshots on tools and requests
    (profiles themselves are not readable by other members). A member with
@@ -1518,7 +1775,13 @@ function render() {
   const onloan = tools.filter(t => t.status === "onloan").length;
   const pending = visibleReqs.filter(r => r.status === "pending").length;
 
-  document.getElementById("stats").innerHTML = [
+  /* Phase 5.5: a viewer without a complete profile does not get the
+     catalog, and the header counts are part of that reveal. Locked
+     viewers see the gate card in the Catalog area and no numbers here. */
+  const catalogLocked = !signupComplete();
+  const statsEl = document.getElementById("stats");
+  statsEl.classList.toggle("hidden", catalogLocked);
+  statsEl.innerHTML = catalogLocked ? "" : [
     ["Tools in the library", tools.length],
     ["Available now", available],
     ["Out on loan", onloan],
@@ -1553,8 +1816,18 @@ function render() {
   const heroReqBtn = document.getElementById("heroRequestsBtn");
   if (heroReqBtn) heroReqBtn.classList.toggle("hidden", !showRequests);
 
+  const catalogControlsEl = document.getElementById("catalogControls");
+  if (catalogControlsEl) catalogControlsEl.classList.toggle("hidden", catalogLocked);
+  const chipsEl = document.getElementById("categoryChips");
+  chipsEl.classList.toggle("hidden", catalogLocked);
+  const resultCountEl = document.getElementById("resultCount");
+  resultCountEl.classList.toggle("hidden", catalogLocked);
+  if (catalogLocked) resultCountEl.textContent = "";
+  const toolGridEl = document.getElementById("toolGrid");
+  toolGridEl.classList.toggle("hidden", catalogLocked);
+
   const chips = ["All"].concat(CATEGORIES);
-  document.getElementById("categoryChips").innerHTML = chips.map(c =>
+  chipsEl.innerHTML = catalogLocked ? "" : chips.map(c =>
     '<button class="chip inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium border border-gray-200 hover:border-gray-400 ' + (c === activeCategory ? "chip-active" : "") + '" data-category="' + esc(c) + '">' + icon(c === "All" ? "grid" : categoryIcon(c), "w-4 h-4") + esc(c) + '</button>'
   ).join("");
 
@@ -1563,24 +1836,31 @@ function render() {
   const filtered = tools.filter(t => {
     if (activeCategory !== "All" && t.category !== activeCategory) return false;
     if (availOnly && t.status !== "available") return false;
-    if (q && !(t.name + " " + t.category + " " + t.desc + " " + t.owner).toLowerCase().includes(q)) return false;
+    if (q && !(t.name + " " + t.category + " " + t.desc + " " + publicName(t.owner)).toLowerCase().includes(q)) return false;
     return true;
   });
 
-  if (catalogLoading) {
-    document.getElementById("resultCount").textContent = "Loading tools...";
+  if (catalogLocked) {
+    resultCountEl.textContent = "";
     document.getElementById("catalogEmpty").classList.add("hidden");
-    document.getElementById("toolGrid").innerHTML = '<div class="sm:col-span-2 lg:col-span-3 bg-white border border-gray-200 rounded-2xl p-10 text-center text-sm text-gray-500">Loading tools...</div>';
+    toolGridEl.innerHTML = "";
+  } else if (catalogLoading) {
+    resultCountEl.textContent = "Loading tools...";
+    document.getElementById("catalogEmpty").classList.add("hidden");
+    toolGridEl.innerHTML = '<div class="sm:col-span-2 lg:col-span-3 bg-white border border-gray-200 rounded-2xl p-10 text-center text-sm text-gray-500">Loading tools...</div>';
   } else {
-  document.getElementById("resultCount").textContent = filtered.length + (filtered.length === 1 ? " tool" : " tools") + (activeCategory !== "All" ? " in " + activeCategory : "") + (q ? ' matching "' + q + '"' : "");
+  resultCountEl.textContent = filtered.length + (filtered.length === 1 ? " tool" : " tools") + (activeCategory !== "All" ? " in " + activeCategory : "") + (q ? ' matching "' + q + '"' : "");
   document.getElementById("catalogEmpty").classList.toggle("hidden", filtered.length > 0);
 
-  document.getElementById("toolGrid").innerHTML = filtered.map(t => {
+  toolGridEl.innerHTML = filtered.map(t => {
     const participant = isReservationParticipant(t);
-    const borrowerName = borrowerDisplayName(activeReqFor(t)) || t.borrower;
+    const borrowerDisplay = borrowerDisplayName(activeReqFor(t));
+    const borrowerName = borrowerDisplay === "you" ? "you" : publicName(borrowerDisplay || t.borrower);
+    const borrowerAvatarName = borrowerName === "you" ? t.borrower : borrowerName;
+    const ownerName = publicName(t.owner);
     let action = "";
     if (t.status === "available") action = isToolOwner(t) ? '<span class="text-sm text-gray-500 font-medium">Your tool</span>' : '<button class="borrow-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Request to borrow</button>';
-    else if (t.status === "awaiting") action = '<span class="text-sm text-gray-600 font-medium">Waiting for pickup</span>';
+    else if (t.status === "awaiting") action = '<span class="text-sm text-gray-600 font-medium">' + awaitingPickupLabel(t) + '</span>';
     else if (t.status === "onloan") action = canReturnTool(t) ? '<button class="return-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-900 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button>' : '<span class="text-sm text-gray-500 font-medium">Out on loan</span>';
     else action = '<span class="text-sm text-gray-600 font-medium">Waiting on the owner to approve</span>';
     return '<article id="tool-' + t.id + '" class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-col fade-in">' +
@@ -1593,15 +1873,16 @@ function render() {
       '</div>' +
       '<p class="text-sm text-gray-600 mt-3 flex-1">' + esc(t.desc) + '</p>' +
       '<dl class="text-xs text-gray-500 grid grid-cols-2 gap-y-1.5 mt-4">' +
-        '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Lent by</dt><dd class="text-sm text-gray-700 flex items-center gap-1.5">' + avatarHTML(t.ownerAvatar, t.owner) + '<span>' + esc(t.owner) + '</span></dd></div>' +
+        '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Lent by</dt><dd class="text-sm text-gray-700 flex items-center gap-1.5">' + avatarHTML(t.ownerAvatar, ownerName) + '<span>' + esc(ownerName) + '</span></dd></div>' +
         '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Loan</dt><dd class="text-sm text-gray-700">' + t.days + (t.days === 1 ? " day" : " days") + '</dd></div>' +
         '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Condition</dt><dd class="text-sm text-gray-700">' + esc(t.condition) + '</dd></div>' +
         (Array.isArray(t.pickupWindows) && t.pickupWindows.length ? '<div class="col-span-2"><dt class="font-semibold text-gray-400 uppercase tracking-wide">Pickup windows</dt><dd class="text-sm text-gray-700 flex items-start gap-1.5"><span class="text-gray-400 mt-0.5 shrink-0 flex">' + icon("clock", "w-4 h-4") + '</span><span>' + esc(t.pickupWindows.map(w => w.label).join(" · ")) + '</span></dd></div>' : "") +
-        ((participant && (t.status === "onloan" || t.status === "awaiting")) ? '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">' + (t.status === "onloan" ? "With" : "Reserved for") + '</dt><dd class="text-sm text-gray-700 flex items-center gap-1.5">' + avatarHTML((activeReqFor(t) || {}).borrowerAvatar, t.borrower) + '<span>' + esc(borrowerName) + '</span></dd></div>' : "") +
+        ((participant && (t.status === "onloan" || t.status === "awaiting")) ? '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">' + (t.status === "onloan" ? "With" : "Reserved for") + '</dt><dd class="text-sm text-gray-700 flex items-center gap-1.5">' + avatarHTML((activeReqFor(t) || {}).borrowerAvatar, borrowerAvatarName) + '<span>' + esc(borrowerName) + '</span></dd></div>' : "") +
       '</dl>' +
       (t.status === "awaiting" && participant ? pickupSpotHTML(visibleReqs.find(r => r.toolId === t.id && r.status === "approved")) : "") +
       '<div class="flex items-center justify-between gap-3 mt-5">' + action +
         '<span class="flex items-center gap-3">' +
+        (currentUser && signupComplete() && !isToolOwner(t) ? '<button class="report-tool-btn text-xs font-medium text-gray-400 hover:text-gray-700 underline decoration-dotted" data-id="' + t.id + '">Report</button>' : '') +
         (isToolOwner(t) ? '<button class="edit-btn text-xs font-semibold text-gray-900 hover:text-gray-600 underline decoration-dotted" data-id="' + t.id + '">Edit your tool</button>' : '') +
         (canManageTool(t) ? '<button class="remove-btn text-xs text-gray-400 hover:text-gray-700 underline decoration-dotted" data-id="' + t.id + '">Remove listing</button>' : '') + '</span>' +
       '</div>' +
@@ -1626,6 +1907,8 @@ function render() {
     } else {
       infoLine = 'Pickup ' + esc(fmtDate(r.start)) + (r.pickup ? ' · ' + esc(r.pickup) : '') + (r.pickupAt ? ' at ' + esc(fmtTime(r.pickupAt)) : '') + ' · ' + r.days + (r.days === 1 ? " day" : " days") + ' · due back ' + esc(r.dueAt ? fmtDateTime(r.dueAt) : fmtDate(addDaysISO(r.start, r.days)));
     }
+    const reportTarget = reportTargetForRequest(r);
+    const reportBtn = reportTarget ? '<button class="report-request-btn text-xs font-medium text-gray-400 hover:text-gray-700 underline decoration-dotted self-start mt-1" data-id="' + r.id + '">Report ' + esc(reportTarget.buttonName) + '</button>' : "";
     return '<div id="request-' + r.id + '" class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 fade-in">' +
       '<div class="flex flex-wrap items-start justify-between gap-3">' +
         '<div><p class="font-bold text-gray-950">' + esc(tool ? tool.name : "Tool") + '</p>' +
@@ -1637,7 +1920,7 @@ function render() {
           ? '<p class="text-sm text-gray-500">Your thank-you: "' + esc(r.thanksNote) + '"</p>'
           : '<p class="text-sm text-gray-500">Thank-you from ' + esc(r.borrower) + ': "' + esc(r.thanksNote) + '"</p>') : "") +
         (r.unavailableReason ? '<p class="text-sm text-gray-500">Reason from the lender: "' + esc(r.unavailableReason) + '"</p>' : "") +
-        '</div>' + buttons + '</div></div>';
+        '</div>' + buttons + reportBtn + '</div></div>';
   };
 
   /* Phase 5.2 privacy: every Requests area list below renders only the
@@ -1676,7 +1959,7 @@ function render() {
         '<button class="nopickup-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Not picked up</button>' +
         '<button class="unavailable-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">No longer available</button></div>';
     } else if (isRequestBorrower(r)) {
-      aButtons = '<div class="flex flex-wrap items-center gap-2"><span class="text-sm text-gray-400 font-medium">Waiting for pickup</span><button class="release-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">I no longer need this tool</button></div>';
+      aButtons = '<div class="flex flex-wrap items-center gap-2"><span class="text-sm text-gray-400 font-medium">Waiting for you to pick up</span><button class="release-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">I no longer need this tool</button></div>';
     } else {
       aButtons = '<span class="text-sm text-gray-400 font-medium">Waiting for pickup</span>';
     }
@@ -1689,9 +1972,11 @@ function render() {
     /* Phase 5.3: the borrower reads their own loan row in the second
        person ("You have this tool"); the lender's row is unchanged. */
     const loanLead = isRequestBorrower(lReq) ? "You have this tool" : "With " + esc(t.borrower);
+    const loanReportTarget = reportTargetForRequest(lReq);
+    const loanReportBtn = loanReportTarget ? '<button class="report-request-btn text-xs font-medium text-gray-400 hover:text-gray-700 underline decoration-dotted" data-id="' + lReq.id + '">Report ' + esc(loanReportTarget.buttonName) + '</button>' : "";
     return '<div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-wrap items-center justify-between gap-3 fade-in">' +
       '<div><p class="font-bold text-gray-950">' + esc(t.name) + '</p><p class="text-sm text-gray-500 flex items-start gap-1.5"><span class="text-gray-400 mt-0.5 shrink-0 flex">' + icon("clock", "w-4 h-4") + '</span>' + avatarHTML(lReq && lReq.borrowerAvatar, t.borrower) + '<span>' + loanLead + ' · due back ' + esc(t.dueAt ? fmtDateTime(t.dueAt) : fmtDate(t.due)) + (isOverdue(t) ? ' · <span class="text-gray-700 font-semibold">overdue</span>' : "") + '</span></p>' + pickupSpotHTML(lReq) + '</div>' +
-      (canReturnTool(t) ? '<button class="return-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button>' : '<span class="text-sm text-gray-400 font-medium">Out on loan</span>') + '</div>';
+      '<div class="flex flex-wrap items-center gap-3">' + (canReturnTool(t) ? '<button class="return-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button>' : '<span class="text-sm text-gray-400 font-medium">Out on loan</span>') + loanReportBtn + '</div></div>';
   }).join("") : '<p class="text-sm text-gray-400 bg-white border border-dashed border-gray-200 rounded-2xl p-6 text-center">Nothing is out on loan right now.</p>';
 
   const history = myReqs.filter(r => r.status === "returned" || r.status === "declined" || r.status === "not_picked_up" || r.status === "cancelled" || r.status === "unavailable");
@@ -1853,7 +2138,7 @@ document.getElementById("lendForm").addEventListener("submit", async e => {
 const modal = document.getElementById("borrowModal");
 function openBorrow(tool) {
   borrowToolId = tool.id;
-  document.getElementById("borrowToolName").textContent = tool.name + " · lent by " + tool.owner;
+  document.getElementById("borrowToolName").textContent = tool.name + " · lent by " + publicName(tool.owner);
   document.getElementById("borrowStart").value = todayISO();
   document.getElementById("borrowDays").value = tool.days;
   const photo = document.getElementById("borrowToolPhoto");
@@ -1941,6 +2226,30 @@ document.addEventListener("click", e => {
 
   const editBtn = e.target.closest(".edit-btn");
   if (editBtn) { const t = state.tools.find(x => x.id === editBtn.dataset.id); if (t && isToolOwner(t)) openEdit(t); return; }
+
+  const reportToolBtn = e.target.closest(".report-tool-btn");
+  if (reportToolBtn) {
+    const t = state.tools.find(x => x.id === reportToolBtn.dataset.id);
+    if (t && !isToolOwner(t)) openReport({
+      displayName: publicName(t.owner), reportedName: publicName(t.owner),
+      identityEmail: t.contact || "", context: t.name
+    });
+    return;
+  }
+
+  const reportRequestBtn = e.target.closest(".report-request-btn");
+  if (reportRequestBtn) {
+    const r = state.requests.find(x => x.id === reportRequestBtn.dataset.id);
+    const target = r ? reportTargetForRequest(r) : null;
+    if (target) openReport(target);
+    return;
+  }
+
+  const reportResolveBtn = e.target.closest(".report-resolve-btn");
+  if (reportResolveBtn) { const rep = adminReports.find(x => x.id === reportResolveBtn.dataset.id); if (rep) adminSetReportStatus(rep, "resolved"); return; }
+
+  const reportReopenBtn = e.target.closest(".report-reopen-btn");
+  if (reportReopenBtn) { const rep = adminReports.find(x => x.id === reportReopenBtn.dataset.id); if (rep) adminSetReportStatus(rep, "open"); return; }
 
   const banBtn = e.target.closest(".admin-ban-btn");
   if (banBtn) { const p = adminProfiles.find(x => x.id === banBtn.dataset.id); if (p) adminSetStatus(p, "banned"); return; }
@@ -2048,6 +2357,7 @@ function renderSignup() {
   if (show) {
     document.getElementById("signupTerms").textContent = termsText();
     document.getElementById("signupCookie").textContent = COOKIE_NOTE;
+    document.getElementById("signupPrivacy").textContent = privacyText();
     if (currentProfile) {
       const nameInput = document.getElementById("signupName");
       const addrInput = document.getElementById("signupAddress");
@@ -2067,13 +2377,52 @@ function applyIdentityToForms() {
     contactInput.readOnly = signedIn;
   }
 }
+/* Phase 5.5: tell the library's admins that a new member has joined.
+   Recipients are the current library's active admin profiles, plus the
+   platform ADMIN_EMAILS list as a fallback, deduplicated and never
+   including the person who just joined. Every failure is swallowed:
+   a notification problem must never break sign-up. */
+async function notifyAdminsOfMemberJoined(memberProfile) {
+  try {
+    if (!memberProfile || !memberProfile.email) return;
+    const joiner = String(memberProfile.email).trim().toLowerCase();
+    const recipients = new Map();
+    const addRecipient = raw => {
+      const email = String(raw || "").trim();
+      if (email && email.toLowerCase() !== joiner) recipients.set(email.toLowerCase(), email);
+    };
+    let profiles = [];
+    try { profiles = await store.listProfiles(); } catch (e) { profiles = []; }
+    (profiles || []).forEach(p => {
+      if (p && p.role === "admin" && p.status === "active") addRecipient(p.email);
+    });
+    (ADMIN_EMAILS || []).forEach(addRecipient);
+    if (!recipients.size) return;
+    const libraryName = currentNeighborhood && currentNeighborhood.name ? currentNeighborhood.name : "Valentine Neighborhood Association";
+    const details = {
+      memberName: memberProfile.fullName || "",
+      memberEmail: memberProfile.email,
+      memberAddress: memberProfile.address || "",
+      libraryName: libraryName,
+      joinedAt: memberProfile.termsAcceptedAt || new Date().toISOString(),
+      siteUrl: window.location.origin + window.location.pathname
+    };
+    await Promise.all(Array.from(recipients.values()).map(to =>
+      notify.sendMemberJoinedEmail(Object.assign({ to: to }, details))
+    ));
+  } catch (e) {
+    console.warn("Admin join notification failed:", e);
+  }
+}
 document.getElementById("signupForm").addEventListener("submit", async e => {
   e.preventDefault();
   if (!currentUser) return;
+  const wasComplete = signupComplete();
   const fullName = document.getElementById("signupName").value.trim();
   const address = document.getElementById("signupAddress").value.trim();
   if (!fullName || !address) { toast("Please add your full name and home address to finish signing up."); return; }
   if (!document.getElementById("signupTermsAgree").checked) { toast("Please tick the box to agree to the terms."); return; }
+  if (!document.getElementById("signupPrivacyAgree").checked) { toast("Please tick the box to agree to the privacy policy."); return; }
   const base = currentProfile || {
     id: currentUser.id, email: currentUser.email,
     role: isAdminEmail(currentUser.email) ? "admin" : "member",
@@ -2083,10 +2432,12 @@ document.getElementById("signupForm").addEventListener("submit", async e => {
     id: currentUser.id, email: currentUser.email, neighborhood: CURRENT_SLUG,
     fullName: fullName, address: address,
     termsAcceptedAt: new Date().toISOString(), termsVersion: TERMS_VERSION,
+    privacyAcceptedAt: new Date().toISOString(), privacyVersion: PRIVACY_VERSION,
     cookieAcceptedAt: new Date().toISOString()
   });
   try {
     currentProfile = await store.upsertProfile(profile);
+    if (!wasComplete) await notifyAdminsOfMemberJoined(currentProfile);
     syncCookieBannerWithProfile();
   } catch (err) {
     console.warn("Sign-up save failed:", err);
@@ -2116,7 +2467,8 @@ function openApprove(r) {
   const win = wins.find(w => w.label === r.pickup) || wins[0];
   document.getElementById("approvePickupTime").value =
     (win && win.time) || (r.pickupAt ? centralTimeHHMM(r.pickupAt) : "") || "17:00";
-  document.getElementById("approvePickupLocation").value = t.pickupLocation || "";
+  const lenderHome = isToolOwner(t) && currentProfile ? currentProfile.address || "" : "";
+  document.getElementById("approvePickupLocation").value = t.pickupLocation || lenderHome;
   approveModal.showModal();
 }
 document.getElementById("approveClose").addEventListener("click", () => approveModal.close());
@@ -2297,6 +2649,152 @@ function releaseRequest(r) {
   toast("Request cancelled. " + t.name + " is back in the library.");
 }
 
+/* Phase 5.6: report a member to the library admin. Entry points are
+   the catalog card (reporting the lender, named in the shortened
+   public form the reporter sees there) and the request, loan, and
+   history cards (reporting the other party, named in full because the
+   two are in a transaction together). The report itself carries
+   snapshots from filing time: profiles are not readable across
+   members, so the admin reads the names from the report, not from a
+   profile lookup. A member's email is used only inside the store to
+   resolve the reported member's profile id when the app can see it;
+   it is never copied into the report from a surface that hides it. */
+function firstNameOf(name) {
+  return String(name == null ? "" : name).trim().split(/\s+/)[0] || "";
+}
+function reportTargetForRequest(r) {
+  if (!r || !currentUser || !signupComplete()) return null;
+  const t = state.tools.find(x => x.id === r.toolId);
+  if (!t) return null;
+  const context = t.name + " · Request " + r.id;
+  if (isRequestBorrower(r)) {
+    if (isToolOwner(t)) return null;
+    return {
+      displayName: t.owner, reportedName: t.owner, buttonName: firstNameOf(t.owner),
+      identityEmail: t.contact || "", context: context
+    };
+  }
+  if (isToolOwner(t)) {
+    return {
+      displayName: r.borrower, reportedName: r.borrower, buttonName: firstNameOf(r.borrower),
+      identityEmail: r.contact || "", context: context
+    };
+  }
+  return null;
+}
+async function resolveReportedUserId(identityEmail) {
+  const email = String(identityEmail || "").trim().toLowerCase();
+  if (!email) return "";
+  try {
+    const profiles = await store.listProfiles();
+    const match = (profiles || []).find(p => p && String(p.email || "").trim().toLowerCase() === email);
+    return match ? match.id : "";
+  } catch (e) { return ""; }
+}
+async function libraryAdminRecipients(excludedEmail) {
+  const excluded = String(excludedEmail || "").trim().toLowerCase();
+  const recipients = new Map();
+  const addRecipient = raw => {
+    const email = String(raw || "").trim();
+    if (email && email.toLowerCase() !== excluded) recipients.set(email.toLowerCase(), email);
+  };
+  let profiles = [];
+  try { profiles = await store.listProfiles(); } catch (e) { profiles = []; }
+  (profiles || []).forEach(p => {
+    if (p && p.role === "admin" && p.status === "active") addRecipient(p.email);
+  });
+  (ADMIN_EMAILS || []).forEach(addRecipient);
+  return Array.from(recipients.values());
+}
+/* The saved report is the record; the admin email is a notification
+   about it. Every failure here is swallowed so a mail problem never
+   undoes the filing or blocks its confirmation. */
+async function notifyAdminsOfReport(report) {
+  try {
+    if (!report) return;
+    const recipients = await libraryAdminRecipients(report.reporterEmail);
+    if (!recipients.length) return;
+    const libraryName = currentNeighborhood && currentNeighborhood.name ? currentNeighborhood.name : "Valentine Neighborhood Association";
+    const details = {
+      reporterName: report.reporterName || "",
+      reporterEmail: report.reporterEmail || "",
+      reportedName: report.reportedName || "",
+      context: report.context || "",
+      message: report.message || "",
+      libraryName: libraryName,
+      filedAt: report.createdAt || new Date().toISOString(),
+      siteUrl: window.location.origin + window.location.pathname
+    };
+    await Promise.all(recipients.map(to =>
+      notify.sendReportEmail(Object.assign({ to: to }, details))
+    ));
+  } catch (e) {
+    console.warn("Admin report notification failed:", e);
+  }
+}
+const reportModal = document.getElementById("reportModal");
+let reportDraft = null;
+async function openReport(target) {
+  if (!target) return;
+  if (!currentUser) { toast("Sign in and finish your profile before reporting a member."); return; }
+  if (!signupComplete()) { gateSignup("report a member"); return; }
+  const reportedUserId = await resolveReportedUserId(target.identityEmail);
+  reportDraft = {
+    reportedUserId: reportedUserId || "",
+    reportedName: target.reportedName || target.displayName || "",
+    reportedEmail: "",
+    context: target.context || ""
+  };
+  document.getElementById("reportWho").textContent =
+    "Report " + (target.displayName || target.reportedName || "a member");
+  const contextEl = document.getElementById("reportContext");
+  if (reportDraft.context) {
+    contextEl.textContent = reportDraft.context;
+    contextEl.classList.remove("hidden");
+  } else {
+    contextEl.textContent = "";
+    contextEl.classList.add("hidden");
+  }
+  document.getElementById("reportMessage").value = "";
+  reportModal.showModal();
+}
+document.getElementById("reportClose").addEventListener("click", () => reportModal.close());
+reportModal.addEventListener("click", e => { if (e.target === reportModal) reportModal.close(); });
+document.getElementById("reportForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!reportDraft || !currentUser || !currentProfile) return;
+  const messageEl = document.getElementById("reportMessage");
+  const message = messageEl.value.trim();
+  if (!message) { toast("Please tell the admin what happened."); return; }
+  const report = {
+    id: "rep" + Date.now(),
+    neighborhood: CURRENT_SLUG,
+    reporterId: currentUser.id,
+    reporterName: currentProfile.fullName || currentUser.email,
+    reporterEmail: currentProfile.email || currentUser.email,
+    reportedUserId: reportDraft.reportedUserId || "",
+    reportedName: reportDraft.reportedName || "",
+    reportedEmail: "",
+    context: reportDraft.context || "",
+    message: message,
+    status: "open",
+    createdAt: new Date().toISOString()
+  };
+  try {
+    await store.createReport(report);
+  } catch (err) {
+    console.warn("Report save failed:", err);
+    toast("That report did not save. Please try again in a moment.");
+    return;
+  }
+  reportModal.close();
+  messageEl.value = "";
+  reportDraft = null;
+  await notifyAdminsOfReport(report);
+  toast("Your report has been sent to the library admin.");
+  if (isAdminUser()) renderAdmin();
+});
+
 /* Return dialog: records the return, with an optional thank-you from the
    borrower to the lender (S6), stored on the request as thanksNote. */
 const returnModal = document.getElementById("returnModal");
@@ -2379,6 +2877,7 @@ async function initLocalAuth() {
 let currentUser = null;
 let currentProfile = null;
 let adminProfiles = [];
+let adminReports = [];
 
 function isAdminEmail(email) {
   return Boolean(email && ADMIN_EMAILS.some(e => e && String(e).toLowerCase() === String(email).toLowerCase()));
@@ -2427,7 +2926,25 @@ function renderGateNotices() {
   };
   setNotice(document.getElementById("lendGateIncomplete"), incomplete);
   setNotice(document.getElementById("lendGateGuest"), guest);
-  setNotice(document.getElementById("catalogGateNotice"), incomplete);
+  /* Phase 5.5: the catalog gate has two states. A signed-out visitor is
+     invited to sign in and create a profile; a signed-in member whose
+     profile is unfinished is sent straight to the sign-up form. */
+  const catalogGate = document.getElementById("catalogGateNotice");
+  setNotice(catalogGate, !signupComplete());
+  if (catalogGate && !signupComplete()) {
+    const title = document.getElementById("catalogGateTitle");
+    const text = document.getElementById("catalogGateText");
+    const button = document.getElementById("catalogGateButton");
+    if (guest) {
+      if (title) title.textContent = "The catalog is for members";
+      if (text) text.textContent = "This library is for members of this organization. Sign in and create your profile to browse the tools members are lending.";
+      if (button) { button.textContent = "Sign in and create your profile"; button.dataset.scrollTo = "signin"; }
+    } else {
+      if (title) title.textContent = "Finish your profile to unlock the library";
+      if (text) text.textContent = "Finishing your profile unlocks the library. Add your name, home address, and terms agreement, and you can browse the catalog right away.";
+      if (button) { button.textContent = "Finish your profile"; button.dataset.scrollTo = "signupSection"; }
+    }
+  }
 }
 function updateAdminVisibility() {
   const admin = isAdminUser();
@@ -2645,6 +3162,14 @@ document.getElementById("footerCookieBtn").addEventListener("click", () => {
 document.getElementById("cookieClose").addEventListener("click", () => cookieModal.close());
 document.getElementById("cookieCloseBtn").addEventListener("click", () => cookieModal.close());
 cookieModal.addEventListener("click", e => { if (e.target === cookieModal) cookieModal.close(); });
+const privacyModal = document.getElementById("privacyModal");
+document.getElementById("footerPrivacyBtn").addEventListener("click", () => {
+  document.getElementById("privacyDialogText").textContent = privacyText();
+  privacyModal.showModal();
+});
+document.getElementById("privacyClose").addEventListener("click", () => privacyModal.close());
+document.getElementById("privacyCloseBtn").addEventListener("click", () => privacyModal.close());
+privacyModal.addEventListener("click", e => { if (e.target === privacyModal) privacyModal.close(); });
 
 function renderAuth() {
   const note = document.getElementById("authNotConfigured");
@@ -2979,6 +3504,38 @@ document.getElementById("editDelete").addEventListener("click", () => {
 });
 
 /* ================= PHASE 2: admin actions ================= */
+/* Phase 5.6: the admin's report inbox. Reports render only here, in
+   the admin-only view; no member-facing surface reads them. Resolved
+   reports stay listed, muted, so there is a record, and either status
+   can be flipped back from the card. */
+function adminReportsHTML(reports) {
+  const openCount = reports.filter(r => r.status === "open").length;
+  const countLine = openCount + (openCount === 1 ? " open report" : " open reports");
+  const head = '<div class="flex flex-wrap items-center justify-between gap-2">' +
+    '<h3 class="font-display text-xl font-bold text-gray-950">Reports</h3>' +
+    '<p class="text-sm text-gray-500">' + countLine + '</p></div>';
+  if (!reports.length) {
+    return head + '<p class="text-sm text-gray-400 bg-white border border-dashed border-gray-200 rounded-2xl p-6 text-center mt-3">No reports yet. When a member reports someone, it will appear here.</p>';
+  }
+  return head + '<div class="space-y-3 mt-3">' + reports.map(rep => {
+    const resolved = rep.status === "resolved";
+    return '<article class="' + (resolved ? "bg-gray-50 opacity-75" : "bg-white") + ' rounded-2xl shadow-card border border-gray-200 p-5">' +
+      '<div class="flex flex-wrap items-start justify-between gap-3">' +
+        '<div><p class="font-bold text-gray-950">Reported: ' + esc(rep.reportedName || "A member") + '</p>' +
+        '<p class="text-sm text-gray-500 mt-0.5">From: ' + esc(rep.reporterName || "") + ' (' + esc(rep.reporterEmail || "") + ')</p>' +
+        '<p class="text-sm text-gray-500">Filed: ' + esc(fmtDateTime(rep.createdAt)) + '</p>' +
+        (rep.context ? '<p class="text-sm text-gray-500">Context: ' + esc(rep.context) + '</p>' : "") +
+        '</div>' +
+        '<span class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-800">' + (resolved ? "Resolved" : "Open") + '</span>' +
+      '</div>' +
+      '<p class="text-sm text-gray-700 whitespace-pre-wrap mt-3">' + esc(rep.message || "") + '</p>' +
+      '<div class="flex justify-end mt-4">' +
+        (resolved
+          ? '<button class="report-reopen-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + rep.id + '">Reopen</button>'
+          : '<button class="report-resolve-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + rep.id + '">Mark resolved</button>') +
+      '</div></article>';
+  }).join("") + '</div>';
+}
 async function renderAdmin() {
   const list = document.getElementById("adminUserList");
   if (!list || !isAdminUser()) return;
@@ -2995,6 +3552,12 @@ async function renderAdmin() {
       else { logoPrev.removeAttribute("src"); logoPrev.classList.add("hidden"); }
     }
   }
+  const reportsWrap = document.getElementById("adminReports");
+  if (reportsWrap) reportsWrap.innerHTML = '<p class="text-sm text-gray-400">Loading reports...</p>';
+  let reports = [];
+  try { reports = await store.listReports(); } catch (e) { console.warn("listReports failed:", e); }
+  adminReports = reports;
+  if (reportsWrap) reportsWrap.innerHTML = adminReportsHTML(reports);
   list.innerHTML = '<p class="text-sm text-gray-400">Loading users...</p>';
   let profiles = [];
   try { profiles = await store.listProfiles(); } catch (e) { console.warn("listProfiles failed:", e); }
@@ -3006,7 +3569,8 @@ async function renderAdmin() {
   list.innerHTML = profiles.map(p =>
     '<div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-wrap items-center justify-between gap-3">' +
       '<div><p class="font-bold text-gray-950">' + esc(p.fullName || p.email) + '</p>' +
-      '<p class="text-sm text-gray-500">' + (p.fullName ? esc(p.email) + ' · ' : '') + 'Role: ' + esc(p.role) + ' · Status: ' + esc(p.status) + '</p></div>' +
+      '<p class="text-sm text-gray-500">' + (p.fullName ? esc(p.email) + ' · ' : '') + 'Role: ' + esc(p.role) + ' · Status: ' + esc(p.status) + '</p>' +
+      (p.address ? '<p class="text-sm text-gray-500 mt-1">Home address: ' + esc(p.address) + '</p>' : '') + '</div>' +
       '<div class="flex gap-2">' +
         (p.status === "banned"
           ? '<button class="admin-unban-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Unban</button>'
@@ -3102,6 +3666,12 @@ if (adminLogoUploadBtn) adminLogoUploadBtn.addEventListener("click", async () =>
     if (msg) msg.textContent = "Could not save the logo: " + (e && e.message ? e.message : String(e));
   }
 });
+async function adminSetReportStatus(rep, status) {
+  try { await store.setReportStatus(rep.id, status); } catch (e) { console.warn("setReportStatus failed:", e); }
+  rep.status = status;
+  renderAdmin();
+  toast(status === "resolved" ? "Report marked resolved." : "Report reopened.");
+}
 async function adminSetStatus(p, status) {
   try { await store.setProfileStatus(p.id, status); } catch (e) { console.warn("setProfileStatus failed:", e); }
   p.status = status;
