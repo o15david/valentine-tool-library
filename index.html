@@ -70,6 +70,7 @@ tailwind.config = {
           <button data-scroll-to="requests" id="menuRequestsItem" class="w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left hidden"><span data-icon="inbox" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Requests and loans<span id="pendingBadge" class="ml-auto inline-flex items-center justify-center bg-gray-900 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></button>
           <button data-scroll-to="how" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="info" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>How it works</button>
           <button data-scroll-to="signin" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="user" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span><span id="menuSigninLabel">Sign in</span></button>
+          <div id="librarySwitcher" class="hidden"></div>
           <button id="adminMenuItem" data-scroll-to="admin" class="hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="shield" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Admin <span id="reportsBadge" class="hidden ml-auto inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-gray-900 text-white text-[11px] font-bold"></span></button>
         </div>
       </div>
@@ -1363,6 +1364,38 @@ const store = {
     }
     const mine = loadLocalProfiles().filter(p => p.id === userId);
     return mine.find(p => p.fullName && p.address) || mine[0] || null;
+  },
+  /* Phase 5.13 (S13): the signed-in person's own memberships across
+     libraries, for the navigation switcher. This reads only rows whose
+     account id is the caller's, in both modes, and pairs each active
+     membership with its library record so the menu can label the hop
+     with that library's own name and link to its subdomain. Rows whose
+     library record is not loaded are skipped rather than guessed at,
+     and duplicate rows for one library collapse to a single entry. */
+  async listMemberships(userId) {
+    let profiles = [];
+    if (this.mode === "supabase") {
+      const { data, error } = await supabaseClient.from("profiles").select("*").eq("id", userId);
+      if (error) throw error;
+      const rows = data || [];
+      const missing = rows.some(r => !allNeighborhoods.some(n => n.id === r.neighborhood_id));
+      if (missing) {
+        try { allNeighborhoods = await supabaseStore.loadNeighborhoods(); } catch (e) { /* keep the loaded list */ }
+      }
+      profiles = rows.map(profileFromRow);
+    } else {
+      allNeighborhoods = loadLocalNeighborhoods();
+      profiles = loadLocalProfiles().filter(p => p.id === userId);
+    }
+    const bySlug = new Map();
+    profiles.forEach(p => {
+      if (!p || p.status !== "active") return;
+      const slug = p.neighborhood || DEFAULT_TENANT_SLUG;
+      const nb = allNeighborhoods.find(n => n.slug === slug);
+      if (!nb || bySlug.has(slug)) return;
+      bySlug.set(slug, { slug: nb.slug, name: nb.name || nb.slug, role: p.role || "member", status: p.status });
+    });
+    return Array.from(bySlug.values()).sort((a, b) => a.name.localeCompare(b.name));
   },
   async upsertProfile(profile) {
     const targetSlug = profile.neighborhood || CURRENT_SLUG;
@@ -3011,6 +3044,7 @@ async function initLocalAuth() {
     currentProfile = null;
     document.getElementById("authMessage").textContent = "This account has been banned from this tool library.";
   }
+  await refreshLibrarySwitcher();
   syncCookieBannerWithProfile();
   renderAuth();
   render();
@@ -3025,6 +3059,12 @@ let currentProfile = null;
    home address when they join this one. It never grants anything here:
    signupComplete() reads currentProfile, this library's membership. */
 let anyProfile = null;
+/* Phase 5.13 (S13): the signed-in person's active memberships in
+   other libraries, as {slug, name} pairs for the navigation switcher.
+   Empty until the membership read finishes, and empty for signed-out
+   visitors and single-library members, so the menu shows nothing new
+   in any of those states. */
+let memberLibraries = [];
 let adminProfiles = [];
 let adminReports = [];
 let reportsBadgeLoaded = false;
@@ -3115,6 +3155,7 @@ function renderChrome() {
   if (signInBtn) signInBtn.classList.toggle("hidden", Boolean(currentUser));
   const menuLabel = document.getElementById("menuSigninLabel");
   if (menuLabel) menuLabel.textContent = currentUser ? "Your profile" : "Sign in";
+  renderLibrarySwitcher();
   updateAdminVisibility();
   renderGateNotices();
   renderAccount();
@@ -3376,10 +3417,50 @@ async function loadAnyProfileFallback() {
   try { anyProfile = await store.getAnyProfile(currentUser.id); } catch (e) { anyProfile = null; }
 }
 
+/* Phase 5.13 (S13): the navigation library switcher. David's shape
+   (Nov 13, 2026): the subdomain chooses the library on arrival, and
+   the navigation itself carries plain links for a quick hop to the
+   other libraries the signed-in person belongs to. There is no My
+   Libraries section or page. The current library never links to
+   itself, a single-library member sees nothing new, and the links
+   render only from memberLibraries, which stays empty until the
+   membership read has finished, so nothing wrong can flash in the
+   neutral shell while the page loads. */
+function renderLibrarySwitcher() {
+  const wrap = document.getElementById("librarySwitcher");
+  if (!wrap) return;
+  const others = currentUser
+    ? memberLibraries.filter(m => m && m.slug && m.slug !== CURRENT_SLUG)
+    : [];
+  wrap.innerHTML = others.map(m =>
+    '<a href="https://' + esc(m.slug) + '.toollendinglibrary.com/" aria-label="Go to ' + esc(m.name) + '" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left">' +
+    '<span class="text-gray-400 flex shrink-0">' + icon("grid", "w-5 h-5") + '</span>' +
+    '<span class="truncate">' + esc(m.name) + '</span></a>'
+  ).join("");
+  wrap.classList.toggle("hidden", !others.length);
+}
+async function refreshLibrarySwitcher() {
+  if (!currentUser) {
+    memberLibraries = [];
+    renderLibrarySwitcher();
+    return;
+  }
+  const userId = currentUser.id;
+  try {
+    const libs = await store.listMemberships(userId);
+    if (currentUser && currentUser.id === userId) memberLibraries = libs;
+  } catch (e) {
+    if (currentUser && currentUser.id === userId) memberLibraries = [];
+    console.warn("Library memberships load failed:", e);
+  }
+  renderLibrarySwitcher();
+}
+
 async function handleSession(session) {
   currentUser = session ? session.user : null;
   currentProfile = null;
   anyProfile = null;
+  memberLibraries = [];
   adminReports = [];
   reportsBadgeLoaded = false;
   if (currentUser) {
@@ -3398,6 +3479,7 @@ async function handleSession(session) {
       }
     } catch (e) { console.warn("Profile load failed:", e); }
   }
+  await refreshLibrarySwitcher();
   syncCookieBannerWithProfile();
   renderAuth();
   render();
@@ -3425,11 +3507,13 @@ document.getElementById("authForm").addEventListener("submit", async e => {
     if (currentProfile && currentProfile.status === "banned") {
       currentUser = null;
       currentProfile = null;
+      memberLibraries = [];
       msg.textContent = "This account has been banned from this tool library.";
       renderAuth();
       render();
       return;
     }
+    await refreshLibrarySwitcher();
     msg.textContent = "";
     syncCookieBannerWithProfile();
     renderAuth();
@@ -3453,6 +3537,7 @@ async function signOutUser() {
     currentUser = null;
     currentProfile = null;
     anyProfile = null;
+    memberLibraries = [];
     adminReports = [];
     reportsBadgeLoaded = false;
     document.getElementById("authMessage").textContent = "";
@@ -3464,6 +3549,7 @@ async function signOutUser() {
   currentUser = null;
   currentProfile = null;
   anyProfile = null;
+  memberLibraries = [];
   document.getElementById("authMessage").textContent = "";
   renderAuth();
   render();
@@ -3587,6 +3673,7 @@ document.getElementById("neighborhoodForm").addEventListener("submit", async e =
         avatarUrl: currentProfile ? currentProfile.avatarUrl || "" : ""
       };
       try { await store.upsertProfile(membership); } catch (err) { console.warn("Admin membership save failed:", err); }
+      await refreshLibrarySwitcher();
     }
     const result = document.getElementById("nbResult");
     result.innerHTML = "<p class='font-bold'>Your library is registered.</p>" +
