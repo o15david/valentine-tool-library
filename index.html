@@ -49,7 +49,7 @@ tailwind.config = {
      to each area instead of switching tabs. -->
 <nav class="bg-white/95 backdrop-blur border-b border-gray-200 sticky top-0 z-40">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
-    <button data-scroll-to="catalog" class="flex items-center gap-2.5 min-w-0 text-left">
+    <button id="brandBtn" data-scroll-to="catalog" class="flex items-center gap-2.5 min-w-0 text-left">
       <img id="headerLogo" class="hidden h-9 w-auto shrink-0" alt="" onerror="this.classList.add('hidden')">
       <span id="barTitle" class="font-display font-bold text-gray-950 truncate">Tool Library</span>
     </button>
@@ -65,13 +65,17 @@ tailwind.config = {
           <span id="menuIconClose" data-icon="x" data-icon-class="w-5 h-5" class="hidden"></span>
         </button>
         <div id="navMenu" class="hidden absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-2xl shadow-xl p-2 z-50">
-          <button data-scroll-to="catalog" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="grid" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Browse the catalog</button>
-          <button data-scroll-to="lend" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="wrench" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Lend a tool</button>
-          <button data-scroll-to="requests" id="menuRequestsItem" class="w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left hidden"><span data-icon="inbox" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Requests and loans<span id="pendingBadge" class="ml-auto inline-flex items-center justify-center bg-gray-900 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></button>
-          <button data-scroll-to="how" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="info" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>How it works</button>
-          <button data-scroll-to="signin" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="user" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span><span id="menuSigninLabel">Sign in</span></button>
+          <button data-scroll-to="catalog" class="tenant-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="grid" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Browse the catalog</button>
+          <button data-scroll-to="lend" class="tenant-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="wrench" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Lend a tool</button>
+          <button data-scroll-to="requests" id="menuRequestsItem" class="tenant-nav-item w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left hidden"><span data-icon="inbox" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Requests and loans<span id="pendingBadge" class="ml-auto inline-flex items-center justify-center bg-gray-900 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></button>
+          <button data-scroll-to="how" class="tenant-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="info" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>How it works</button>
+          <button data-scroll-to="signin" class="tenant-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="user" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span><span id="menuSigninLabel">Sign in</span></button>
+          <button data-scroll-to="mk-features" class="root-nav-item hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="grid" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Features</button>
+          <button data-scroll-to="mk-walkthrough" class="root-nav-item hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="info" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>See how it works</button>
+          <button data-scroll-to="mk-audience" class="root-nav-item hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="user" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Who it is for</button>
+          <button type="button" class="root-nav-item mk-create-btn hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="plus" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Create your library</button>
           <div id="librarySwitcher" class="hidden"></div>
-          <button id="adminMenuItem" data-scroll-to="admin" class="hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="shield" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Admin <span id="reportsBadge" class="hidden ml-auto inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-gray-900 text-white text-[11px] font-bold"></span></button>
+          <button id="adminMenuItem" data-scroll-to="admin" class="tenant-nav-item hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="shield" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Admin <span id="reportsBadge" class="hidden ml-auto inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-gray-900 text-white text-[11px] font-bold"></span></button>
         </div>
       </div>
     </div>
@@ -80,7 +84,7 @@ tailwind.config = {
 
 
 <!-- Header -->
-<header class="bg-white text-gray-900 border-b border-gray-200">
+<header id="tenantHero" class="bg-white text-gray-900 border-b border-gray-200">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
@@ -99,7 +103,7 @@ tailwind.config = {
 
 
 
-<main class="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-16">
+<main id="tenantMain" class="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-16">
 
   <!-- Catalog -->
   <section id="catalog" class="section-anchor">
@@ -441,6 +445,13 @@ tailwind.config = {
     <div id="adminUserList" class="space-y-3 mt-6"></div>
   </section>
 </main>
+
+<!-- Phase 5.15 (S17): the platform marketing page lives here on the
+     root host only. The container ships empty: setupMarketingMode
+     injects the markup from MARKETING_HTML in the script below, so a
+     tenant page's DOM never carries the marketing copy (or its
+     sample library) at all. -->
+<div id="marketingRoot" class="hidden"></div>
 
 <footer class="border-t border-gray-200 mt-4">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row justify-between gap-3 text-sm text-gray-500">
@@ -887,6 +898,22 @@ function resolveNeighborhoodSlug() {
   return DEFAULT_TENANT_SLUG;
 }
 const CURRENT_SLUG = resolveNeighborhoodSlug();
+
+/* Phase 5.15 (S17): the bare root domain is the platform's marketing
+   home, not a library. David's direction (Nov 13, 2026): the root
+   address recruits community organizations to create their own tool
+   lending library. Tenant subdomains behave exactly as before; only
+   the root host (and www, which names no tenant) renders the
+   marketing page. CURRENT_SLUG still resolves as before so the store
+   and the shared registration flow work unchanged on the root; what
+   changes is only what renders (see setupMarketingMode and the
+   renderTenant gate). */
+const PLATFORM_DOMAIN = "toollendinglibrary.com";
+function isPlatformRootHost() {
+  const host = (window.location.hostname || "").toLowerCase();
+  return host === PLATFORM_DOMAIN || host === "www." + PLATFORM_DOMAIN;
+}
+const IS_ROOT_HOST = isPlatformRootHost();
 let allNeighborhoods = [];
 let currentNeighborhood = null;
 
@@ -3501,8 +3528,11 @@ async function loadAnyProfileFallback() {
 function renderLibrarySwitcher() {
   const wrap = document.getElementById("librarySwitcher");
   if (!wrap) return;
+  /* Phase 5.15 (S17): on the root host there is no current library,
+     so every membership is a hop; on a tenant host the current
+     library is excluded, exactly as S13 built it. */
   const others = currentUser
-    ? memberLibraries.filter(m => m && m.slug && m.slug !== CURRENT_SLUG)
+    ? memberLibraries.filter(m => m && m.slug && (IS_ROOT_HOST || m.slug !== CURRENT_SLUG))
     : [];
   wrap.innerHTML = others.map(m =>
     '<a href="https://' + esc(m.slug) + '.toollendinglibrary.com/" aria-label="Go to ' + esc(m.name) + '" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left">' +
@@ -3639,6 +3669,16 @@ if (barSignOutBtn) barSignOutBtn.addEventListener("click", signOutUser);
 
 /* ================= PHASE 2: tenant display + neighborhood registration ================= */
 function renderTenant() {
+  /* Phase 5.15 (S17): on the root host the chrome belongs to the
+     platform, never to a tenant. The marketing shell keeps the
+     neutral defaults (Tool Library, no logo), so the tenant branding
+     pass does not run there at all. */
+  if (IS_ROOT_HOST) {
+    const rootBarTitle = document.getElementById("barTitle");
+    if (rootBarTitle) rootBarTitle.textContent = "Tool Library";
+    applyNeighborhoodLogo(null);
+    return;
+  }
   const nb = currentNeighborhood;
   document.getElementById("tenantName").textContent = nb ? tenantShortName() : CURRENT_SLUG;
   document.getElementById("tenantAddress").textContent = CURRENT_SLUG + ".toollendinglibrary.com";
@@ -4183,6 +4223,392 @@ document.querySelectorAll("[data-icon]").forEach(el => {
   el.innerHTML = icon(el.getAttribute("data-icon"), el.getAttribute("data-icon-class") || "w-5 h-5");
 });
 
+/* ================= PHASE 5.15 (S17): root host marketing page ======
+   On the root host the tenant hero and main are swapped for the
+   marketing page (the #marketingRoot block above the footer). The
+   swap uses inline display on the tenant chrome because several
+   render passes toggle the hidden class on those elements; an
+   inline style survives every re-render, so tenant surfaces can
+   never reappear on the root. Everything else is shared: the same
+   header and footer shell, the same store, the same session, and
+   the same organization registration dialog the tenant pages open
+   from their sign-in area, so a library created here is a real
+   library in the same store. A signed-in visitor still sees the
+   marketing page; their library hop links ride along in the menu
+   through the S13 switcher. */
+const MARKETING_HTML = `
+
+  <!-- Marketing hero -->
+  <section id="mk-top" class="section-anchor bg-white border-b border-gray-200">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      <p class="text-gray-500 text-xs sm:text-sm font-semibold tracking-widest uppercase">Tool Library, for every community</p>
+      <h1 class="font-display text-3xl sm:text-5xl font-bold text-gray-950 mt-3 max-w-3xl">A tool lending library for your whole community</h1>
+      <p class="text-gray-600 mt-4 max-w-2xl text-base sm:text-lg">Your members already own the ladders, drills, pressure washers, and party gear. Tool Library gives your organization its own lending library online, so members can lend what they have and borrow what they need, with requests, pickup times, and reminders handled for you.</p>
+      <div class="flex flex-wrap gap-3 mt-7">
+        <button type="button" class="mk-create-btn bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm shadow">Create your library</button>
+        <button type="button" data-scroll-to="mk-walkthrough" class="bg-white hover:bg-gray-50 text-gray-900 font-semibold px-6 py-3 rounded-full text-sm border border-gray-300">See how it works</button>
+      </div>
+      <p class="text-sm text-gray-500 mt-5 max-w-2xl">Setting up takes a few minutes: name your organization, choose its web address, and invite your members. Your library lives at its own address, like maplewood.toollendinglibrary.com, with your own name and logo.</p>
+    </div>
+  </section>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 space-y-16">
+
+    <!-- Example library showcase, styled like the app itself -->
+    <section id="mk-showcase" class="section-anchor">
+      <div class="flex items-start gap-3 mb-6">
+        <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="grid" data-icon-class="w-5 h-5" class="flex"></span></span>
+        <div>
+          <h2 class="font-display text-2xl font-bold text-gray-950">See a library in action</h2>
+          <p class="text-sm text-gray-500 mt-0.5">This is an example library, shown the way your members would see yours.</p>
+        </div>
+      </div>
+      <div class="bg-white border border-gray-300 rounded-3xl shadow-card overflow-hidden">
+        <div class="flex items-center gap-2 px-4 py-3 border-b border-gray-200 bg-gray-50">
+          <span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-gray-300"></span>
+          <span class="ml-2 text-xs sm:text-sm text-gray-500 bg-white border border-gray-200 rounded-full px-3 py-1">maplewood.toollendinglibrary.com</span>
+        </div>
+        <div class="p-5 sm:p-7">
+          <p class="text-gray-500 text-xs font-semibold tracking-widest uppercase">Maplewood Neighborhood Association</p>
+          <h3 class="font-display text-2xl font-bold text-gray-950 mt-1">Maplewood Tool Library</h3>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+            <article class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-col">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-11 h-11 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 flex items-center justify-center shrink-0"><span data-icon="ladder" data-icon-class="w-6 h-6" class="flex"></span></div>
+                  <div><h4 class="font-bold text-gray-950 leading-snug">Extension ladder</h4><p class="text-xs text-gray-500">Ladders and Access</p></div>
+                </div>
+                <span class="bg-gray-100 text-gray-900 text-xs font-bold px-2.5 py-1 rounded-full">Available</span>
+              </div>
+              <p class="text-sm text-gray-600 mt-3 flex-1">24 ft fiberglass extension ladder with a stabilizer bar. Good for gutters and second story paint.</p>
+              <dl class="text-xs text-gray-500 grid grid-cols-2 gap-y-1.5 mt-4">
+                <div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Lent by</dt><dd class="text-sm text-gray-700">Dan P.</dd></div>
+                <div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Loan</dt><dd class="text-sm text-gray-700">3 days</dd></div>
+              </dl>
+              <div class="flex items-center justify-between gap-3 mt-5">
+                <span class="bg-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-full">Request to borrow</span>
+              </div>
+            </article>
+            <article class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-col">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-11 h-11 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 flex items-center justify-center shrink-0"><span data-icon="sparkles" data-icon-class="w-6 h-6" class="flex"></span></div>
+                  <div><h4 class="font-bold text-gray-950 leading-snug">Pressure washer</h4><p class="text-xs text-gray-500">Cleaning</p></div>
+                </div>
+                <span class="bg-gray-100 text-gray-900 text-xs font-bold px-2.5 py-1 rounded-full">Available</span>
+              </div>
+              <p class="text-sm text-gray-600 mt-3 flex-1">Electric pressure washer with two nozzles and a 25 ft hose. Driveways, decks, and siding.</p>
+              <dl class="text-xs text-gray-500 grid grid-cols-2 gap-y-1.5 mt-4">
+                <div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Lent by</dt><dd class="text-sm text-gray-700">Priya S.</dd></div>
+                <div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Loan</dt><dd class="text-sm text-gray-700">2 days</dd></div>
+              </dl>
+              <div class="flex items-center justify-between gap-3 mt-5">
+                <span class="bg-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-full">Request to borrow</span>
+              </div>
+            </article>
+            <article class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-col">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-11 h-11 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 flex items-center justify-center shrink-0"><span data-icon="utensils" data-icon-class="w-6 h-6" class="flex"></span></div>
+                  <div><h4 class="font-bold text-gray-950 leading-snug">Folding tables and chairs</h4><p class="text-xs text-gray-500">Events and Hosting</p></div>
+                </div>
+                <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-1 rounded-full">On loan</span>
+              </div>
+              <p class="text-sm text-gray-600 mt-3 flex-1">Two 6 ft folding tables and twelve chairs. The block party set.</p>
+              <dl class="text-xs text-gray-500 grid grid-cols-2 gap-y-1.5 mt-4">
+                <div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Lent by</dt><dd class="text-sm text-gray-700">Marcus T.</dd></div>
+                <div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Loan</dt><dd class="text-sm text-gray-700">4 days</dd></div>
+              </dl>
+              <div class="flex items-center justify-between gap-3 mt-5">
+                <span class="text-sm text-gray-500 font-medium">On loan</span>
+              </div>
+            </article>
+          </div>
+          <p class="text-xs text-gray-400 mt-5">An example library with sample tools and members. Yours carries your organization's name, logo, tools, and members. Notice what the example does not show: who has the tables out. Only the lender and the borrower see that.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Animated walkthrough: how a borrow works, step by step -->
+    <section id="mk-walkthrough" class="section-anchor bg-gray-50 border border-gray-200 rounded-3xl px-5 py-7 sm:px-8 sm:py-9">
+      <div class="flex items-start gap-3 mb-6">
+        <span class="w-10 h-10 rounded-xl bg-white border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="info" data-icon-class="w-5 h-5" class="flex"></span></span>
+        <div>
+          <h2 class="font-display text-2xl font-bold text-gray-950">How borrowing works</h2>
+          <p class="text-sm text-gray-500 mt-0.5">Follow one borrow through the Maplewood example library, from catalog to return.</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2" role="tablist" aria-label="Walkthrough steps">
+        <button type="button" class="mk-step-btn bg-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-full" data-mk-step="0">1. Browse the catalog</button>
+        <button type="button" class="mk-step-btn bg-white border border-gray-300 text-gray-800 text-sm font-semibold px-4 py-2 rounded-full" data-mk-step="1">2. Request a tool</button>
+        <button type="button" class="mk-step-btn bg-white border border-gray-300 text-gray-800 text-sm font-semibold px-4 py-2 rounded-full" data-mk-step="2">3. The lender approves</button>
+        <button type="button" class="mk-step-btn bg-white border border-gray-300 text-gray-800 text-sm font-semibold px-4 py-2 rounded-full" data-mk-step="3">4. Pick up and return</button>
+        <button type="button" id="mkWalkToggle" class="ml-auto text-sm font-semibold text-gray-700 underline decoration-dotted">Pause walkthrough</button>
+      </div>
+      <div class="mt-5">
+        <div class="mk-step-panel bg-white rounded-2xl shadow-card border border-gray-200 p-6" data-mk-panel="0">
+          <h3 class="font-bold text-gray-950">Maya needs a pressure washer</h3>
+          <p class="text-sm text-gray-500 mt-1 max-w-2xl">She opens the Maplewood catalog, searches by name or category, and sees what is available right now. Listings show a photo, the loan length, and who is lending, with names shortened to a first name and last initial.</p>
+          <div class="mt-4 max-w-xl bg-gray-50 border border-gray-200 rounded-2xl p-4 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-white border border-gray-200 text-gray-500 flex items-center justify-center shrink-0"><span data-icon="sparkles" data-icon-class="w-6 h-6" class="flex"></span></div>
+              <div><p class="font-bold text-gray-950 leading-snug">Pressure washer</p><p class="text-xs text-gray-500">Cleaning · Lent by Priya S. · 2 days</p></div>
+            </div>
+            <span class="bg-gray-100 text-gray-900 text-xs font-bold px-2.5 py-1 rounded-full">Available</span>
+          </div>
+        </div>
+        <div class="mk-step-panel hidden bg-white rounded-2xl shadow-card border border-gray-200 p-6" data-mk-panel="1">
+          <h3 class="font-bold text-gray-950">She sends a request with a pickup window</h3>
+          <p class="text-sm text-gray-500 mt-1 max-w-2xl">Maya picks one of Priya's pickup windows and adds a short note about the project. Priya gets an email right away with the request and a link straight to it.</p>
+          <div class="mt-4 max-w-xl bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-3">
+            <p class="text-sm text-gray-700"><span class="font-semibold text-gray-950">Pressure washer</span> · Requested by Maya R.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="chip chip-active inline-flex items-center px-3.5 py-1.5 rounded-full text-sm font-medium border border-gray-200">Saturday morning</span>
+              <span class="chip inline-flex items-center px-3.5 py-1.5 rounded-full text-sm font-medium border border-gray-200">Saturday afternoon</span>
+              <span class="chip inline-flex items-center px-3.5 py-1.5 rounded-full text-sm font-medium border border-gray-200">Sunday morning</span>
+            </div>
+            <p class="text-sm text-gray-500 italic">Project: driveway and deck wash</p>
+          </div>
+        </div>
+        <div class="mk-step-panel hidden bg-white rounded-2xl shadow-card border border-gray-200 p-6" data-mk-panel="2">
+          <h3 class="font-bold text-gray-950">Priya approves and sets the exact pickup time</h3>
+          <p class="text-sm text-gray-500 mt-1 max-w-2xl">Approving reserves the tool. Priya sets the exact time inside Maya's window and confirms the pickup spot, which is shared with Maya only now, in the approval email. Nothing about the loan is public.</p>
+          <div class="mt-4 max-w-xl bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-2">
+            <p class="text-sm text-gray-700 flex items-center gap-2"><span class="text-gray-500 flex shrink-0"><span data-icon="check" data-icon-class="w-4 h-4" class="flex"></span></span>Approved by Priya S.</p>
+            <p class="text-sm text-gray-700 flex items-center gap-2"><span class="text-gray-500 flex shrink-0"><span data-icon="clock" data-icon-class="w-4 h-4" class="flex"></span></span>Pickup Saturday at 10:30 AM</p>
+            <p class="text-sm text-gray-700 flex items-center gap-2"><span class="text-gray-500 flex shrink-0"><span data-icon="pin" data-icon-class="w-4 h-4" class="flex"></span></span>Pickup spot: Priya's front porch, shared with Maya in her approval email</p>
+          </div>
+        </div>
+        <div class="mk-step-panel hidden bg-white rounded-2xl shadow-card border border-gray-200 p-6" data-mk-panel="3">
+          <h3 class="font-bold text-gray-950">Pick up, use it, bring it back</h3>
+          <p class="text-sm text-gray-500 mt-1 max-w-2xl">At pickup, Priya marks the tool picked up and the loan clock starts. Both sides get reminders before the due date, and either of them can mark it returned when it comes back.</p>
+          <div class="mt-4 max-w-xl bg-gray-50 border border-gray-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="font-bold text-gray-950 leading-snug">Pressure washer</p>
+              <p class="text-xs text-gray-500 mt-0.5">With Maya R. · Due back Tuesday by 7:00 PM</p>
+            </div>
+            <span class="bg-white border border-gray-300 text-gray-900 text-sm font-semibold px-4 py-2 rounded-full">Mark returned</span>
+          </div>
+          <p class="text-xs text-gray-400 mt-3">In the catalog, everyone else just sees this tool as on loan. The due date stays between Maya and Priya.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features: only what the platform actually does today -->
+    <section id="mk-features" class="section-anchor">
+      <div class="flex items-start gap-3 mb-6">
+        <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="grid" data-icon-class="w-5 h-5" class="flex"></span></span>
+        <div>
+          <h2 class="font-display text-2xl font-bold text-gray-950">Everything a lending library needs</h2>
+          <p class="text-sm text-gray-500 mt-0.5">Built for the way neighbors actually lend: requests, pickups, reminders, and privacy.</p>
+        </div>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <span class="text-gray-400 flex"><span data-icon="pin" data-icon-class="w-6 h-6" class="flex"></span></span>
+          <h3 class="font-bold text-gray-900 mt-3">Your own address and branding</h3>
+          <p class="text-sm text-gray-500 mt-1">Your library lives at its own address, yourname.toollendinglibrary.com, with your organization's name and logo at the top. Nothing about another library appears on yours.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <span class="text-gray-400 flex"><span data-icon="user" data-icon-class="w-6 h-6" class="flex"></span></span>
+          <h3 class="font-bold text-gray-900 mt-3">Member sign-up that means it</h3>
+          <p class="text-sm text-gray-500 mt-1">Members sign in with a one-time email link, no passwords to manage. Before they can borrow or lend, they add their name and address and accept the terms and the privacy policy.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <span class="text-gray-400 flex"><span data-icon="grid" data-icon-class="w-6 h-6" class="flex"></span></span>
+          <h3 class="font-bold text-gray-900 mt-3">A catalog with photos and categories</h3>
+          <p class="text-sm text-gray-500 mt-1">Members list tools with a photo, a category, a condition, and their own loan length. Everyone browses and searches one shared catalog, and only members can see it.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <span class="text-gray-400 flex"><span data-icon="clock" data-icon-class="w-6 h-6" class="flex"></span></span>
+          <h3 class="font-bold text-gray-900 mt-3">Requests with real pickup times</h3>
+          <p class="text-sm text-gray-500 mt-1">Borrowers choose from the pickup windows the lender offers. When the lender approves, they set the exact pickup time and spot, and the tool is reserved until then.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <span class="text-gray-400 flex"><span data-icon="inbox" data-icon-class="w-6 h-6" class="flex"></span></span>
+          <h3 class="font-bold text-gray-900 mt-3">Email notices and reminders</h3>
+          <p class="text-sm text-gray-500 mt-1">Requests and approvals arrive by email with a link straight to the request. Reminders go out before a pickup, before a due date, and when a loan runs overdue.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <span class="text-gray-400 flex"><span data-icon="shield" data-icon-class="w-6 h-6" class="flex"></span></span>
+          <h3 class="font-bold text-gray-900 mt-3">Privacy built in</h3>
+          <p class="text-sm text-gray-500 mt-1">The details of a loan, who has a tool, where pickup happens, and when it is due, are visible only to the lender and the borrower in it. Everyone else sees only a plain status, like already checked out.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <span class="text-gray-400 flex"><span data-icon="user" data-icon-class="w-6 h-6" class="flex"></span></span>
+          <h3 class="font-bold text-gray-900 mt-3">Names stay short in public</h3>
+          <p class="text-sm text-gray-500 mt-1">On public surfaces, members appear as a first name and last initial. Full names show only inside a transaction, in the emails between its two people, and to your admin.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <span class="text-gray-400 flex"><span data-icon="shield" data-icon-class="w-6 h-6" class="flex"></span></span>
+          <h3 class="font-bold text-gray-900 mt-3">Reports and admin tools</h3>
+          <p class="text-sm text-gray-500 mt-1">Any member can quietly report a concern to the admin, and the person reported is never told. Admins are emailed when someone joins, and can manage members from one place.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <span class="text-gray-400 flex"><span data-icon="grid" data-icon-class="w-6 h-6" class="flex"></span></span>
+          <h3 class="font-bold text-gray-900 mt-3">One person, many libraries</h3>
+          <p class="text-sm text-gray-500 mt-1">A person can belong to several libraries with the same sign-in, and run more than one as admin. The navigation carries a quick hop to each of their libraries.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefits -->
+    <section id="mk-benefits" class="section-anchor bg-gray-50 border border-gray-200 rounded-3xl px-5 py-7 sm:px-8 sm:py-9">
+      <div class="flex items-start gap-3 mb-6">
+        <span class="w-10 h-10 rounded-xl bg-white border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="leaf" data-icon-class="w-5 h-5" class="flex"></span></span>
+        <div>
+          <h2 class="font-display text-2xl font-bold text-gray-950">Why communities start one</h2>
+          <p class="text-sm text-gray-500 mt-0.5">The tools are already out there, sitting in garages. A library puts them to work.</p>
+        </div>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <h3 class="font-bold text-gray-900">Members save real money</h3>
+          <p class="text-sm text-gray-500 mt-1">Most tools are bought for one project and used a few times a year. Borrowing the tile saw or the carpet cleaner beats buying, storing, and maintaining one.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <h3 class="font-bold text-gray-900">Less buying, less waste</h3>
+          <p class="text-sm text-gray-500 mt-1">One good ladder can serve a whole street. Sharing what the community already owns means fewer duplicate purchases and less clutter in every garage.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <h3 class="font-bold text-gray-900">People meet each other</h3>
+          <p class="text-sm text-gray-500 mt-1">Every pickup is a short, friendly introduction. Libraries turn a list of addresses into a community that knows who has what, and who can help.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <h3 class="font-bold text-gray-900">Lending with a safety net</h3>
+          <p class="text-sm text-gray-500 mt-1">This is not lending to strangers. Members join under their real name, agree to the terms, and borrow inside a group with an admin, reminders, and a record of every loan.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Audience -->
+    <section id="mk-audience" class="section-anchor">
+      <div class="flex items-start gap-3 mb-6">
+        <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
+        <div>
+          <h2 class="font-display text-2xl font-bold text-gray-950">Made for communities like yours</h2>
+          <p class="text-sm text-gray-500 mt-0.5">Any group whose members share a place, a purpose, or a building can run a library.</p>
+        </div>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5"><h3 class="font-bold text-gray-900">Neighborhood associations</h3><p class="text-sm text-gray-500 mt-1">Ladders, canopies, folding tables, and yard tools for block projects and cleanups.</p></div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5"><h3 class="font-bold text-gray-900">Makerspaces</h3><p class="text-sm text-gray-500 mt-1">Specialty tools and equipment members check out between projects.</p></div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5"><h3 class="font-bold text-gray-900">Schools</h3><p class="text-sm text-gray-500 mt-1">Event gear, garden tools, and equipment shared across classrooms, clubs, and parent groups.</p></div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5"><h3 class="font-bold text-gray-900">HOAs and resident associations</h3><p class="text-sm text-gray-500 mt-1">Shared gear for common areas, moves, and home projects across the community.</p></div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5"><h3 class="font-bold text-gray-900">Congregations</h3><p class="text-sm text-gray-500 mt-1">Tables, chairs, kitchen gear, and tools for service projects and events.</p></div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5"><h3 class="font-bold text-gray-900">Community centers</h3><p class="text-sm text-gray-500 mt-1">Sports gear, event supplies, and project tools for programs and rentals.</p></div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5"><h3 class="font-bold text-gray-900">Public libraries</h3><p class="text-sm text-gray-500 mt-1">A collection of tools beside the books: one more useful thing a card can borrow.</p></div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5"><h3 class="font-bold text-gray-900">Scout troops and youth groups</h3><p class="text-sm text-gray-500 mt-1">Camping and outdoor gear that families need a few weekends a year.</p></div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5"><h3 class="font-bold text-gray-900">Community gardens</h3><p class="text-sm text-gray-500 mt-1">Wheelbarrows, tillers, and harvest gear shared across every plot.</p></div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5"><h3 class="font-bold text-gray-900">Theaters and arts groups</h3><p class="text-sm text-gray-500 mt-1">Props, set building tools, and event equipment between productions.</p></div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5"><h3 class="font-bold text-gray-900">Housing co-ops</h3><p class="text-sm text-gray-500 mt-1">Maintenance tools and moving gear for the whole building.</p></div>
+        <div class="bg-gray-50 rounded-2xl border border-dashed border-gray-300 p-5"><h3 class="font-bold text-gray-900">Your group here</h3><p class="text-sm text-gray-500 mt-1">If your members lend things to each other already, a library gives that habit a home.</p></div>
+      </div>
+    </section>
+
+    <!-- Getting started -->
+    <section id="mk-start" class="section-anchor bg-gray-50 border border-gray-200 rounded-3xl px-5 py-7 sm:px-8 sm:py-9">
+      <div class="flex items-start gap-3 mb-6">
+        <span class="w-10 h-10 rounded-xl bg-white border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="info" data-icon-class="w-5 h-5" class="flex"></span></span>
+        <div>
+          <h2 class="font-display text-2xl font-bold text-gray-950">Start yours in three steps</h2>
+          <p class="text-sm text-gray-500 mt-0.5">From this page to a working library in a few minutes.</p>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <p class="font-display text-3xl font-bold text-gray-900">1</p>
+          <h3 class="font-bold text-gray-900 mt-2">Create your library</h3>
+          <p class="text-sm text-gray-500 mt-1">Register your organization's name and pick its short web address. You become the first admin of the new library.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <p class="font-display text-3xl font-bold text-gray-900">2</p>
+          <h3 class="font-bold text-gray-900 mt-2">Invite your members</h3>
+          <p class="text-sm text-gray-500 mt-1">Share your library's address. Members sign in with an email link and finish a short sign-up, so you always know who is borrowing.</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6">
+          <p class="font-display text-3xl font-bold text-gray-900">3</p>
+          <h3 class="font-bold text-gray-900 mt-2">Members lend and borrow</h3>
+          <p class="text-sm text-gray-500 mt-1">Members list the tools in their garages, requests and reminders flow on their own, and your catalog grows with the community.</p>
+        </div>
+      </div>
+      <div class="text-center mt-10">
+        <h3 class="font-display text-2xl font-bold text-gray-950">Start your community's tool library</h3>
+        <p class="text-sm text-gray-500 mt-2 max-w-xl mx-auto">Your own address, your own name and logo, your own members. The first tools are probably already in someone's garage.</p>
+        <button type="button" class="mk-create-btn bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm shadow mt-5">Create your library</button>
+      </div>
+    </section>
+  </div>
+`;
+
+let mkStepIndex = 0;
+let mkWalkTimer = null;
+let mkWalkPaused = false;
+
+function mkShowStep(i) {
+  const panels = document.querySelectorAll(".mk-step-panel");
+  if (!panels.length) return;
+  mkStepIndex = ((i % panels.length) + panels.length) % panels.length;
+  panels.forEach(p => { p.classList.toggle("hidden", Number(p.dataset.mkPanel) !== mkStepIndex); });
+  document.querySelectorAll(".mk-step-btn").forEach(b => {
+    const active = Number(b.dataset.mkStep) === mkStepIndex;
+    b.className = "mk-step-btn text-sm font-semibold px-4 py-2 rounded-full " + (active ? "bg-gray-900 text-white" : "bg-white border border-gray-300 text-gray-800");
+  });
+}
+function mkStopWalk() { if (mkWalkTimer) { clearInterval(mkWalkTimer); mkWalkTimer = null; } }
+function mkStartWalk() {
+  mkStopWalk();
+  if (mkWalkPaused) return;
+  mkWalkTimer = setInterval(() => mkShowStep(mkStepIndex + 1), 4200);
+}
+function mkSetPaused(paused) {
+  mkWalkPaused = paused;
+  const toggle = document.getElementById("mkWalkToggle");
+  if (toggle) toggle.textContent = paused ? "Resume walkthrough" : "Pause walkthrough";
+  if (paused) mkStopWalk(); else mkStartWalk();
+}
+function setupMarketingMode() {
+  if (!IS_ROOT_HOST) return;
+  document.title = "Tool Library: a tool lending library for your community";
+  const meta = document.getElementById("metaDescription");
+  if (meta) meta.setAttribute("content", "Create a tool lending library for your neighborhood association, makerspace, school, or community organization. Members lend and borrow tools with requests, pickup times, reminders, and privacy built in.");
+  ["tenantHero", "tenantMain"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.add("hidden"); el.style.display = "none"; }
+  });
+  document.querySelectorAll(".tenant-nav-item").forEach(el => { el.style.display = "none"; });
+  const barSignIn = document.getElementById("barSignIn");
+  if (barSignIn) barSignIn.style.display = "none";
+  document.querySelectorAll(".root-nav-item").forEach(el => { el.classList.remove("hidden"); el.classList.add("flex"); });
+  const brand = document.getElementById("brandBtn");
+  if (brand) brand.dataset.scrollTo = "mk-top";
+  const root = document.getElementById("marketingRoot");
+  if (root) {
+    root.innerHTML = MARKETING_HTML;
+    root.querySelectorAll("[data-icon]").forEach(el => { el.innerHTML = icon(el.getAttribute("data-icon"), el.getAttribute("data-icon-class") || "w-5 h-5"); });
+    root.classList.remove("hidden");
+  }
+  document.querySelectorAll(".mk-create-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      setNavMenu(false);
+      const opener = document.getElementById("startNeighborhoodBtn");
+      if (opener) opener.click();
+    });
+  });
+  document.querySelectorAll(".mk-step-btn").forEach(btn => {
+    btn.addEventListener("click", () => { mkShowStep(Number(btn.dataset.mkStep)); if (!mkWalkPaused) mkStartWalk(); });
+  });
+  const toggle = document.getElementById("mkWalkToggle");
+  if (toggle) toggle.addEventListener("click", () => mkSetPaused(!mkWalkPaused));
+  mkShowStep(0);
+  let reduceMotion = false;
+  try { reduceMotion = Boolean(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); } catch (e) {}
+  if (reduceMotion) mkSetPaused(true); else mkStartWalk();
+}
+
+setupMarketingMode();
 initAuth();
 if (store.mode === "supabase") {
   store.init();
