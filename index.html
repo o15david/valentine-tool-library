@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Valentine Tool Library | Valentine Neighborhood Association</title>
-<meta name="description" content="Borrow and lend tools with your community. A sharing library run by the Valentine Neighborhood Association in Kansas City.">
+<meta id="metaDescription" name="description" content="Borrow and lend tools with your community. A sharing library run by the Valentine Neighborhood Association in Kansas City.">
 <script src="https://cdn.tailwindcss.com"></script>
 <!-- Phase 2: Supabase client library (magic-link auth + shared data store). Safe to load while unconfigured. -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -70,7 +70,7 @@ tailwind.config = {
           <button data-scroll-to="requests" id="menuRequestsItem" class="w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left hidden"><span data-icon="inbox" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Requests and loans<span id="pendingBadge" class="ml-auto inline-flex items-center justify-center bg-gray-900 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></button>
           <button data-scroll-to="how" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="info" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>How it works</button>
           <button data-scroll-to="signin" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="user" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span><span id="menuSigninLabel">Sign in</span></button>
-          <button id="adminMenuItem" data-scroll-to="admin" class="hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="shield" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Admin</button>
+          <button id="adminMenuItem" data-scroll-to="admin" class="hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="shield" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Admin <span id="reportsBadge" class="hidden ml-auto inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-gray-900 text-white text-[11px] font-bold"></span></button>
         </div>
       </div>
     </div>
@@ -83,9 +83,9 @@ tailwind.config = {
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <p class="text-gray-500 text-xs sm:text-sm font-semibold tracking-widest uppercase">Valentine Neighborhood Association · Kansas City</p>
-        <h1 class="font-display text-3xl sm:text-5xl font-bold mt-2">Valentine Tool Library</h1>
-        <p class="text-gray-600 mt-3 max-w-xl text-sm sm:text-base">Borrow the ladder, pressure washer, or canopy you need for the weekend, from a member who already owns it. Lend the tools sitting in your garage and put them to work on your street.</p>
+        <p id="tenantEyebrow" class="text-gray-500 text-xs sm:text-sm font-semibold tracking-widest uppercase">Valentine Neighborhood Association · Kansas City</p>
+        <h1 id="tenantTitle" class="font-display text-3xl sm:text-5xl font-bold mt-2">Valentine Tool Library</h1>
+        <p class="text-gray-600 mt-3 max-w-xl text-sm sm:text-base">Borrow the ladder, pressure washer, or canopy you need for the weekend, from a member who already owns it. Lend the tools sitting in your garage and put them to work in your community.</p>
       </div>
       <div class="flex flex-col gap-2">
         <button data-scroll-to="lend" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shadow inline-flex items-center justify-center gap-2"><span data-icon="plus" data-icon-class="w-4 h-4" class="flex shrink-0"></span>Lend a tool</button>
@@ -136,7 +136,7 @@ tailwind.config = {
     <div id="toolGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3"></div>
     <div id="catalogEmpty" class="hidden bg-white border border-dashed border-gray-300 rounded-2xl p-10 text-center">
       <p class="font-display text-xl font-bold text-gray-900">No tools match, yet</p>
-      <p class="text-sm text-gray-500 mt-2">Try another word, or be the first member to lend one like it. Your garage might hold exactly what someone on your street needs.</p>
+      <p class="text-sm text-gray-500 mt-2">Try another word, or be the first member to lend one like it. Your garage might hold exactly what someone in your community needs.</p>
       <button data-scroll-to="lend" class="mt-4 bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Lend a tool</button>
     </div>
   </section>
@@ -147,7 +147,7 @@ tailwind.config = {
       <span class="w-10 h-10 rounded-xl bg-white border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="wrench" data-icon-class="w-5 h-5" class="flex"></span></span>
       <div>
         <h2 class="font-display text-2xl font-bold text-gray-950">Lend a tool</h2>
-        <p class="text-sm text-gray-500 mt-0.5">Put a garage tool to work on your street.</p>
+        <p class="text-sm text-gray-500 mt-0.5">Put a garage tool to work in your community.</p>
       </div>
     </div>
     <!-- Phase 5: unmistakable sign-up gate for listing. One of these cards
@@ -176,7 +176,7 @@ tailwind.config = {
     </div>
     <div class="grid lg:grid-cols-5 gap-8">
       <div class="lg:col-span-2">
-        <p class="text-sm text-gray-500">List a tool you own and are happy to lend to Valentine members. You set the loan length, you approve every request, and borrowers arrange pickup with you directly. You can remove your listing at any time from the catalog.</p>
+        <p class="text-sm text-gray-500">List a tool you own and are happy to lend to other members of this library. You set the loan length, you approve every request, and borrowers arrange pickup with you directly. You can remove your listing at any time from the catalog.</p>
         <div class="bg-white border border-gray-200 rounded-2xl p-5 mt-5 text-sm space-y-2">
           <p class="font-bold text-gray-900">Good candidates</p>
           <p>Extension ladders, pressure washers, carpet cleaners, folding tables and chairs, canopies, post hole diggers, tile saws, and anything else that spends most of the year in the garage.</p>
@@ -288,11 +288,11 @@ tailwind.config = {
     <div class="bg-white rounded-2xl shadow-card border border-gray-200 p-6 mt-4">
       <h3 class="font-bold text-gray-900">Library ground rules</h3>
       <ul class="list-disc pl-5 text-sm text-gray-600 space-y-1.5 mt-3">
-        <li>Members lend to members: borrowers and lenders both live in Valentine.</li>
+        <li id="ruleResidency">Members lend to members: borrowers and lenders both live in the Valentine neighborhood.</li>
         <li>No fees. If something breaks in normal use, tell the owner right away and work it out in good faith.</li>
         <li>Return tools clean and ready for the next person, by the due date on your loan.</li>
         <li>Chainsaws and other high risk tools are lent at the owner's discretion, sometimes only with a quick orientation.</li>
-        <li>The Valentine Neighborhood Association hosts the catalog. Loans are private agreements between the two members involved.</li>
+        <li id="ruleHost">The Valentine Neighborhood Association hosts the catalog. Loans are private agreements between the two members involved.</li>
       </ul>
     </div>
   </section>
@@ -336,7 +336,7 @@ tailwind.config = {
         <div>
           <label class="text-sm font-semibold" for="signupAddress">Home address</label>
           <input id="signupAddress" required maxlength="160" placeholder="Street address, city, ZIP" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
-          <p class="text-xs text-gray-400 mt-1">The home you actually live in. The library is for people who live in the area, so the address has to be your real home.</p>
+          <p id="signupAddressHelp" class="text-xs text-gray-400 mt-1">The home you actually live in. Members must live in the area this library serves, so the address has to be your real home.</p>
         </div>
         <div>
           <span class="text-sm font-semibold flex items-center gap-1.5"><span data-icon="shield" data-icon-class="w-4 h-4" class="text-gray-400 flex shrink-0"></span>Terms</span>
@@ -403,7 +403,7 @@ tailwind.config = {
       </form>
       <div class="border-t border-gray-200 mt-8 pt-6 max-w-2xl">
         <h4 class="font-bold text-gray-950">Delete your account</h4>
-        <p class="text-sm text-gray-500 mt-1">Deleting removes your profile, every tool you have listed, and your request history from the tool library. It cannot be undone.</p>
+        <p class="text-sm text-gray-500 mt-1">Deleting removes your profile, every tool you have listed, and your request history from this library only. Any accounts you hold in other libraries are not affected. It cannot be undone.</p>
         <div id="deleteBlockedNotice" class="hidden bg-gray-50 border border-gray-300 rounded-2xl p-4 mt-4"></div>
         <button id="deleteAccountBtn" type="button" class="mt-4 bg-white border border-gray-400 hover:border-gray-600 text-gray-900 font-semibold px-5 py-2.5 rounded-full text-sm">Delete my account</button>
       </div>
@@ -443,7 +443,7 @@ tailwind.config = {
 
 <footer class="border-t border-gray-200 mt-4">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row justify-between gap-3 text-sm text-gray-500">
-    <p class="flex items-center gap-2.5"><img id="footerLogo" class="hidden h-7 w-auto opacity-80 shrink-0" alt="" onerror="this.classList.add('hidden')"><span><span class="font-semibold text-gray-900">Valentine Tool Library</span> · A Valentine Neighborhood Association project · Kansas City, Missouri</span></p>
+    <p class="flex items-center gap-2.5"><img id="footerLogo" class="hidden h-7 w-auto opacity-80 shrink-0" alt="" onerror="this.classList.add('hidden')"><span><span id="footerLibraryName" class="font-semibold text-gray-900">Valentine Tool Library</span> · <span id="footerOrgLine">A Valentine Neighborhood Association project · Kansas City, Missouri</span></span></p>
     <div class="flex items-center gap-4">
       <button id="footerTermsBtn" type="button" class="underline decoration-dotted hover:text-gray-700">Terms and conditions</button>
       <button id="footerCookieBtn" type="button" class="underline decoration-dotted hover:text-gray-700">Cookie policy</button>
@@ -649,7 +649,7 @@ tailwind.config = {
     </div>
     <div>
       <label class="text-sm font-semibold" for="nbName">Organization name</label>
-      <input id="nbName" required maxlength="80" placeholder="For example: Brookside Neighborhood Association" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+      <input id="nbName" required maxlength="80" placeholder="For example: Greenfield Community Group" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
     </div>
     <div>
       <label class="text-sm font-semibold" for="nbSlug">Short name (web address)</label>
@@ -669,7 +669,7 @@ tailwind.config = {
 <dialog id="deleteAccountModal" class="rounded-2xl p-0 w-[min(94vw,30rem)] shadow-xl">
   <form id="deleteAccountForm" class="p-6 space-y-4">
     <h3 class="font-display text-xl font-bold text-gray-950">Delete your account?</h3>
-    <p class="text-sm text-gray-600">This permanently removes your profile, every tool you have listed, and your request history from the tool library. It cannot be undone.</p>
+    <p class="text-sm text-gray-600">This permanently removes your account from THIS library: your profile here, every tool you have listed here, and your request history here. It cannot be undone. Any accounts you hold in other libraries stay exactly as they are.</p>
     <p class="text-sm text-gray-600">Signing in again with the same email would start a fresh, empty account.</p>
     <div class="flex flex-wrap gap-2 justify-end pt-1">
       <button type="button" id="deleteAccountCancel" autofocus class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Cancel</button>
@@ -747,9 +747,9 @@ const ADMIN_EMAILS = ["david.snodgrass@gmail.com"]; // David, platform admin (fi
    name its own neighborhood and residency area. */
 const TERMS_VERSION = "2026-11-13";
 const TERMS_TEXT = [
-  "Welcome to the [Neighborhood Name] Tool Library, run by members, for members, at [slug].toollendinglibrary.com.",
+  "Welcome to the [Organization Name] Tool Library, run by members, for members, at [slug].toollendinglibrary.com.",
   "",
-  "1. Who can join. You must be 18 years old or older. You must live in [Neighborhood Name / residency area], and the address on your account must be the home you actually live in.",
+  "1. Who can join. You must be 18 years old or older. You must live in [Organization Name / residency area], and the address on your account must be the home you actually live in.",
   "",
   "2. Lending. Only list tools that you own. You choose who you lend to, and you can say no to any request, for any reason.",
   "",
@@ -772,13 +772,13 @@ const COOKIE_NOTE = "This site uses only the cookies and browser storage it need
    the current neighborhood's record when the text renders. Every claim
    here matches the app's actual behavior in this build: if a sentence
    would not be true, it does not belong in the policy. */
-const PRIVACY_VERSION = "2026-11-13.1";
+const PRIVACY_VERSION = "2026-11-13.2";
 const PRIVACY_TEXT = [
-  "Welcome to the [Neighborhood Name] Tool Library at [slug].toollendinglibrary.com. This policy explains, in plain language, what information the library holds, why it holds it, and who can see it.",
+  "Welcome to the [Organization Name] Tool Library at [slug].toollendinglibrary.com. This policy explains, in plain language, what information the library holds, why it holds it, and who can see it.",
   "",
   "What we collect. When you create an account we collect your email address, your full name, and your home address, and an optional profile photo if you add one. When you lend, we keep your tool listings and their photos. When you borrow or lend, we keep the borrow requests, the pickup window you pick, the confirmed pickup spot and time, and the loan and return records. We also keep a record of when you accepted the terms, this policy, and the cookie note, so the library knows which version you agreed to.",
   "",
-  "Why we use it. We use this information only to run the lending library: signing you in, matching lenders and borrowers, sending notifications and reminders about your requests and loans, and letting the library admin check that members live in [Neighborhood Name / residency area] and are part of the community, and for safety. It is not used for anything else.",
+  "Why we use it. We use this information only to run the lending library: signing you in, matching lenders and borrowers, sending notifications and reminders about your requests and loans, and letting the library admin check that members live in [Organization Name / residency area] and are part of the community, and for safety. It is not used for anything else.",
   "",
   "We never sell your information. We never sell your information, and we never share it with third parties for their own use or for marketing. The only services that handle it are the ones that run this site, such as hosting, the database and sign-in service, and email delivery, and they handle it only so the library works.",
   "",
@@ -794,30 +794,53 @@ const PRIVACY_TEXT = [
   "",
   "Cookies. This site uses only the cookies and browser storage it needs to keep you signed in and remember your library. There are no advertising trackers. The cookie note shown at sign-up and in the footer has the short version.",
   "",
-  "Keeping and deleting your information. You can update your name, home address, and profile photo any time in Your account. You can also delete your account there; deleting removes your profile, your listings, and your request history from the library. Your sign-in login record itself is managed by the sign-in provider, separate from the library.",
+  "Keeping and deleting your information. You can update your name, home address, and profile photo any time in Your account. You can also delete your account there; deleting removes your profile, your listings, and your request history from that library only, and does not affect any account you hold in another library. Your sign-in login record itself is managed by the sign-in provider, separate from the library.",
   "",
   "Questions. If you have a question about your information, contact your library's admin."
 ].join("\n");
 
+/* Phase 5.7: tenant-driven names for chrome and email copy. Generic
+   product copy never hardcodes an organization's name or assumes the
+   organization is a neighborhood: the display names below always come
+   from the current library's own record. The fallback is the default
+   tenant (Valentine), used only before tenant data loads. */
+function tenantRecord() {
+  return currentNeighborhood || { name: "Valentine Neighborhood Association", residencyArea: "the Valentine neighborhood" };
+}
+function tenantShortName() {
+  return String(tenantRecord().name || "").replace(/ Neighborhood Association$/, "");
+}
+function libraryOrgName() {
+  return tenantRecord().name || tenantShortName();
+}
+function libraryLabel() {
+  return tenantShortName() + " Tool Library";
+}
+function librarySignoff() {
+  return libraryLabel() + ", a " + libraryOrgName() + " project";
+}
+function tenantResidency() {
+  const nb = tenantRecord();
+  return nb.residencyArea || ("the " + tenantShortName() + " area");
+}
+
 /* Render the privacy policy for the neighborhood currently being browsed. */
 function privacyText() {
-  const nb = currentNeighborhood || { name: "Valentine Neighborhood Association", residencyArea: "" };
-  const shortName = String(nb.name || "").replace(/ Neighborhood Association$/, "");
-  const residency = nb.residencyArea || ("the " + shortName + " area");
+  const nb = tenantRecord();
+  const residency = tenantResidency();
   return PRIVACY_TEXT
-    .split("[Neighborhood Name / residency area]").join(residency)
-    .split("[Neighborhood Name]").join(nb.name)
+    .split("[Organization Name / residency area]").join(residency)
+    .split("[Organization Name]").join(nb.name)
     .split("[slug]").join(CURRENT_SLUG);
 }
 
 /* Render the terms for the neighborhood currently being browsed. */
 function termsText() {
-  const nb = currentNeighborhood || { name: "Valentine Neighborhood Association", residencyArea: "" };
-  const shortName = String(nb.name || "").replace(/ Neighborhood Association$/, "");
-  const residency = nb.residencyArea || ("the " + shortName + " area");
+  const nb = tenantRecord();
+  const residency = tenantResidency();
   return TERMS_TEXT
-    .split("[Neighborhood Name / residency area]").join(residency)
-    .split("[Neighborhood Name]").join(nb.name)
+    .split("[Organization Name / residency area]").join(residency)
+    .split("[Organization Name]").join(nb.name)
     .split("[slug]").join(CURRENT_SLUG);
 }
 
@@ -970,6 +993,18 @@ function reportFromRow(row) {
     context: row.context || "", message: row.message || "",
     status: row.status || "open", createdAt: row.created_at || ""
   };
+}
+/* Phase 5.7: a profile row is a membership in ONE library. The row's
+   own neighborhood_id decides which library it belongs to; the slug is
+   resolved through the loaded neighborhood records. */
+function profileFromRow(row) {
+  const nb = allNeighborhoods.find(n => n.id === row.neighborhood_id);
+  return { id: row.id, email: row.email, role: row.role, status: row.status, neighborhood: nb ? nb.slug : CURRENT_SLUG, createdAt: row.created_at, fullName: row.full_name || "", address: row.address || "", termsAcceptedAt: row.terms_accepted_at || "", termsVersion: row.terms_version || "", privacyAcceptedAt: row.privacy_accepted_at || "", privacyVersion: row.privacy_version || "", cookieAcceptedAt: row.cookie_accepted_at || "", avatarUrl: row.avatar_url || "" };
+}
+function neighborhoodIdForSlug(slug) {
+  const nb = allNeighborhoods.find(n => n.slug === slug);
+  if (nb) return nb.id;
+  return supabaseStore.currentId();
 }
 function reportToRow(report) {
   return {
@@ -1172,12 +1207,15 @@ const store = {
   async setCookieAccepted(whenIso) {
     if (!currentUser) return;
     if (this.mode === "supabase") {
-      const { error } = await supabaseClient.from("profiles").update({ cookie_accepted_at: whenIso }).eq("id", currentUser.id);
+      let query = supabaseClient.from("profiles").update({ cookie_accepted_at: whenIso }).eq("id", currentUser.id);
+      const nid = supabaseStore.currentId();
+      if (nid) query = query.eq("neighborhood_id", nid);
+      const { error } = await query;
       if (error) throw error;
       return;
     }
     const list = loadLocalProfiles();
-    const p = list.find(x => x.id === currentUser.id);
+    const p = list.find(x => x.id === currentUser.id && (x.neighborhood || DEFAULT_TENANT_SLUG) === CURRENT_SLUG);
     if (p) { p.cookieAcceptedAt = whenIso; saveLocalProfiles(list); }
   },
   async listProfiles() {
@@ -1186,68 +1224,120 @@ const store = {
       if (supabaseStore.currentId()) query = query.eq("neighborhood_id", supabaseStore.currentId());
       const { data, error } = await query;
       if (error) throw error;
-      return (data || []).map(row => ({ id: row.id, email: row.email, role: row.role, status: row.status, neighborhood: CURRENT_SLUG, createdAt: row.created_at, fullName: row.full_name || "", address: row.address || "", termsAcceptedAt: row.terms_accepted_at || "", termsVersion: row.terms_version || "", privacyAcceptedAt: row.privacy_accepted_at || "", privacyVersion: row.privacy_version || "", cookieAcceptedAt: row.cookie_accepted_at || "", avatarUrl: row.avatar_url || "" }));
+      return (data || []).map(profileFromRow);
     }
     return loadLocalProfiles().filter(p => (p.neighborhood || DEFAULT_TENANT_SLUG) === CURRENT_SLUG);
   },
-  async getProfile(userId) {
+  /* Phase 5.7: membership is per library. One profile row exists per
+     (person, library), keyed by account id plus library. fetchMembership
+     is the single read path: getProfile reads the membership for the
+     CURRENT library only, and getAnyProfile is the one deliberate
+     exception, used only to prefill a name and home address when a
+     person joins another library (terms and privacy acceptance are
+     always per library and never carried across). */
+  async fetchMembership(userId, slug) {
+    const target = slug || CURRENT_SLUG;
     if (this.mode === "supabase") {
-      const { data, error } = await supabaseClient.from("profiles").select("*").eq("id", userId).maybeSingle();
+      const nid = target === CURRENT_SLUG ? supabaseStore.currentId() : neighborhoodIdForSlug(target);
+      let query = supabaseClient.from("profiles").select("*").eq("id", userId);
+      if (nid) query = query.eq("neighborhood_id", nid);
+      const { data, error } = await query;
       if (error) throw error;
-      return data ? { id: data.id, email: data.email, role: data.role, status: data.status, neighborhood: CURRENT_SLUG, createdAt: data.created_at, fullName: data.full_name || "", address: data.address || "", termsAcceptedAt: data.terms_accepted_at || "", termsVersion: data.terms_version || "", privacyAcceptedAt: data.privacy_accepted_at || "", privacyVersion: data.privacy_version || "", cookieAcceptedAt: data.cookie_accepted_at || "", avatarUrl: data.avatar_url || "" } : null;
+      const rows = data || [];
+      if (nid) return rows.length ? profileFromRow(rows[0]) : null;
+      const row = rows.find(r => { const nb = allNeighborhoods.find(n => n.id === r.neighborhood_id); return nb && nb.slug === target; });
+      return row ? profileFromRow(row) : null;
     }
-    return loadLocalProfiles().find(p => p.id === userId) || null;
+    return loadLocalProfiles().find(p => p.id === userId && (p.neighborhood || DEFAULT_TENANT_SLUG) === target) || null;
+  },
+  async getProfile(userId) {
+    return this.fetchMembership(userId, CURRENT_SLUG);
+  },
+  async getAnyProfile(userId) {
+    if (this.mode === "supabase") {
+      const { data, error } = await supabaseClient.from("profiles").select("*").eq("id", userId);
+      if (error) throw error;
+      const rows = (data || []).map(profileFromRow);
+      return rows.find(p => p.fullName && p.address) || rows[0] || null;
+    }
+    const mine = loadLocalProfiles().filter(p => p.id === userId);
+    return mine.find(p => p.fullName && p.address) || mine[0] || null;
   },
   async upsertProfile(profile) {
+    const targetSlug = profile.neighborhood || CURRENT_SLUG;
     if (this.mode === "supabase") {
-      // Merge with whatever is already stored so a partial update (for
-      // example a role change) never wipes the sign-up details.
+      // Merge with whatever is already stored FOR THIS LIBRARY so a
+      // partial update (for example a role change) never wipes that
+      // membership's sign-up details, and never touches the person's
+      // memberships in other libraries.
       let existing = null;
-      try { existing = await this.getProfile(profile.id); } catch (e) { existing = null; }
-      const merged = Object.assign({}, existing || {}, profile);
+      try { existing = await this.fetchMembership(profile.id, targetSlug); } catch (e) { existing = null; }
+      const merged = Object.assign({}, existing || {}, profile, { neighborhood: targetSlug });
+      const nid = targetSlug === CURRENT_SLUG ? supabaseStore.currentId() : neighborhoodIdForSlug(targetSlug);
       const { error } = await supabaseClient.from("profiles").upsert({
-        id: merged.id, neighborhood_id: supabaseStore.currentId(),
+        id: merged.id, neighborhood_id: nid,
         email: merged.email, role: merged.role, status: merged.status,
         full_name: merged.fullName || null, address: merged.address || null,
         terms_accepted_at: merged.termsAcceptedAt || null, terms_version: merged.termsVersion || null,
         privacy_accepted_at: merged.privacyAcceptedAt || null, privacy_version: merged.privacyVersion || null,
         cookie_accepted_at: merged.cookieAcceptedAt || null,
         avatar_url: merged.avatarUrl || null
-      });
+      }, { onConflict: "id,neighborhood_id" });
       if (error) throw error;
       return merged;
     }
     const list = loadLocalProfiles();
-    const i = list.findIndex(p => p.id === profile.id);
-    if (i >= 0) list[i] = Object.assign({}, list[i], profile); else list.push(profile);
+    const i = list.findIndex(p => p.id === profile.id && (p.neighborhood || DEFAULT_TENANT_SLUG) === targetSlug);
+    const mergedLocal = Object.assign({}, i >= 0 ? list[i] : {}, profile, { neighborhood: targetSlug });
+    if (i >= 0) list[i] = mergedLocal; else list.push(mergedLocal);
     saveLocalProfiles(list);
-    return profile;
+    return mergedLocal;
   },
   async setProfileStatus(userId, status) {
     if (this.mode === "supabase") {
-      const { error } = await supabaseClient.from("profiles").update({ status: status }).eq("id", userId);
+      let query = supabaseClient.from("profiles").update({ status: status }).eq("id", userId);
+      const nid = supabaseStore.currentId();
+      if (nid) query = query.eq("neighborhood_id", nid);
+      const { error } = await query;
       if (error) throw error;
       return;
     }
     const list = loadLocalProfiles();
-    const p = list.find(x => x.id === userId);
+    const p = list.find(x => x.id === userId && (x.neighborhood || DEFAULT_TENANT_SLUG) === CURRENT_SLUG);
     if (p) { p.status = status; saveLocalProfiles(list); }
   },
   async deleteProfile(profile) {
-    // Client-side stub: removes the profile, the user's tools, and their
-    // borrow requests. Deleting the underlying auth account itself happens
-    // server-side at go-live via the Supabase Auth admin API (see README).
+    // Phase 5.7: deletion is per library. It removes the membership in
+    // THIS library, plus the member's tools and borrow requests in this
+    // library; their memberships, tools, and requests in other
+    // libraries are untouched. Deleting the underlying auth account
+    // itself happens server-side at go-live via the Supabase Auth admin
+    // API (see README).
     const email = String(profile.email || "").toLowerCase();
+    const targetSlug = profile.neighborhood || CURRENT_SLUG;
     if (this.mode === "supabase") {
-      await supabaseClient.from("tools").delete().eq("owner_contact", profile.email);
-      await supabaseClient.from("borrow_requests").delete().eq("borrower_contact", profile.email);
-      const { error } = await supabaseClient.from("profiles").delete().eq("id", profile.id);
+      const nid = targetSlug === CURRENT_SLUG ? supabaseStore.currentId() : neighborhoodIdForSlug(targetSlug);
+      let toolDelete = supabaseClient.from("tools").delete().eq("owner_contact", profile.email);
+      let requestDelete = supabaseClient.from("borrow_requests").delete().eq("borrower_contact", profile.email);
+      let profileDelete = supabaseClient.from("profiles").delete().eq("id", profile.id);
+      if (nid) {
+        toolDelete = toolDelete.eq("neighborhood_id", nid);
+        requestDelete = requestDelete.eq("neighborhood_id", nid);
+        profileDelete = profileDelete.eq("neighborhood_id", nid);
+      }
+      await toolDelete;
+      await requestDelete;
+      const { error } = await profileDelete;
       if (error) throw error;
     } else {
-      saveLocalProfiles(loadLocalProfiles().filter(p => p.id !== profile.id));
+      saveLocalProfiles(loadLocalProfiles().filter(p => !(p.id === profile.id && (p.neighborhood || DEFAULT_TENANT_SLUG) === targetSlug)));
     }
-    state.tools = state.tools.filter(t => String(t.contact || "").toLowerCase() !== email);
-    state.requests = state.requests.filter(r => String(r.contact || "").toLowerCase() !== email);
+    /* The in-memory state is only ever this library's rows in Supabase
+       mode; in local mode it holds every library's rows, so the sweep
+       is scoped to this library either way. */
+    const inThisLibrary = x => (x.tenant || DEFAULT_TENANT_SLUG) === targetSlug;
+    state.tools = state.tools.filter(t => !(inThisLibrary(t) && String(t.contact || "").toLowerCase() === email));
+    state.requests = state.requests.filter(r => !(inThisLibrary(r) && String(r.contact || "").toLowerCase() === email));
     save();
   },
   /* Phase 5.6: reports filed by members for the admin. Creation stores
@@ -1316,7 +1406,7 @@ const notify = (() => {
     const lines = [
       "Hello,",
       "",
-      d.borrowerName + " would like to borrow your " + d.toolName + " from the Valentine Tool Library.",
+      d.borrowerName + " would like to borrow your " + d.toolName + " from the " + libraryLabel() + ".",
       "",
       "Pickup date: " + d.startDate
     ];
@@ -1329,12 +1419,12 @@ const notify = (() => {
       "Review the request here: " + base + "?request=" + d.requestId,
       "That link takes you straight to this request. When you approve, you set the exact pickup time and place inside the window they picked.",
       "",
-      "Valentine Tool Library, a Valentine Neighborhood Association project"
+      librarySignoff()
     );
     return {
       to: d.to,
       cc: "",
-      subject: "Valentine Tool Library: borrow request for " + d.toolName,
+      subject: libraryLabel() + ": borrow request for " + d.toolName,
       body: lines.join("\n")
     };
   }
@@ -1344,7 +1434,7 @@ const notify = (() => {
     const lines = [
       "Hello " + d.borrowerName + ",",
       "",
-      "Your borrow of " + d.toolName + " from the Valentine Tool Library is confirmed and checked out.",
+      "Your borrow of " + d.toolName + " from the " + libraryLabel() + " is confirmed and checked out.",
       ""
     ];
     if (d.pickupAt) lines.push("Pickup: " + fmtDateTime(d.pickupAt));
@@ -1357,12 +1447,12 @@ const notify = (() => {
       "",
       "Please bring it back clean and ready for the next member by the time above.",
       "",
-      "Valentine Tool Library, a Valentine Neighborhood Association project"
+      librarySignoff()
     );
     return {
       to: d.borrowerEmail || d.ownerEmail || "",
       cc: d.borrowerEmail && d.ownerEmail ? d.ownerEmail : "",
-      subject: "Valentine Tool Library: " + d.toolName + " checked out, due back " + (d.dueAt ? fmtDateTime(d.dueAt) : ""),
+      subject: libraryLabel() + ": " + d.toolName + " checked out, due back " + (d.dueAt ? fmtDateTime(d.dueAt) : ""),
       body: lines.join("\n")
     };
   }
@@ -1376,7 +1466,7 @@ const notify = (() => {
     const lines = [
       "Hello " + d.borrowerName + ",",
       "",
-      "Good news: your request to borrow " + d.toolName + " from the Valentine Tool Library has been approved. The tool is reserved for you and waiting for pickup.",
+      "Good news: your request to borrow " + d.toolName + " from the " + libraryLabel() + " has been approved. The tool is reserved for you and waiting for pickup.",
       ""
     ];
     if (d.pickupAt) lines.push("Pickup time: " + fmtDateTime(d.pickupAt));
@@ -1387,12 +1477,12 @@ const notify = (() => {
       "Your loan runs " + d.days + (d.days === 1 ? " day" : " days") + " from the moment you pick the tool up. Once the lender marks it picked up, we will email you the exact due date.",
       "Tool entry: " + link,
       "",
-      "Valentine Tool Library, a Valentine Neighborhood Association project"
+      librarySignoff()
     );
     return {
       to: d.borrowerEmail || d.ownerEmail || "",
       cc: d.borrowerEmail && d.ownerEmail ? d.ownerEmail : "",
-      subject: "Valentine Tool Library: " + d.toolName + " approved, waiting for pickup",
+      subject: libraryLabel() + ": " + d.toolName + " approved, waiting for pickup",
       body: lines.join("\n")
     };
   }
@@ -1404,17 +1494,17 @@ const notify = (() => {
     const lines = [
       "Hello " + d.borrowerName + ",",
       "",
-      "The lender marked your pickup of " + d.toolName + " from the Valentine Tool Library as not picked up, so this request has been closed.",
+      "The lender marked your pickup of " + d.toolName + " from the " + libraryLabel() + " as not picked up, so this request has been closed.",
       "",
       "The tool is back in the library and available for other members. You are welcome to send a new request any time.",
       "Tool entry: " + link,
       "",
-      "Valentine Tool Library, a Valentine Neighborhood Association project"
+      librarySignoff()
     ];
     return {
       to: d.borrowerEmail || d.ownerEmail || "",
       cc: d.borrowerEmail && d.ownerEmail ? d.ownerEmail : "",
-      subject: "Valentine Tool Library: " + d.toolName + " pickup did not happen",
+      subject: libraryLabel() + ": " + d.toolName + " pickup did not happen",
       body: lines.join("\n")
     };
   }
@@ -1429,7 +1519,7 @@ const notify = (() => {
     const lines = [
       "Hello " + d.borrowerName + ",",
       "",
-      "We are sorry: " + d.toolName + " from the Valentine Tool Library is no longer available, so your pickup has been cancelled and this request has been closed.",
+      "We are sorry: " + d.toolName + " from the " + libraryLabel() + " is no longer available, so your pickup has been cancelled and this request has been closed.",
       ""
     ];
     if (d.reason) {
@@ -1438,12 +1528,12 @@ const notify = (() => {
     lines.push(
       "You can browse the catalog to find another tool: " + link,
       "",
-      "Valentine Tool Library, a Valentine Neighborhood Association project"
+      librarySignoff()
     );
     return {
       to: d.borrowerEmail || d.ownerEmail || "",
       cc: d.borrowerEmail && d.ownerEmail ? d.ownerEmail : "",
-      subject: "Valentine Tool Library: " + d.toolName + " is no longer available",
+      subject: libraryLabel() + ": " + d.toolName + " is no longer available",
       body: lines.join("\n")
     };
   }
@@ -1456,17 +1546,17 @@ const notify = (() => {
     const lines = [
       "Hello,",
       "",
-      d.borrowerName + " no longer needs " + d.toolName + " from the Valentine Tool Library, so their request has been cancelled.",
+      d.borrowerName + " no longer needs " + d.toolName + " from the " + libraryLabel() + ", so their request has been cancelled.",
       "",
       "The tool is back in the library and available for other members. There is nothing you need to do.",
       "Tool entry: " + link,
       "",
-      "Valentine Tool Library, a Valentine Neighborhood Association project"
+      librarySignoff()
     ];
     return {
       to: d.ownerEmail || d.borrowerEmail || "",
       cc: d.borrowerEmail && d.ownerEmail ? d.borrowerEmail : "",
-      subject: "Valentine Tool Library: " + d.toolName + " request cancelled by the borrower",
+      subject: libraryLabel() + ": " + d.toolName + " request cancelled by the borrower",
       body: lines.join("\n")
     };
   }
@@ -2358,11 +2448,16 @@ function renderSignup() {
     document.getElementById("signupTerms").textContent = termsText();
     document.getElementById("signupCookie").textContent = COOKIE_NOTE;
     document.getElementById("signupPrivacy").textContent = privacyText();
-    if (currentProfile) {
+    /* Phase 5.7: name and home address prefill from this library's
+       unfinished membership when there is one, else from a membership
+       held in another library. Terms and privacy are never prefilled:
+       each library's acceptance is ticked fresh. */
+    const prefill = currentProfile || anyProfile;
+    if (prefill) {
       const nameInput = document.getElementById("signupName");
       const addrInput = document.getElementById("signupAddress");
-      if (currentProfile.fullName && !nameInput.value) nameInput.value = currentProfile.fullName;
-      if (currentProfile.address && !addrInput.value) addrInput.value = currentProfile.address;
+      if (prefill.fullName && !nameInput.value) nameInput.value = prefill.fullName;
+      if (prefill.address && !addrInput.value) addrInput.value = prefill.address;
     }
   }
 }
@@ -2398,7 +2493,7 @@ async function notifyAdminsOfMemberJoined(memberProfile) {
     });
     (ADMIN_EMAILS || []).forEach(addRecipient);
     if (!recipients.size) return;
-    const libraryName = currentNeighborhood && currentNeighborhood.name ? currentNeighborhood.name : "Valentine Neighborhood Association";
+    const libraryName = libraryOrgName();
     const details = {
       memberName: memberProfile.fullName || "",
       memberEmail: memberProfile.email,
@@ -2437,6 +2532,7 @@ document.getElementById("signupForm").addEventListener("submit", async e => {
   });
   try {
     currentProfile = await store.upsertProfile(profile);
+    anyProfile = currentProfile;
     if (!wasComplete) await notifyAdminsOfMemberJoined(currentProfile);
     syncCookieBannerWithProfile();
   } catch (err) {
@@ -2714,7 +2810,7 @@ async function notifyAdminsOfReport(report) {
     if (!report) return;
     const recipients = await libraryAdminRecipients(report.reporterEmail);
     if (!recipients.length) return;
-    const libraryName = currentNeighborhood && currentNeighborhood.name ? currentNeighborhood.name : "Valentine Neighborhood Association";
+    const libraryName = libraryOrgName();
     const details = {
       reporterName: report.reporterName || "",
       reporterEmail: report.reporterEmail || "",
@@ -2862,6 +2958,7 @@ async function initLocalAuth() {
   if (!email) { renderAuth(); return; }
   currentUser = { id: localUserId(email), email: email };
   try { currentProfile = await store.getProfile(currentUser.id); } catch (e) { console.warn("Local profile load failed:", e); }
+  await loadAnyProfileFallback();
   if (currentProfile && currentProfile.status === "banned") {
     currentUser = null;
     currentProfile = null;
@@ -2876,8 +2973,14 @@ async function initLocalAuth() {
 /* ================= PHASE 2: sign-in, profiles, admin ================= */
 let currentUser = null;
 let currentProfile = null;
+/* Phase 5.7: a membership the signed-in person holds in ANOTHER
+   library, kept only so the sign-up form can prefill their name and
+   home address when they join this one. It never grants anything here:
+   signupComplete() reads currentProfile, this library's membership. */
+let anyProfile = null;
 let adminProfiles = [];
 let adminReports = [];
+let reportsBadgeLoaded = false;
 
 function isAdminEmail(email) {
   return Boolean(email && ADMIN_EMAILS.some(e => e && String(e).toLowerCase() === String(email).toLowerCase()));
@@ -2968,6 +3071,14 @@ function renderChrome() {
   updateAdminVisibility();
   renderGateNotices();
   renderAccount();
+  /* S9: paint the reports badge from whatever report list is loaded,
+     and load it once per session for admins so the menu badge shows
+     the open count without opening Admin first. */
+  paintReportsBadges();
+  if (isAdminUser() && !reportsBadgeLoaded) {
+    reportsBadgeLoaded = true;
+    store.listReports().then(rs => { adminReports = rs; paintReportsBadges(); }).catch(() => {});
+  }
 }
 
 /* ============ Your account: update and delete ============
@@ -3209,9 +3320,21 @@ function renderAuth() {
   renderChrome();
 }
 
+/* Phase 5.7: when the signed-in person holds no membership in THIS
+   library, fetch one from another library (if any) purely as a
+   sign-up prefill source for their name and home address. */
+async function loadAnyProfileFallback() {
+  anyProfile = null;
+  if (!currentUser || currentProfile) return;
+  try { anyProfile = await store.getAnyProfile(currentUser.id); } catch (e) { anyProfile = null; }
+}
+
 async function handleSession(session) {
   currentUser = session ? session.user : null;
   currentProfile = null;
+  anyProfile = null;
+  adminReports = [];
+  reportsBadgeLoaded = false;
   if (currentUser) {
     try {
       // No auto-create here: a profile row is written when the neighbor
@@ -3219,6 +3342,7 @@ async function handleSession(session) {
       // user list shows real, completed profiles.
       const profile = await store.getProfile(currentUser.id);
       currentProfile = profile;
+      await loadAnyProfileFallback();
       if (profile && profile.status === "banned") {
         document.getElementById("authMessage").textContent = "This account has been banned from this tool library.";
         if (supabaseClient) await supabaseClient.auth.signOut();
@@ -3250,6 +3374,7 @@ document.getElementById("authForm").addEventListener("submit", async e => {
     currentUser = { id: localUserId(localEmail), email: localEmail };
     currentProfile = null;
     try { currentProfile = await store.getProfile(currentUser.id); } catch (err) { console.warn("Local profile load failed:", err); }
+    await loadAnyProfileFallback();
     if (currentProfile && currentProfile.status === "banned") {
       currentUser = null;
       currentProfile = null;
@@ -3280,6 +3405,9 @@ async function signOutUser() {
     try { localStorage.removeItem(LOCAL_USER_KEY); } catch (err) {}
     currentUser = null;
     currentProfile = null;
+    anyProfile = null;
+    adminReports = [];
+    reportsBadgeLoaded = false;
     document.getElementById("authMessage").textContent = "";
     renderAuth();
     render();
@@ -3288,6 +3416,7 @@ async function signOutUser() {
   await supabaseClient.auth.signOut();
   currentUser = null;
   currentProfile = null;
+  anyProfile = null;
   document.getElementById("authMessage").textContent = "";
   renderAuth();
   render();
@@ -3299,10 +3428,34 @@ if (barSignOutBtn) barSignOutBtn.addEventListener("click", signOutUser);
 /* ================= PHASE 2: tenant display + neighborhood registration ================= */
 function renderTenant() {
   const nb = currentNeighborhood;
-  document.getElementById("tenantName").textContent = nb ? nb.name.replace(/ Neighborhood Association$/, "") : CURRENT_SLUG;
+  document.getElementById("tenantName").textContent = nb ? tenantShortName() : CURRENT_SLUG;
   document.getElementById("tenantAddress").textContent = CURRENT_SLUG + ".toollendinglibrary.com";
   const barTitle = document.getElementById("barTitle");
-  if (barTitle) barTitle.textContent = (nb ? nb.name.replace(/ Neighborhood Association$/, "") : CURRENT_SLUG) + " Tool Library";
+  if (barTitle) barTitle.textContent = nb ? libraryLabel() : CURRENT_SLUG + " Tool Library";
+  /* Phase 5.7: every organization-specific string in the page chrome
+     comes from this library's own record, never from hardcoded copy.
+     An organization that is not a neighborhood (University in the Sky
+     is the second library) must not see another organization's name,
+     or neighborhood wording it never supplied, anywhere on its site. */
+  if (nb) {
+    document.title = libraryLabel() + " | " + libraryOrgName();
+    const meta = document.getElementById("metaDescription");
+    if (meta) meta.setAttribute("content", "Borrow and lend tools with your community. A sharing library run by " + libraryOrgName() + ".");
+    const eyebrow = document.getElementById("tenantEyebrow");
+    if (eyebrow) eyebrow.textContent = libraryOrgName();
+    const title = document.getElementById("tenantTitle");
+    if (title) title.textContent = libraryLabel();
+    const footerName = document.getElementById("footerLibraryName");
+    if (footerName) footerName.textContent = libraryLabel();
+    const footerOrg = document.getElementById("footerOrgLine");
+    if (footerOrg) footerOrg.textContent = "A " + libraryOrgName() + " project";
+    const ruleResidency = document.getElementById("ruleResidency");
+    if (ruleResidency) ruleResidency.textContent = "Members lend to members: borrowers and lenders both live in " + tenantResidency() + ".";
+    const ruleHost = document.getElementById("ruleHost");
+    if (ruleHost) ruleHost.textContent = libraryOrgName() + " hosts the catalog. Loans are private agreements between the two members involved.";
+    const addressHelp = document.getElementById("signupAddressHelp");
+    if (addressHelp) addressHelp.textContent = "The home you actually live in. Members must live in " + tenantResidency() + ", so the address has to be your real home.";
+  }
   applyNeighborhoodLogo(nb);
 }
 
@@ -3373,12 +3526,20 @@ document.getElementById("neighborhoodForm").addEventListener("submit", async e =
   try {
     const nb = await store.createNeighborhood({ name: name, slug: slug, createdBy: currentUser ? currentUser.id : "" });
     if (currentUser) {
-      // The creator becomes the first admin of the new neighborhood.
-      const profile = {
+      // Phase 5.7: the creator becomes the first admin of the new
+      // library through a NEW membership in that library, carrying
+      // their name and home address from their current membership when
+      // they have one. Every existing membership is left untouched,
+      // and the creator stays on the current site: currentProfile
+      // still points at this library's membership, not the new one.
+      const membership = {
         id: currentUser.id, email: currentUser.email, role: "admin",
-        status: currentProfile ? currentProfile.status : "active", neighborhood: nb.slug
+        status: currentProfile ? currentProfile.status : "active", neighborhood: nb.slug,
+        fullName: currentProfile ? currentProfile.fullName || "" : "",
+        address: currentProfile ? currentProfile.address || "" : "",
+        avatarUrl: currentProfile ? currentProfile.avatarUrl || "" : ""
       };
-      try { await store.upsertProfile(profile); currentProfile = profile; } catch (err) { console.warn("Admin profile save failed:", err); }
+      try { await store.upsertProfile(membership); } catch (err) { console.warn("Admin membership save failed:", err); }
     }
     const result = document.getElementById("nbResult");
     result.innerHTML = "<p class='font-bold'>Your library is registered.</p>" +
@@ -3504,6 +3665,21 @@ document.getElementById("editDelete").addEventListener("click", () => {
 });
 
 /* ================= PHASE 2: admin actions ================= */
+/* Phase 5.7 (approved suggestion S9): the open-report count badge.
+   Same mail-style badge pattern as the Requests pending count: it
+   paints on the Admin item in the burger menu and next to the Reports
+   heading inside Admin, shows only the OPEN count, and clears as
+   reports are resolved. It renders only for viewers who can see
+   Admin at all; non-admins never get the elements painted. */
+function paintReportsBadges() {
+  const open = (adminReports || []).filter(r => r.status === "open").length;
+  ["reportsBadge", "reportsBadgeSection"].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (isAdminUser() && open > 0) { el.textContent = String(open); el.classList.remove("hidden"); }
+    else { el.textContent = ""; el.classList.add("hidden"); }
+  });
+}
 /* Phase 5.6: the admin's report inbox. Reports render only here, in
    the admin-only view; no member-facing surface reads them. Resolved
    reports stay listed, muted, so there is a record, and either status
@@ -3512,7 +3688,7 @@ function adminReportsHTML(reports) {
   const openCount = reports.filter(r => r.status === "open").length;
   const countLine = openCount + (openCount === 1 ? " open report" : " open reports");
   const head = '<div class="flex flex-wrap items-center justify-between gap-2">' +
-    '<h3 class="font-display text-xl font-bold text-gray-950">Reports</h3>' +
+    '<h3 class="font-display text-xl font-bold text-gray-950">Reports <span id="reportsBadgeSection" class="hidden ml-1 inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-gray-900 text-white text-[11px] font-bold align-middle"></span></h3>' +
     '<p class="text-sm text-gray-500">' + countLine + '</p></div>';
   if (!reports.length) {
     return head + '<p class="text-sm text-gray-400 bg-white border border-dashed border-gray-200 rounded-2xl p-6 text-center mt-3">No reports yet. When a member reports someone, it will appear here.</p>';
@@ -3558,6 +3734,7 @@ async function renderAdmin() {
   try { reports = await store.listReports(); } catch (e) { console.warn("listReports failed:", e); }
   adminReports = reports;
   if (reportsWrap) reportsWrap.innerHTML = adminReportsHTML(reports);
+  paintReportsBadges();
   list.innerHTML = '<p class="text-sm text-gray-400">Loading users...</p>';
   let profiles = [];
   try { profiles = await store.listProfiles(); } catch (e) { console.warn("listProfiles failed:", e); }
