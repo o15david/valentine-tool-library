@@ -365,7 +365,7 @@ tailwind.config = {
    ============================================================================ */
 const SUPABASE_URL = "https://wosdfxvdsovlcahcszvv.supabase.co"; // valentine-tool-library project, filled Nov 13, 2026
 const SUPABASE_ANON_KEY = "sb_publishable_wGfrf12c6yeiqGtflBEIgA_FPNXEAu9"; // Supabase publishable (public) key, filled Nov 13, 2026
-const EMAIL_TRANSPORT = "stub"; // "stub" = local outbox only; "resend" = POST /api/notify
+const EMAIL_TRANSPORT = "resend"; // flipped Nov 13, 2026: /api/notify is deployed and RESEND_API_KEY is set in Vercel ("stub" = local outbox only)
 const ADMIN_EMAILS = ["david.snodgrass@gmail.com"]; // David, platform admin (filled Nov 13, 2026). This only gates visibility of the Admin section; real enforcement is the profiles table plus RLS in schema.sql.
 
 const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
