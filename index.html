@@ -1300,6 +1300,7 @@ document.getElementById("neighborhoodForm").addEventListener("submit", async e =
 const editModal = document.getElementById("editModal");
 let editToolId = null;
 let editPhotoData = "";
+let editPhotoFile = null;
 
 function updateEditPhotoPreview() {
   const t = state.tools.find(x => x.id === editToolId);
@@ -1310,6 +1311,7 @@ function updateEditPhotoPreview() {
 function openEdit(tool) {
   editToolId = tool.id;
   editPhotoData = "";
+  editPhotoFile = null;
   document.getElementById("editName").value = tool.name;
   document.getElementById("editCategory").innerHTML = CATEGORIES.map(c => '<option' + (c === tool.category ? " selected" : "") + '>' + esc(c) + '</option>').join("");
   document.getElementById("editContact").value = tool.contact || "";
@@ -1337,10 +1339,28 @@ editModal.addEventListener("click", e => { if (e.target === editModal) editModal
 document.getElementById("editPhoto").addEventListener("change", e => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
+  editPhotoFile = file;
   const reader = new FileReader();
   reader.onload = () => { editPhotoData = String(reader.result || ""); updateEditPhotoPreview(); };
   reader.readAsDataURL(file);
 });
+/* Photo storage (go-live step 9): when Supabase is configured AND the owner
+   is signed in, upload the picked file to the public tool-photos bucket and
+   use its public URL. Any failure (signed out, offline, policy) returns ""
+   and the caller keeps the data URL, exactly the old behavior. */
+async function uploadToolPhoto(toolId) {
+  if (!editPhotoFile || !supabaseClient) return "";
+  try {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (!sessionData || !sessionData.session) return "";
+    const ext = (String(editPhotoFile.name || "").split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    const path = "tools/" + toolId + "/" + Date.now() + "." + ext;
+    const { error } = await supabaseClient.storage.from("tool-photos").upload(path, editPhotoFile, { upsert: true, contentType: editPhotoFile.type || "image/jpeg" });
+    if (error) { console.warn("photo upload failed, keeping data URL:", error); return ""; }
+    const { data } = supabaseClient.storage.from("tool-photos").getPublicUrl(path);
+    return (data && data.publicUrl) || "";
+  } catch (e) { console.warn("photo upload failed, keeping data URL:", e); return ""; }
+}
 document.getElementById("editRemovePhoto").addEventListener("change", updateEditPhotoPreview);
 document.getElementById("editForm").addEventListener("submit", async e => {
   e.preventDefault();
@@ -1352,7 +1372,10 @@ document.getElementById("editForm").addEventListener("submit", async e => {
   t.desc = document.getElementById("editDesc").value.trim();
   t.pickupWindows = gatherPickupWindows("edit-pickup-preset", "editPickupOther");
   if (document.getElementById("editRemovePhoto").checked) t.photo = "";
-  else if (editPhotoData) t.photo = editPhotoData;
+  else if (editPhotoData) {
+    const uploadedUrl = await uploadToolPhoto(t.id);
+    t.photo = uploadedUrl || editPhotoData;
+  }
   save();
   if (store.mode === "supabase") {
     try { await store.updateTool(t); } catch (err) { console.warn("store.updateTool failed:", err); }
