@@ -1,4 +1,4 @@
-/* /api/notify: server endpoint for the Tool Library notify module.
+/* /api/notify: server endpoint for the Tool Lending Library notify module.
    Prepared Nov 13, 2026 as a ready-to-deploy stub while Supabase and Resend
    setup finish. Deploy by copying this file to api/notify.js at the repo
    root (Vercel turns it into a serverless function automatically).
@@ -14,7 +14,7 @@
                      returns { ok: true, stub: true } with HTTP 200 so the
                      client flow never breaks before the key exists.
      MAIL_FROM       optional. Default:
-                     "Tool Library <notifications@toollendinglibrary.com>"
+                     "Tool Lending Library <notifications@toollendinglibrary.com>"
                      The domain must be verified in Resend for real sends.
 
    Security posture: this is a neighborhood tool library notice sender.
@@ -23,7 +23,7 @@
    the API key. Tighten with a shared secret header if abuse appears. */
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
-const DEFAULT_FROM = "Tool Library <notifications@toollendinglibrary.com>";
+const DEFAULT_FROM = "Tool Lending Library <notifications@toollendinglibrary.com>";
 const MAX_TO = 200;
 const MAX_SUBJECT = 300;
 const MAX_BODY = 20000;
