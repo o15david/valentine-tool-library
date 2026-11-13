@@ -937,11 +937,16 @@ function save() { store.persist(); }
    whenever Supabase is not configured. The Supabase store loads the shared
    tools and borrow_requests rows for the current neighborhood, so the
    availability on every card reflects every neighbor's activity, not just
-   this browser's. In Supabase mode a tool's status is never stored: it is
-   derived from borrow_requests exactly like the tool_availability view in
-   schema.sql (checked_out request = on loan, approved request = waiting
-   for pickup and reserved, pending request = requested, otherwise
-   available). */
+   this browser's. In Supabase mode a tool's status is never stored: it
+   comes from the tool_availability view in schema.sql (checked_out =
+   on loan, approved = waiting for pickup, pending = requested, otherwise
+   available), because since Phase 5.8 the borrow_requests rows themselves
+   are only readable by the people in them. The borrower and due detail on
+   a card still comes from those readable request rows, so another
+   member's loan details never reach this browser. Writes are scoped the
+   same way: persist() only sends back rows the signed-in member may
+   write (their own tools, requests they are a party to, or anything in
+   a library they admin), matching the database policies. */
 function visibleTools() { return state.tools.filter(t => (t.tenant || DEFAULT_TENANT_SLUG) === CURRENT_SLUG); }
 function visibleRequests() { return state.requests.filter(r => (r.tenant || DEFAULT_TENANT_SLUG) === CURRENT_SLUG); }
 
@@ -1070,6 +1075,26 @@ const supabaseStore = {
     const { data: reqRows, error: reqErr } = await supabaseClient.from("borrow_requests").select("*").eq("neighborhood_id", nid).order("created_at", { ascending: true });
     if (reqErr) throw reqErr;
 
+    /* Phase 5.8: catalog availability comes from the tool_availability
+       view, not from the request rows above. Since the S7 policies,
+       borrow_requests reads return only the requests the signed-in
+       viewer is a party to (or, for an admin, their library's), so a
+       status derived from those rows would call every other member's
+       reserved or on-loan tool "available". The view stays readable by
+       everyone and computes the same statuses from all requests. Only
+       its status column is used here: the view also carries the current
+       borrower's name and due date, and those are details of that loan,
+       shown only to its two parties from their request rows below,
+       never copied onto a tool from the view. If the view read fails,
+       fall back to deriving status from the readable requests, the
+       pre-5.8 behavior, rather than failing the whole load. */
+    const availabilityByTool = {};
+    try {
+      const { data: avRows, error: avErr } = await supabaseClient.from("tool_availability").select("tool_id, availability").eq("neighborhood_id", nid);
+      if (avErr) throw avErr;
+      (avRows || []).forEach(row => { availabilityByTool[row.tool_id] = row.availability; });
+    } catch (e) { console.warn("Availability view load failed, deriving tool status from readable requests:", e); }
+
     const requests = (reqRows || []).map(row => ({
       id: row.id, toolId: row.tool_id, tenant: CURRENT_SLUG,
       borrower: row.borrower_name, contact: row.borrower_contact || "",
@@ -1094,27 +1119,67 @@ const supabaseStore = {
         photo: row.photo_url || "", desc: row.description || "",
         status: "available", borrower: "", due: "", dueAt: ""
       };
+      /* Status first from the availability view (Phase 5.8); the view
+         uses its own vocabulary, mapped to the app's here. Borrower and
+         due detail is then overlaid only from request rows this viewer
+         may read, which is to say loans they are a party to (an admin
+         reads their whole library, as before). When the view has no
+         row for a tool, status falls back to that same request
+         derivation, the pre-5.8 behavior. */
+      const viewStatus = { on_loan: "onloan", waiting_for_pickup: "awaiting", requested: "requested", available: "available" }[availabilityByTool[tool.id]];
+      if (viewStatus) tool.status = viewStatus;
       const out = requests.find(r => r.toolId === tool.id && r.status === "checked_out");
       const awaiting = requests.find(r => r.toolId === tool.id && r.status === "approved");
       const pending = requests.find(r => r.toolId === tool.id && r.status === "pending");
-      if (out) { tool.status = "onloan"; tool.borrower = out.borrower; tool.due = out.dueAt ? out.dueAt.slice(0, 10) : addDaysISO(out.start, out.days); tool.dueAt = out.dueAt || ""; }
-      else if (awaiting) { tool.status = "awaiting"; tool.borrower = awaiting.borrower; }
-      else if (pending) { tool.status = "requested"; }
+      if (out) { if (!viewStatus) tool.status = "onloan"; tool.borrower = out.borrower; tool.due = out.dueAt ? out.dueAt.slice(0, 10) : addDaysISO(out.start, out.days); tool.dueAt = out.dueAt || ""; }
+      else if (awaiting) { if (!viewStatus) tool.status = "awaiting"; tool.borrower = awaiting.borrower; }
+      else if (pending) { if (!viewStatus) tool.status = "requested"; }
       return tool;
     });
     return { tools, requests };
   },
+  /* Phase 5.8: write scoping for persist(). The database policies (S7)
+     let a member write only their own tools, the requests they are the
+     borrower or the lender on, and, for a library admin, any row in
+     their library. persist() therefore filters the working set to the
+     rows this caller may write before upserting: one out-of-scope row
+     in a batch would make the database reject the whole statement and
+     silently lose the caller's own changes with it. Out-of-scope rows
+     stay in the local read cache untouched; they are simply never
+     written back. The admin check is isAdminUser(), the same test the
+     rest of the app uses for this library. */
+  callerEmail() {
+    return currentUser && currentUser.email ? String(currentUser.email).trim().toLowerCase() : "";
+  },
+  callerCanWriteTool(t) {
+    if (!currentUser || !t) return false;
+    if (isAdminUser()) return true;
+    const email = this.callerEmail();
+    return Boolean(email && t.contact && String(t.contact).trim().toLowerCase() === email);
+  },
+  callerCanWriteRequest(r, tools) {
+    if (!currentUser || !r) return false;
+    if (isAdminUser()) return true;
+    const email = this.callerEmail();
+    if (!email) return false;
+    if (r.contact && String(r.contact).trim().toLowerCase() === email) return true;
+    const t = (tools || []).find(x => x.id === r.toolId);
+    return Boolean(t && t.contact && String(t.contact).trim().toLowerCase() === email);
+  },
   async persist(state) {
-    if (state.tools.length) {
-      const { error } = await supabaseClient.from("tools").upsert(state.tools.map(t => this.toolToRow(t)));
+    const tools = state.tools.filter(t => this.callerCanWriteTool(t));
+    if (tools.length) {
+      const { error } = await supabaseClient.from("tools").upsert(tools.map(t => this.toolToRow(t)));
       if (error) throw error;
     }
-    if (state.requests.length) {
-      const { error } = await supabaseClient.from("borrow_requests").upsert(state.requests.map(r => this.requestToRow(r)));
+    const requests = state.requests.filter(r => this.callerCanWriteRequest(r, state.tools));
+    if (requests.length) {
+      const { error } = await supabaseClient.from("borrow_requests").upsert(requests.map(r => this.requestToRow(r)));
       if (error) throw error;
     }
-    // Note: persist() upserts the working set. Deletes go through
-    // store.deleteTool / store.deleteProfile so rows are actually removed.
+    // Note: persist() upserts the caller's writable rows. Deletes go
+    // through store.deleteTool / store.deleteProfile so rows are
+    // actually removed.
   }
 };
 
@@ -1151,8 +1216,14 @@ const store = {
       localStore.persist(state);
     }
   },
-  async deleteTool(toolId) {
+  async deleteTool(toolId, tool) {
     if (this.mode === "supabase") {
+      /* Phase 5.8: deletes follow the same scoping as persist(). When
+         the caller passes the tool and it is not one they may write
+         (not their listing, not a library they admin), the remote
+         delete is skipped; the caller's local removal stands, exactly
+         as if the database policy had quietly matched no row. */
+      if (tool && !supabaseStore.callerCanWriteTool(tool)) return;
       const { error } = await supabaseClient.from("tools").delete().eq("id", toolId);
       if (error) throw error;
     } else {
@@ -3591,7 +3662,7 @@ async function removeToolEverywhere(t) {
   state.requests = state.requests.filter(r => r.toolId !== t.id);
   save();
   if (store.mode === "supabase") {
-    try { await store.deleteTool(t.id); } catch (e) { console.warn("store.deleteTool failed:", e); }
+    try { await store.deleteTool(t.id, t); } catch (e) { console.warn("store.deleteTool failed:", e); }
   }
   render();
   toast("Listing removed.");
