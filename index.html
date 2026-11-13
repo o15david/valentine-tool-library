@@ -421,7 +421,7 @@ tailwind.config = {
       <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="shield" data-icon-class="w-5 h-5" class="flex"></span></span>
       <div>
         <h2 class="font-display text-2xl font-bold text-gray-950">Admin</h2>
-        <p class="text-sm text-gray-500 mt-0.5 max-w-2xl">Member accounts for this library, from the profiles table. Banning blocks sign-in and new requests. Deleting removes the profile, their tools, and their requests in this app; the underlying login account is removed separately at go-live (see the phase 2 README).</p>
+        <p class="text-sm text-gray-500 mt-0.5 max-w-2xl">Member accounts for this library. Banning blocks sign-in and new requests. Deleting removes the member's profile, their tools, and their requests from this library.</p>
       </div>
     </div>
     <div id="adminLogoWrap" class="hidden bg-white rounded-2xl shadow-card border border-gray-200 p-5 mt-6 max-w-2xl">
@@ -655,24 +655,81 @@ tailwind.config = {
     <div class="flex items-start justify-between gap-4">
       <div>
         <h3 class="font-display text-xl font-bold text-gray-950">Start a library for your organization</h3>
-        <p class="text-sm text-gray-500 mt-1">Register your organization and pick its web address. You become the first admin of the new library.</p>
+        <p class="text-sm text-gray-500 mt-1">A few short steps. You become the first admin of the new library.</p>
       </div>
       <button type="button" id="nbClose" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Close">×</button>
     </div>
-    <div>
-      <label class="text-sm font-semibold" for="nbName">Organization name</label>
-      <input id="nbName" required maxlength="80" placeholder="For example: Greenfield Community Group" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-    </div>
-    <div>
-      <label class="text-sm font-semibold" for="nbSlug">Short name (web address)</label>
-      <div class="mt-1 flex items-center gap-1">
-        <input id="nbSlug" required maxlength="30" placeholder="brookside" class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-        <span class="text-sm text-gray-500">.toollendinglibrary.com</span>
+
+    <div id="nbStep1">
+      <h4 class="text-sm font-bold text-gray-950">Step 1: Your email</h4>
+      <div id="nbSigninBlock" class="mt-2 space-y-3">
+        <p class="text-sm text-gray-600">Creating a library starts with your email, because the person who creates it becomes its admin. Your email is your login: we email you a sign-in link, and there is no password to make or remember. If you are new here, we will ask your name and address next. If you have been here before, the link just signs you in, and your new library is added to your account.</p>
+        <div class="flex flex-wrap items-center gap-2">
+          <label class="sr-only" for="nbEmail">Your email address</label>
+          <input id="nbEmail" type="email" placeholder="you@example.com" class="flex-1 min-w-[12rem] rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <button type="button" id="nbSigninBtn" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-4 py-2.5 rounded-full text-sm">Email me a sign-in link</button>
+        </div>
+        <p id="nbSigninMsg" class="text-sm text-gray-500"></p>
       </div>
-      <p id="nbSlugMsg" class="text-xs mt-1 text-gray-400">Lowercase letters, numbers, and hyphens.</p>
+      <p id="nbSignedInBlock" class="hidden mt-2 text-sm text-gray-600">Done. You are signed in as <span id="nbSignedInEmail" class="font-semibold text-gray-900"></span>, so you will be the admin of the new library.</p>
     </div>
+
+    <div id="nbAboutStep" class="hidden">
+      <h4 class="text-sm font-bold text-gray-950">Step 2: About you</h4>
+      <p class="text-sm text-gray-600 mt-1">You are new here, so we need a few details before your library is created. They become your admin profile in your new library, the same details every member gives when they join a library.</p>
+      <div class="mt-3 space-y-4">
+        <div>
+          <label class="text-sm font-semibold" for="nbAboutName">Full name</label>
+          <input id="nbAboutName" maxlength="80" placeholder="Your full name" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+        </div>
+        <div>
+          <label class="text-sm font-semibold" for="nbAboutAddress">Home address</label>
+          <input id="nbAboutAddress" maxlength="160" placeholder="Street address, city, ZIP" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <p class="text-xs text-gray-400 mt-1">Your real home. It stays private: it is never shown in the library. Only a pickup spot you confirm is shared with a borrower, and only after you approve their request.</p>
+        </div>
+        <div>
+          <span class="text-sm font-semibold">Terms</span>
+          <div id="nbAboutTerms" class="mt-1 bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-600 whitespace-pre-wrap max-h-48 overflow-y-auto"></div>
+          <p id="nbAboutCookie" class="text-xs text-gray-400 mt-2"></p>
+          <label class="flex items-start gap-2 text-sm mt-3">
+            <input id="nbAboutTermsAgree" type="checkbox" class="accent-gray-900 w-4 h-4 mt-0.5">
+            <span>I agree to the terms above, and I accept the cookie note.</span>
+          </label>
+        </div>
+        <div>
+          <span class="text-sm font-semibold">Privacy policy</span>
+          <div id="nbAboutPrivacy" class="mt-1 bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-600 whitespace-pre-wrap max-h-48 overflow-y-auto"></div>
+          <label class="flex items-start gap-2 text-sm mt-3">
+            <input id="nbAboutPrivacyAgree" type="checkbox" class="accent-gray-900 w-4 h-4 mt-0.5">
+            <span>I agree to the privacy policy above.</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div id="nbStep2">
+      <h4 id="nbOrgHeading" class="text-sm font-bold text-gray-950">Step 2: Your organization</h4>
+      <p id="nbSigninFirstNote" class="mt-1 text-sm text-gray-500">Sign in above first. This part opens once you are signed in.</p>
+      <p id="nbAboutFirstNote" class="hidden mt-1 text-sm text-gray-500">Finish About you above first, then this step creates your library.</p>
+      <fieldset id="nbOrgFields" class="mt-3 space-y-4">
+        <div>
+          <label class="text-sm font-semibold" for="nbName">Organization name</label>
+          <input id="nbName" required maxlength="80" placeholder="For example: Greenfield Community Group" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <p class="text-xs text-gray-400 mt-1">The full name of your group. It appears at the top of your library.</p>
+        </div>
+        <div>
+          <label class="text-sm font-semibold" for="nbSlug">Web address</label>
+          <div class="mt-1 flex items-center gap-1">
+            <input id="nbSlug" required maxlength="30" placeholder="yourname" class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+            <span class="text-sm text-gray-500">.toollendinglibrary.com</span>
+          </div>
+          <p id="nbSlugMsg" class="text-xs mt-1 text-gray-400">For example: yourname.toollendinglibrary.com. Lowercase letters, numbers, and hyphens.</p>
+        </div>
+        <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Create the library</button>
+      </fieldset>
+    </div>
+
     <div id="nbResult" class="hidden bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-900"></div>
-    <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Create the library</button>
   </form>
 </dialog>
 
@@ -1360,7 +1417,7 @@ const store = {
       return nb;
     }
     const list = loadLocalNeighborhoods();
-    if (list.some(n => n.slug === slug)) throw new Error("That short name is already taken.");
+    if (list.some(n => n.slug === slug)) throw new Error("That web address is already taken.");
     const nb = { id: "n-" + slug, slug: slug, name: name, residencyArea: "", logoUrl: "", createdBy: createdBy || "", createdAt: new Date().toISOString() };
     list.push(nb);
     saveLocalNeighborhoods(list);
@@ -3491,6 +3548,7 @@ function renderAuth() {
     applyIdentityToForms();
     renderSignup();
     renderChrome();
+    updateRegistrationFlow();
     return;
   }
   note.classList.add("hidden");
@@ -3505,6 +3563,7 @@ function renderAuth() {
   applyIdentityToForms();
   renderSignup();
   renderChrome();
+  updateRegistrationFlow();
 }
 
 /* Phase 5.7: when the signed-in person holds no membership in THIS
@@ -3512,8 +3571,9 @@ function renderAuth() {
    sign-up prefill source for their name and home address. */
 async function loadAnyProfileFallback() {
   anyProfile = null;
-  if (!currentUser || currentProfile) return;
+  if (!currentUser || currentProfile) { updateRegistrationFlow(); return; }
   try { anyProfile = await store.getAnyProfile(currentUser.id); } catch (e) { anyProfile = null; }
+  updateRegistrationFlow();
 }
 
 /* Phase 5.13 (S13): the navigation library switcher. David's shape
@@ -3595,11 +3655,14 @@ function initAuth() {
   supabaseClient.auth.onAuthStateChange((_event, session) => { handleSession(session); });
 }
 
-document.getElementById("authForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const msg = document.getElementById("authMessage");
+/* One sign-in path, two callers: the sign-in section's form and step 1
+   of the create-a-library flow. msg is the element that reports
+   progress to that caller; opts.afterSend is appended to the "check
+   your email" message when the caller needs to say what happens next. */
+async function signInWithEmail(email, msg, opts) {
+  opts = opts || {};
   if (!supabaseClient) {
-    const localEmail = document.getElementById("authEmail").value.trim();
+    const localEmail = String(email || "").trim();
     if (!isEmail(localEmail)) { msg.textContent = "Please enter a valid email address."; return; }
     try { localStorage.setItem(LOCAL_USER_KEY, localEmail); } catch (err) {}
     currentUser = { id: localUserId(localEmail), email: localEmail };
@@ -3624,14 +3687,17 @@ document.getElementById("authForm").addEventListener("submit", async e => {
     toast("Signed in (local preview) as " + localEmail + ".");
     return;
   }
-  const email = document.getElementById("authEmail").value.trim();
   if (!email) return;
   msg.textContent = "Sending your sign-in link...";
   const { error } = await supabaseClient.auth.signInWithOtp({
     email: email,
     options: { emailRedirectTo: window.location.href.split("#")[0] }
   });
-  msg.textContent = error ? "That link did not send. Double-check the email address, and try again in a moment." : ("Check " + email + " for your sign-in link.");
+  msg.textContent = error ? "That link did not send. Double-check the email address, and try again in a moment." : ("Check " + email + " for your sign-in link." + (opts.afterSend || ""));
+}
+document.getElementById("authForm").addEventListener("submit", e => {
+  e.preventDefault();
+  signInWithEmail(document.getElementById("authEmail").value.trim(), document.getElementById("authMessage"));
 });
 async function signOutUser() {
   if (!supabaseClient) {
@@ -3740,17 +3806,64 @@ function normalizeSlug(s) {
   return String(s == null ? "" : s).toLowerCase().trim().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-+|-+$/g, "");
 }
 function slugProblem(slug) {
-  if (!slug) return "Enter a short name.";
-  if (slug.length < 3) return "Short names need at least 3 characters.";
-  if (RESERVED_SLUGS.indexOf(slug) >= 0) return "That short name is reserved.";
-  if (allNeighborhoods.some(n => n.slug === slug)) return "That short name is already taken.";
+  if (!slug) return "Enter a name for the web address.";
+  if (slug.length < 3) return "Web address names need at least 3 characters.";
+  if (RESERVED_SLUGS.indexOf(slug) >= 0) return "That web address name is reserved.";
+  if (allNeighborhoods.some(n => n.slug === slug)) return "That web address is already taken.";
   return "";
 }
 
 const neighborhoodModal = document.getElementById("neighborhoodModal");
+
+/* The create-a-library flow is email-first. Step 1 is the sign-in:
+   the creator becomes the new library's admin, so a library is only
+   ever created by someone signed in, and there is no library with no
+   creator. After sign-in the flow branches on whether the person
+   already has a profile anywhere (Phase 5.7: currentProfile for this
+   library, anyProfile for another): a returning person goes straight
+   to the organization step and their name and address carry onto the
+   new membership; a brand-new person gets an About you step first,
+   collecting the same details member sign-up collects, which are
+   saved onto the admin membership when the library is created. */
+function registrationIsNewPerson() {
+  return Boolean(currentUser) && !currentProfile && !anyProfile;
+}
+function updateRegistrationFlow() {
+  const signinBlock = document.getElementById("nbSigninBlock");
+  if (!signinBlock) return;
+  const signedIn = Boolean(currentUser);
+  const newPerson = registrationIsNewPerson();
+  signinBlock.classList.toggle("hidden", signedIn);
+  document.getElementById("nbSignedInBlock").classList.toggle("hidden", !signedIn);
+  if (signedIn) document.getElementById("nbSignedInEmail").textContent = currentUser.email || "";
+  document.getElementById("nbAboutStep").classList.toggle("hidden", !newPerson);
+  if (newPerson) {
+    document.getElementById("nbAboutTerms").textContent = termsText();
+    document.getElementById("nbAboutPrivacy").textContent = privacyText();
+    document.getElementById("nbAboutCookie").textContent = COOKIE_NOTE;
+  }
+  document.getElementById("nbOrgHeading").textContent = newPerson ? "Step 3: Your organization" : "Step 2: Your organization";
+  document.getElementById("nbSigninFirstNote").classList.toggle("hidden", signedIn);
+  document.getElementById("nbAboutFirstNote").classList.toggle("hidden", !newPerson);
+  document.getElementById("nbOrgFields").disabled = !signedIn;
+}
+document.getElementById("nbSigninBtn").addEventListener("click", async () => {
+  const email = document.getElementById("nbEmail").value.trim();
+  const msg = document.getElementById("nbSigninMsg");
+  if (!isEmail(email)) { msg.textContent = "Please enter a valid email address."; return; }
+  await signInWithEmail(email, msg, { afterSend: " Open the link in that email, then come back here and open Create the library again: your email step will be done and the rest of the form will be ready for you." });
+  updateRegistrationFlow();
+});
+document.getElementById("nbEmail").addEventListener("keydown", e => {
+  if (e.key === "Enter") { e.preventDefault(); document.getElementById("nbSigninBtn").click(); }
+});
+
 document.getElementById("startNeighborhoodBtn").addEventListener("click", async () => {
   try { allNeighborhoods = await store.listNeighborhoods(); } catch (e) { console.warn("Neighborhood list failed:", e); }
   document.getElementById("nbResult").classList.add("hidden");
+  document.getElementById("nbStep1").classList.remove("hidden");
+  document.getElementById("nbStep2").classList.remove("hidden");
+  updateRegistrationFlow();
   neighborhoodModal.showModal();
 });
 document.getElementById("nbClose").addEventListener("click", () => neighborhoodModal.close());
@@ -3760,14 +3873,36 @@ document.getElementById("nbSlug").addEventListener("input", e => {
   e.target.value = slug;
   const msg = document.getElementById("nbSlugMsg");
   const problem = slug ? slugProblem(slug) : "";
-  msg.textContent = problem || (slug ? slug + ".toollendinglibrary.com is available." : "Lowercase letters, numbers, and hyphens.");
+  msg.textContent = problem || (slug ? slug + ".toollendinglibrary.com is available." : "For example: yourname.toollendinglibrary.com. Lowercase letters, numbers, and hyphens.");
   msg.className = "text-xs mt-1 " + (problem ? "text-gray-700" : slug ? "text-gray-700" : "text-gray-400");
 });
 document.getElementById("neighborhoodForm").addEventListener("submit", async e => {
   e.preventDefault();
+  const msg = document.getElementById("nbSlugMsg");
+  if (!currentUser) {
+    // Backstop: the organization fields stay disabled until sign-in,
+    // so a submit should never arrive here signed out. If one does,
+    // stop in plain words and create nothing: a library created with
+    // no creator would have no admin.
+    document.getElementById("nbSigninMsg").textContent = "Please sign in first: enter your email in step 1 and use the link we send you. Then you can create your library.";
+    toast("Please sign in first, then create your library.");
+    return;
+  }
+  /* A brand-new person completes About you in the same pass; the
+     details are validated before anything is created, and they are
+     saved onto the admin membership below. A returning person's
+     details carry from their existing profile instead. */
+  let about = null;
+  if (registrationIsNewPerson()) {
+    const aboutName = document.getElementById("nbAboutName").value.trim();
+    const aboutAddress = document.getElementById("nbAboutAddress").value.trim();
+    if (!aboutName || !aboutAddress) { toast("Please add your full name and home address in the About you step."); return; }
+    if (!document.getElementById("nbAboutTermsAgree").checked) { toast("Please tick the box to agree to the terms."); return; }
+    if (!document.getElementById("nbAboutPrivacyAgree").checked) { toast("Please tick the box to agree to the privacy policy."); return; }
+    about = { fullName: aboutName, address: aboutAddress };
+  }
   const name = document.getElementById("nbName").value.trim();
   const slug = normalizeSlug(document.getElementById("nbSlug").value);
-  const msg = document.getElementById("nbSlugMsg");
   try { allNeighborhoods = await store.listNeighborhoods(); } catch (err) { console.warn("Neighborhood list failed:", err); }
   const problem = slugProblem(slug);
   if (!name || problem) {
@@ -3776,34 +3911,54 @@ document.getElementById("neighborhoodForm").addEventListener("submit", async e =
     return;
   }
   try {
-    const nb = await store.createNeighborhood({ name: name, slug: slug, createdBy: currentUser ? currentUser.id : "" });
+    const nb = await store.createNeighborhood({ name: name, slug: slug, createdBy: currentUser.id });
     let membershipFailed = false;
-    if (currentUser) {
-      // Phase 5.7: the creator becomes the first admin of the new
-      // library through a NEW membership in that library, carrying
-      // their name and home address from their current membership when
-      // they have one. Every existing membership is left untouched,
-      // and the creator stays on the current site: currentProfile
-      // still points at this library's membership, not the new one.
-      const membership = {
-        id: currentUser.id, email: currentUser.email, role: "admin",
-        status: currentProfile ? currentProfile.status : "active", neighborhood: nb.slug,
-        fullName: currentProfile ? currentProfile.fullName || "" : "",
-        address: currentProfile ? currentProfile.address || "" : "",
-        avatarUrl: currentProfile ? currentProfile.avatarUrl || "" : ""
-      };
-      try { await store.upsertProfile(membership); } catch (err) { membershipFailed = true; console.warn("Admin membership save failed:", err); }
-      await refreshLibrarySwitcher();
+    // Phase 5.7: the creator becomes the first admin of the new
+    // library through a NEW membership in that library. A returning
+    // person's name and home address carry from their existing
+    // profile; a brand-new person's come from the About you step,
+    // with the terms and privacy acceptances they just gave, so the
+    // membership is a complete profile, not a stub. Every existing
+    // membership is left untouched, and the creator stays on the
+    // current site: currentProfile still points at this library's
+    // membership, not the new one.
+    const carry = currentProfile || anyProfile;
+    const membership = {
+      id: currentUser.id, email: currentUser.email, role: "admin",
+      status: currentProfile ? currentProfile.status : "active", neighborhood: nb.slug,
+      fullName: about ? about.fullName : (carry ? carry.fullName || "" : ""),
+      address: about ? about.address : (carry ? carry.address || "" : ""),
+      avatarUrl: carry ? carry.avatarUrl || "" : ""
+    };
+    if (about) {
+      membership.termsAcceptedAt = new Date().toISOString();
+      membership.termsVersion = TERMS_VERSION;
+      membership.privacyAcceptedAt = new Date().toISOString();
+      membership.privacyVersion = PRIVACY_VERSION;
+      membership.cookieAcceptedAt = new Date().toISOString();
     }
+    try { await store.upsertProfile(membership); } catch (err) { membershipFailed = true; console.warn("Admin membership save failed:", err); }
+    await refreshLibrarySwitcher();
     const result = document.getElementById("nbResult");
-    result.innerHTML = "<p class='font-bold'>Your library is registered.</p>" +
-      "<p class='mt-1'>Its address will be <span class='font-semibold'>https://" + esc(nb.slug) + ".toollendinglibrary.com</span>.</p>" +
-      "<p class='mt-1'>" + (membershipFailed
-        ? "The library was registered, but your admin membership in it could not be saved. Sign in at the new address and finish signing up there so you are recognized as its admin."
-        : (currentUser ? "You are its first admin." : "Sign in with your email so you are recognized as its admin.")) + " The address goes live once the domain and DNS are set up (see the phase 2 README).</p>";
+    const address = "https://" + nb.slug + ".toollendinglibrary.com";
+    result.innerHTML = "<p class='text-xs font-semibold uppercase tracking-widest text-gray-500'>Done</p>" +
+      "<p class='font-bold mt-1'>Your library is live.</p>" +
+      "<p class='mt-1'>Its address is <span class='font-semibold'>" + esc(address) + "</span>.</p>" +
+      "<a href='" + esc(address) + "/' class='inline-block mt-3 bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm'>Open your library</a>" +
+      "<p class='mt-3'>" + (membershipFailed
+        ? "One thing did not finish: your admin membership in it could not be saved. Sign in at your new library with the same email (" + esc(currentUser.email || "") + ") and finish signing up there, and you will be recognized as its admin."
+        : "Sign in there with the same email (" + esc(currentUser.email || "") + ") and you will be recognized as its admin.") + "</p>";
     result.classList.remove("hidden");
     renderAuth();
-    if (membershipFailed) toast("Your library is registered, but your admin membership could not be saved. Check your connection and finish signing up at the new address.");
+    // The done panel replaces the steps. This runs after renderAuth
+    // because renderAuth refreshes the step states, and the refresh
+    // would otherwise show the About you step again behind the panel
+    // (the new membership lives in the new library, so this site's
+    // branch detection still reads the creator as a new person here).
+    document.getElementById("nbStep1").classList.add("hidden");
+    document.getElementById("nbAboutStep").classList.add("hidden");
+    document.getElementById("nbStep2").classList.add("hidden");
+    if (membershipFailed) toast("Your library is live, but your admin membership could not be saved. Check your connection and finish signing up at the new address.");
     else toast(nb.name + " registered as " + nb.slug + ".toollendinglibrary.com.");
   } catch (err) {
     msg.textContent = "Could not register that name: " + (err && err.message ? err.message : String(err));
