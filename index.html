@@ -1517,7 +1517,12 @@ const store = {
      membership with its library record so the menu can label the hop
      with that library's own name and link to its subdomain. Rows whose
      library record is not loaded are skipped rather than guessed at,
-     and duplicate rows for one library collapse to a single entry. */
+     and duplicate rows for one library collapse to a single entry.
+     Nov 14, 2026: the list also includes every library the caller
+     created (neighborhoods.createdBy), even when they hold no
+     membership row there, because a library seeded or created before
+     its creator finished sign-up on that subdomain otherwise gave
+     them no hop at all. */
   async listMemberships(userId) {
     let profiles = [];
     if (this.mode === "supabase") {
@@ -1541,6 +1546,20 @@ const store = {
       if (!nb || bySlug.has(slug)) return;
       bySlug.set(slug, { slug: nb.slug, name: nb.name || nb.slug, role: p.role || "member", status: p.status });
     });
+    /* Creator hops: a library whose record names the caller as its
+       creator belongs in their switcher even without a membership
+       row, since the creator is that library's admin by design. This
+       only reads the already-loaded library records; it never writes
+       a profile row and changes no role or gate anywhere else. A
+       library the caller both created and belongs to is already in
+       the map from its membership, so it appears exactly once and
+       the membership entry (and its role) wins. */
+    if (userId) {
+      allNeighborhoods.forEach(nb => {
+        if (!nb || !nb.slug || nb.createdBy !== userId || bySlug.has(nb.slug)) return;
+        bySlug.set(nb.slug, { slug: nb.slug, name: nb.name || nb.slug, role: "admin", status: "active" });
+      });
+    }
     return Array.from(bySlug.values()).sort((a, b) => a.name.localeCompare(b.name));
   },
   async upsertProfile(profile) {
@@ -2401,6 +2420,9 @@ function render() {
     );
   }).join("") : '<p class="text-sm text-gray-400 bg-white border border-dashed border-gray-200 rounded-2xl p-6 text-center">No history yet.</p>';
   renderAccount();
+  /* Nov 14, 2026: the completion-only state has the last word in
+     every content pass too (see applyCompletionOnly). */
+  applyCompletionOnly();
 }
 
 /* Phase 5: one-page navigation. Every area lives on the single page, so
@@ -2789,6 +2811,75 @@ function renderSignup() {
       if (prefill.address && !addrInput.value) addrInput.value = prefill.address;
     }
   }
+}
+/* Nov 14, 2026: profile completion is a state of its own. David:
+   "shouldn't be anything else available until you complete it." On a
+   tenant host, a signed-in member whose profile for THIS library is
+   unfinished gets exactly one thing: the finish-signing-up form,
+   already open in the sign-in area (everything else hidden, it is
+   the first content on the page), scrolled into view and focused in
+   the first field that needs input, with no click needed. The hero,
+   catalog, lend, requests, how it works, and admin areas and the
+   menu entries for them are hidden for as long as the state lasts,
+   not merely gated; the defensive gates stay in place as backstops.
+   What stays is the shell: the header with the library's name and
+   Sign out, and the form itself, which carries the terms and the
+   privacy policy in full. The state is applied at the end of
+   renderChrome and of render, so it has the last word in every
+   render pass, after each section's own visibility rules have run.
+   Sections no other render manages (hero, catalog, how it works,
+   their menu entries, the start-a-library button) are restored by
+   this same function when the state ends; sections other renders
+   manage (lend, requests, admin, their menu entries) are only ever
+   hidden here, because their owners re-derive their visibility
+   earlier in the same pass. One deliberate exception, also David's:
+   the library switcher in the navigation stays available in this
+   state, so a member whose profile is unfinished here can still
+   hop to their other libraries from the nav. Scroll and
+   focus happen once per entry into the state, never on later
+   re-renders, so nothing steals focus while the member types. The
+   moment the saved profile is complete, the same passes restore the
+   normal app and the existing welcome confirmation shows. */
+let completionOnlyActive = false;
+let completionFocusDone = false;
+function applyCompletionOnly() {
+  const active = Boolean(!IS_ROOT_HOST && currentUser && !signupComplete());
+  const el = id => document.getElementById(id);
+  const hide = e => { if (e) e.classList.add("hidden"); };
+  const show = e => { if (e) e.classList.remove("hidden"); };
+  const menuBtn = target => document.querySelector('#navMenu [data-scroll-to="' + target + '"]');
+  if (active) {
+    ["tenantHero", "catalog", "how"].forEach(id => hide(el(id)));
+    hide(menuBtn("catalog"));
+    hide(menuBtn("how"));
+    hide(el("startNeighborhoodBtn"));
+    ["lend", "requests", "admin", "menuLendItem", "menuRequestsItem", "adminMenuItem", "heroLendBtn", "catalogEmptyLendBtn"].forEach(id => hide(el(id)));
+    if (!completionFocusDone) {
+      completionFocusDone = true;
+      const sec = el("signupSection");
+      if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+      const nameEl = el("signupName");
+      const addrEl = el("signupAddress");
+      const termsEl = el("signupTermsAgree");
+      const privacyEl = el("signupPrivacyAgree");
+      const target =
+        (nameEl && !nameEl.value.trim()) ? nameEl :
+        (addrEl && !addrEl.value.trim()) ? addrEl :
+        (termsEl && !termsEl.checked) ? termsEl :
+        (privacyEl && !privacyEl.checked) ? privacyEl :
+        nameEl;
+      if (target) target.focus();
+    }
+  } else {
+    if (completionOnlyActive) {
+      ["tenantHero", "catalog", "how"].forEach(id => show(el(id)));
+      show(menuBtn("catalog"));
+      show(menuBtn("how"));
+      show(el("startNeighborhoodBtn"));
+    }
+    completionFocusDone = false;
+  }
+  completionOnlyActive = active;
 }
 function applyIdentityToForms() {
   const signedIn = Boolean(currentUser);
@@ -3391,6 +3482,9 @@ function renderChrome() {
     reportsBadgeLoaded = true;
     store.listReports().then(rs => { adminReports = rs; paintReportsBadges(); }).catch(() => {});
   }
+  /* Nov 14, 2026: the completion-only state has the last word in
+     every chrome pass (see applyCompletionOnly). */
+  applyCompletionOnly();
 }
 
 /* ============ Your account: update and delete ============
