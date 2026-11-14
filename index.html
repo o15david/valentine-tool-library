@@ -2383,11 +2383,15 @@ function requestInvolvesViewer(r) {
 
 /* The confirmed pickup spot for a loan. Only rendered once a request is
    approved (a match): before that, no pickup location is shown anywhere,
-   and a member's home address is never rendered by the app at all. */
-function pickupSpotHTML(r) {
+   and a member's home address is never rendered by the app at all.
+   Callers whose surface already states the exact pickup moment (the
+   request cards) pass hideTime so the time is not repeated on the spot
+   line; the catalog card and the loan list keep the time here because
+   nothing else on those surfaces states it. */
+function pickupSpotHTML(r, hideTime) {
   if (!r) return "";
   if (r.status !== "approved" && r.status !== "checked_out" && r.status !== "returned") return "";
-  return '<p class="text-sm text-gray-500 flex items-start gap-1.5"><span class="text-gray-400 mt-0.5 shrink-0 flex">' + icon("pin", "w-4 h-4") + '</span><span>Pickup spot: ' + esc(r.pickupLocation || "The lender's home") + (r.pickupAt ? ' · ' + esc(fmtDateTime(r.pickupAt)) : '') + '</span></p>';
+  return '<p class="text-sm text-gray-500 flex items-start gap-1.5"><span class="text-gray-400 mt-0.5 shrink-0 flex">' + icon("pin", "w-4 h-4") + '</span><span>Pickup spot: ' + esc(r.pickupLocation || "The lender's home") + (!hideTime && r.pickupAt ? ' · ' + esc(fmtDateTime(r.pickupAt)) : '') + '</span></p>';
 }
 
 /* Add to calendar (Nov 14, 2026): on a waiting-for-pickup card (an
@@ -2574,30 +2578,51 @@ function render() {
        the card shows the loan length instead. Pending cards keep the
        requested window, which is what the lender decides from. If an
        approved request somehow has no exact time, fall back to the
-       window text rather than a blank. */
+       window text rather than a blank.
+       Nov 14, 2026 (David): the same rule now covers every later state
+       of the request (out on loan, and the history cards). Once an
+       exact pickup time exists, the card leads with that moment and
+       the window label appears nowhere on it; before this, history
+       cards mashed the two together ("Pickup Sun, Nov 15 · Sunday
+       morning, November 15, 9 AM to 12 PM at 12:00 PM"), which read
+       like two different pickup times. A later card with no exact
+       time falls back to the window, like the approved fallback.
+       The waiting card also folds the pickup spot into this one line
+       ("Pickup Fri, Nov 13 at 5:30 PM · The lender's home · 3-day
+       loan, starts at pickup") and skips the separate spot line, so
+       the scheduled time and the spot each appear exactly once on the
+       card; later cards keep the spot line but without its time. */
     let infoLine;
     if (r.status === "approved" && r.pickupAt) {
-      infoLine = 'Pickup ' + esc(fmtPickupMoment(r.pickupAt)) + ' · ' + r.days + '-day loan, starts at pickup';
+      infoLine = 'Pickup ' + esc(fmtPickupMoment(r.pickupAt)) + ' · ' + esc(r.pickupLocation || "The lender's home") + ' · ' + r.days + '-day loan, starts at pickup';
     } else if (r.status === "approved") {
       infoLine = 'Pickup ' + esc(fmtDate(r.start)) + (r.pickup ? ' · ' + esc(r.pickup) : '') + ' · ' + r.days + '-day loan, starts at pickup';
+    } else if (r.status !== "pending" && r.pickupAt) {
+      infoLine = 'Pickup ' + esc(fmtPickupMoment(r.pickupAt)) + ' · ' + r.days + (r.days === 1 ? " day" : " days") + ' · due back ' + esc(r.dueAt ? fmtDateTime(r.dueAt) : fmtDate(addDaysISO(r.start, r.days)));
     } else {
-      infoLine = 'Pickup ' + esc(fmtDate(r.start)) + (r.pickup ? ' · ' + esc(r.pickup) : '') + (r.pickupAt ? ' at ' + esc(fmtTime(r.pickupAt)) : '') + ' · ' + r.days + (r.days === 1 ? " day" : " days") + ' · due back ' + esc(r.dueAt ? fmtDateTime(r.dueAt) : fmtDate(addDaysISO(r.start, r.days)));
+      infoLine = 'Pickup ' + esc(fmtDate(r.start)) + (r.pickup ? ' · ' + esc(r.pickup) : '') + ' · ' + r.days + (r.days === 1 ? " day" : " days") + ' · due back ' + esc(r.dueAt ? fmtDateTime(r.dueAt) : fmtDate(addDaysISO(r.start, r.days)));
     }
     const reportTarget = reportTargetForRequest(r);
-    const reportBtn = reportTarget ? '<button class="report-request-btn text-xs font-medium text-gray-400 hover:text-gray-700 underline decoration-dotted self-start mt-1" data-id="' + r.id + '">Report ' + esc(reportTarget.buttonName) + '</button>' : "";
+    const reportBtn = reportTarget ? '<button class="report-request-btn text-xs font-medium text-gray-400 hover:text-gray-700 underline decoration-dotted" data-id="' + r.id + '">Report ' + esc(reportTarget.buttonName) + '</button>' : "";
+    /* The spot line under the pickup line: skipped on a waiting card,
+       whose pickup line already carries the spot (see infoLine above),
+       and rendered without its time on later cards, whose pickup line
+       already states the moment. */
+    const spotHTML = (r.status === "approved" && r.pickupAt) ? "" : pickupSpotHTML(r, true);
     return '<div id="request-' + r.id + '" class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 fade-in">' +
       '<div class="flex flex-wrap items-start justify-between gap-3">' +
         '<div><p class="font-bold text-gray-950">' + esc(tool ? tool.name : "Tool") + '</p>' +
         '<p class="text-sm text-gray-500 mt-0.5 flex items-center gap-1.5">' + avatarHTML(r.borrowerAvatar, r.borrower) + '<span>Requested by <span class="font-medium text-gray-700">' + esc(borrowerDisplayName(r)) + '</span></span></p>' +
         '<p class="text-sm text-gray-500 flex items-start gap-1.5"><span class="text-gray-400 mt-0.5 shrink-0 flex">' + icon("clock", "w-4 h-4") + '</span><span>' + infoLine + '</span></p>' +
-        pickupSpotHTML(r) +
+        spotHTML +
         pickupCalendarHTML(r, tool) +
         (r.project ? '<p class="text-sm text-gray-500 italic">Project: ' + esc(r.project) + '</p>' : "") +
         (r.thanksNote ? (isRequestBorrower(r)
           ? '<p class="text-sm text-gray-500">Your thank-you: "' + esc(r.thanksNote) + '"</p>'
           : '<p class="text-sm text-gray-500">Thank-you from ' + esc(r.borrower) + ': "' + esc(r.thanksNote) + '"</p>') : "") +
         (r.unavailableReason ? '<p class="text-sm text-gray-500">Reason from the lender: "' + esc(r.unavailableReason) + '"</p>' : "") +
-        '</div>' + buttons + reportBtn + '</div></div>';
+        '</div>' + buttons + '</div>' +
+      (reportBtn ? '<div class="mt-3">' + reportBtn + '</div>' : '') + '</div>';
   };
 
   /* Phase 5.2 privacy: every Requests area list below renders only the
@@ -2633,14 +2658,23 @@ function render() {
     /* Same priority as the pending list: owner (or another manager)
        confirms the pickup or closes it out; the borrower confirms
        their own pickup, or releases the request instead. */
+    /* Nov 14, 2026 cleanup (David): the actions are one tidy block on
+       both versions of the card: the status line on its own line, then
+       the buttons stacked as a matched set at one width, the primary
+       dark button first and the quieter outline buttons below. Before
+       this, the status text sat inline beside the primary button and
+       the secondary button wrapped onto its own row at another width,
+       which read as clutter. */
     let aButtons;
     if ((aTool && isToolOwner(aTool)) || (!isRequestBorrower(r) && canManageTool(aTool))) {
-      aButtons = '<div class="flex flex-wrap gap-2"><button class="pickup-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Picked up</button>' +
-        '<button class="nopickup-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Not picked up</button>' +
-        '<button class="unavailable-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">No longer available</button></div>';
+      aButtons = '<div class="flex flex-col gap-2 w-full sm:w-64 shrink-0"><span class="text-sm text-gray-400 font-medium">Waiting for pickup</span>' +
+        '<button class="pickup-btn w-full bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Picked up</button>' +
+        '<button class="nopickup-btn w-full bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Not picked up</button>' +
+        '<button class="unavailable-btn w-full bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">No longer available</button></div>';
     } else if (isRequestBorrower(r)) {
-      aButtons = '<div class="flex flex-wrap items-center gap-2"><span class="text-sm text-gray-400 font-medium">Waiting for you to pick up</span><button class="pickup-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">I picked it up</button>' +
-        '<button class="release-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">I no longer need this tool</button></div>';
+      aButtons = '<div class="flex flex-col gap-2 w-full sm:w-64 shrink-0"><span class="text-sm text-gray-400 font-medium">Waiting for you to pick up</span>' +
+        '<button class="pickup-btn w-full bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">I picked it up</button>' +
+        '<button class="release-btn w-full bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">I no longer need this tool</button></div>';
     } else {
       aButtons = '<span class="text-sm text-gray-400 font-medium">Waiting for pickup</span>';
     }
