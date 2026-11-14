@@ -77,7 +77,8 @@ tailwind.config = {
           <button data-scroll-to="lend" class="tenant-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="wrench" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Lend a tool</button>
           <button data-scroll-to="requests" id="menuRequestsItem" class="tenant-nav-item w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left hidden"><span data-icon="inbox" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Requests and loans<span id="pendingBadge" class="ml-auto inline-flex items-center justify-center bg-gray-900 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></button>
           <button data-scroll-to="how" class="tenant-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="info" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>How it works</button>
-          <button data-scroll-to="signin" class="tenant-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="user" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span><span id="menuSigninLabel">Sign in</span></button>
+          <button id="menuSigninItem" data-scroll-to="signin" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="user" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Sign in</button>
+          <button id="menuProfileItem" data-scroll-to="signin" class="tenant-nav-item hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="user" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Your profile</button>
           <button data-scroll-to="mk-features" class="root-nav-item hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="grid" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Features</button>
           <button data-scroll-to="mk-walkthrough" class="root-nav-item hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="info" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>See how it works</button>
           <button data-scroll-to="mk-audience" class="root-nav-item hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="user" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Who it is for</button>
@@ -717,7 +718,6 @@ tailwind.config = {
 
     <div id="nbStep2">
       <h4 id="nbOrgHeading" class="text-sm font-bold text-gray-950">Step 2: Your organization</h4>
-      <p id="nbSigninFirstNote" class="mt-1 text-sm text-gray-500">Sign in above first. This part opens once you are signed in.</p>
       <p id="nbAboutFirstNote" class="hidden mt-1 text-sm text-gray-500">Finish About you above first, then this step creates your library.</p>
       <fieldset id="nbOrgFields" class="mt-3 space-y-4">
         <div>
@@ -3342,8 +3342,21 @@ function renderChrome() {
   }
   const signInBtn = document.getElementById("barSignIn");
   if (signInBtn) signInBtn.classList.toggle("hidden", Boolean(currentUser));
-  const menuLabel = document.getElementById("menuSigninLabel");
-  if (menuLabel) menuLabel.textContent = currentUser ? "Your profile" : "Sign in";
+  const menuSigninItem = document.getElementById("menuSigninItem");
+  if (menuSigninItem) {
+    menuSigninItem.classList.toggle("hidden", Boolean(currentUser));
+    menuSigninItem.classList.toggle("flex", !currentUser);
+  }
+  /* The menu's signed-in counterpart: Your profile scrolls to the
+     same sign-in section the old dual-purpose menu item used, where
+     the account area lives for a signed-in member. It is a tenant
+     item, so the marketing root keeps it hidden (the root has no
+     account area; profiles live inside each library). */
+  const menuProfileItem = document.getElementById("menuProfileItem");
+  if (menuProfileItem) {
+    menuProfileItem.classList.toggle("hidden", !currentUser);
+    menuProfileItem.classList.toggle("flex", Boolean(currentUser));
+  }
   renderLibrarySwitcher();
   updateAdminVisibility();
   renderGateNotices();
@@ -3725,7 +3738,17 @@ async function signInWithEmail(email, msg, opts) {
     email: email,
     options: { emailRedirectTo: window.location.href.split("#")[0] }
   });
-  msg.textContent = error ? "That link did not send. Double-check the email address, and try again in a moment." : ("Check " + email + " for your sign-in link." + (opts.afterSend || ""));
+  if (!error) {
+    msg.textContent = "Check " + email + " for your sign-in link. A new one cannot be requested for about a minute." + (opts.afterSend || "");
+    return;
+  }
+  const errorCode = String(error.code || error.error_code || "");
+  const errorMessage = String(error.message || "");
+  const isRateLimit = Number(error.status) === 429 || errorCode === "over_email_send_rate_limit" ||
+    /only request this after/i.test(errorMessage) || /request this after\s+\d+\s+seconds?/i.test(errorMessage);
+  msg.textContent = isRateLimit
+    ? "A sign-in link was just requested for this address. Links can only be sent about once a minute. Check your inbox, and if nothing arrives, wait a minute and try again."
+    : "That link did not send. Double-check the email address, and try again in a moment.";
 }
 document.getElementById("authForm").addEventListener("submit", e => {
   e.preventDefault();
@@ -3875,11 +3898,15 @@ const neighborhoodModal = document.getElementById("neighborhoodModal");
 /* The create-a-library flow is email-first. Step 1 is the sign-in:
    the creator becomes the new library's admin, so a library is only
    ever created by someone signed in, and there is no library with no
-   creator. After sign-in the flow branches on whether the person
-   already has a profile anywhere (Phase 5.7: currentProfile for this
-   library, anyProfile for another): a returning person goes straight
-   to the organization step and their name and address carry onto the
-   new membership; a brand-new person gets an About you step first,
+   creator. David's direction (Nov 13, 2026): while the visitor is
+   signed out, the dialog shows step 1 alone. The rest of the form is
+   not shown at all, not as a disabled or greyed fieldset waiting
+   below; it appears the moment the visitor is signed in. After
+   sign-in the flow branches on whether the person already has a
+   profile anywhere (Phase 5.7: currentProfile for this library,
+   anyProfile for another): a returning person goes straight to the
+   organization step and their name and address carry onto the new
+   membership; a brand-new person gets an About you step first,
    collecting the same details member sign-up collects, which are
    saved onto the admin membership when the library is created. */
 function registrationIsNewPerson() {
@@ -3900,7 +3927,12 @@ function updateRegistrationFlow() {
     document.getElementById("nbAboutCookie").textContent = COOKIE_NOTE;
   }
   document.getElementById("nbOrgHeading").textContent = newPerson ? "Step 3: Your organization" : "Step 2: Your organization";
-  document.getElementById("nbSigninFirstNote").classList.toggle("hidden", signedIn);
+  /* The organization step is hidden outright while signed out (see
+     the note above), and it also stays hidden while the done panel
+     is up: this refresh runs on every auth render, and the panel is
+     what replaces the steps after a creation. */
+  const doneShown = !document.getElementById("nbResult").classList.contains("hidden");
+  document.getElementById("nbStep2").classList.toggle("hidden", !signedIn || doneShown);
   document.getElementById("nbAboutFirstNote").classList.toggle("hidden", !newPerson);
   document.getElementById("nbOrgFields").disabled = !signedIn;
 }
@@ -3937,10 +3969,10 @@ document.getElementById("neighborhoodForm").addEventListener("submit", async e =
   e.preventDefault();
   const msg = document.getElementById("nbSlugMsg");
   if (!currentUser) {
-    // Backstop: the organization fields stay disabled until sign-in,
-    // so a submit should never arrive here signed out. If one does,
-    // stop in plain words and create nothing: a library created with
-    // no creator would have no admin.
+    // Backstop: the organization step stays hidden, and its fields
+    // disabled, until sign-in, so a submit should never arrive here
+    // signed out. If one does, stop in plain words and create
+    // nothing: a library created with no creator would have no admin.
     document.getElementById("nbSigninMsg").textContent = "Please sign in first: enter your email in step 1 and use the link we send you. Then you can create your library.";
     toast("Please sign in first, then create your library.");
     return;
@@ -4793,6 +4825,19 @@ function setupMarketingMode() {
   document.querySelectorAll(".tenant-nav-item").forEach(el => { el.style.display = "none"; });
   const barSignIn = document.getElementById("barSignIn");
   if (barSignIn) barSignIn.style.display = "none";
+  const menuSigninItem = document.getElementById("menuSigninItem");
+  if (menuSigninItem) {
+    /* On the root the tenant sign-in section is hidden with the rest
+       of the tenant page, so the menu's Sign in item opens the shared
+       dialog instead: its first step is the same sign-in form (the
+       same signInWithEmail path), not a second form. */
+    menuSigninItem.removeAttribute("data-scroll-to");
+    menuSigninItem.addEventListener("click", () => {
+      setNavMenu(false);
+      const opener = document.getElementById("startNeighborhoodBtn");
+      if (opener) opener.click();
+    });
+  }
   document.querySelectorAll(".root-nav-item").forEach(el => { el.classList.remove("hidden"); el.classList.add("flex"); });
   const brand = document.getElementById("brandBtn");
   if (brand) brand.dataset.scrollTo = "mk-top";
