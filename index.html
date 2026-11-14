@@ -114,6 +114,19 @@ tailwind.config = {
 
 <main id="tenantMain" class="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-16">
 
+  <!-- Prominent action confirmation: primary actions report here in a
+       persistent panel, not only in the small toast. -->
+  <div id="actionNotice" class="prominent-notice hidden rounded-2xl border-2 border-gray-900 bg-white p-5 shadow-card" role="status" aria-live="polite">
+    <div class="flex items-start gap-3">
+      <span class="notice-icon w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center shrink-0"></span>
+      <div class="flex-1 min-w-0">
+        <h2 class="notice-title font-display text-xl font-bold text-gray-950"></h2>
+        <p class="notice-body text-base text-gray-700 mt-1"></p>
+      </div>
+      <button type="button" class="notice-dismiss text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Dismiss message">×</button>
+    </div>
+  </div>
+
   <!-- Catalog -->
   <section id="catalog" class="section-anchor">
     <div class="flex items-start gap-3 mb-6">
@@ -316,7 +329,7 @@ tailwind.config = {
       </div>
     </div>
     <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-      <p class="text-sm text-gray-600">You are browsing the <span id="tenantName" class="font-semibold text-gray-900"></span> tool library · <span id="tenantAddress" class="text-gray-500">toollendinglibrary.com</span></p>
+      <p class="text-sm text-gray-600">You are browsing the <span id="tenantName" class="font-semibold text-gray-900"></span> · <span id="tenantAddress" class="text-gray-500">toollendinglibrary.com</span></p>
       <button id="startNeighborhoodBtn" type="button" class="text-sm font-semibold text-gray-900 underline decoration-dotted hover:text-gray-600">Start your organization's library</button>
     </div>
     <p id="authNotConfigured" class="text-sm text-gray-500">Sign-in is not configured yet. You can still browse the catalog, request tools, and lend tools on this page.</p>
@@ -329,7 +342,29 @@ tailwind.config = {
       <p class="text-sm text-gray-600">Signed in as <span id="authUserEmail" class="font-semibold text-gray-900"></span></p>
       <button id="authSignOut" type="button" class="text-sm font-semibold text-gray-700 underline decoration-dotted">Sign out</button>
     </div>
+    <div id="authNotice" class="hidden mt-5 max-w-2xl rounded-2xl border-2 border-gray-900 bg-white p-5 shadow-card" role="status" aria-live="polite">
+      <div class="flex items-start gap-3">
+        <span id="authNoticeIcon" class="w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center shrink-0"></span>
+        <div class="flex-1 min-w-0">
+          <h3 id="authNoticeTitle" class="font-display text-xl font-bold text-gray-950"></h3>
+          <p id="authNoticeBody" class="text-base text-gray-700 mt-1"></p>
+          <button id="authNoticeResend" type="button" class="hidden mt-4 bg-gray-900 hover:bg-gray-700 disabled:bg-gray-300 disabled:text-gray-600 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Resend sign-in link</button>
+          <p id="authNoticeResendNote" class="hidden text-sm text-gray-500 mt-2"></p>
+        </div>
+        <button id="authNoticeDismiss" type="button" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Dismiss sign-in message">×</button>
+      </div>
+    </div>
     <p id="authMessage" class="text-sm text-gray-500 mt-1"></p>
+    <div id="profileNotice" class="prominent-notice hidden mt-5 max-w-2xl rounded-2xl border-2 border-gray-900 bg-white p-5 shadow-card" role="status" aria-live="polite">
+      <div class="flex items-start gap-3">
+        <span class="notice-icon w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center shrink-0"></span>
+        <div class="flex-1 min-w-0">
+          <h3 class="notice-title font-display text-xl font-bold text-gray-950"></h3>
+          <p class="notice-body text-base text-gray-700 mt-1"></p>
+        </div>
+        <button type="button" class="notice-dismiss text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Dismiss message">×</button>
+      </div>
+    </div>
     <p class="text-xs text-gray-400 mt-1">Sign-in links can only be used once and they expire quickly. If a link stops working, just ask for a fresh one, that is normal.</p>
 
     <!-- Sign-up: shown to signed-in neighbors who have not finished signing up.
@@ -673,6 +708,18 @@ tailwind.config = {
           <input id="nbEmail" type="email" placeholder="you@example.com" class="flex-1 min-w-[12rem] rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
           <button type="button" id="nbSigninBtn" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-4 py-2.5 rounded-full text-sm">Email me a sign-in link</button>
         </div>
+        <div id="nbAuthNotice" class="hidden rounded-2xl border-2 border-gray-900 bg-white p-5 shadow-card" role="status" aria-live="polite">
+          <div class="flex items-start gap-3">
+            <span id="nbAuthNoticeIcon" class="w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center shrink-0"></span>
+            <div class="flex-1 min-w-0">
+              <h4 id="nbAuthNoticeTitle" class="font-display text-lg font-bold text-gray-950"></h4>
+              <p id="nbAuthNoticeBody" class="text-base text-gray-700 mt-1"></p>
+              <button id="nbAuthNoticeResend" type="button" class="hidden mt-4 bg-gray-900 hover:bg-gray-700 disabled:bg-gray-300 disabled:text-gray-600 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Resend sign-in link</button>
+              <p id="nbAuthNoticeResendNote" class="hidden text-sm text-gray-500 mt-2"></p>
+            </div>
+            <button id="nbAuthNoticeDismiss" type="button" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Dismiss sign-in message">×</button>
+          </div>
+        </div>
         <p id="nbSigninMsg" class="text-sm text-gray-500"></p>
       </div>
       <p id="nbSignedInBlock" class="hidden mt-2 text-sm text-gray-600">Done. You are signed in as <span id="nbSignedInEmail" class="font-semibold text-gray-900"></span>, so you will be the admin of the new library.</p>
@@ -819,7 +866,7 @@ const ADMIN_EMAILS = ["david.snodgrass@gmail.com"]; // David, platform admin (fi
    name its own neighborhood and residency area. */
 const TERMS_VERSION = "2026-11-13";
 const TERMS_TEXT = [
-  "Welcome to the [Organization Name] Tool Library, run by members, for members, at [slug].toollendinglibrary.com.",
+  "Welcome to the [Organization Name] Tool Lending Library, run by members, for members, at [slug].toollendinglibrary.com.",
   "",
   "1. Who can join. You must be 18 years old or older. You must live in [Organization Name / residency area], and the address on your account must be the home you actually live in.",
   "",
@@ -846,7 +893,7 @@ const COOKIE_NOTE = "This site uses only the cookies and browser storage it need
    would not be true, it does not belong in the policy. */
 const PRIVACY_VERSION = "2026-11-13.2";
 const PRIVACY_TEXT = [
-  "Welcome to the [Organization Name] Tool Library at [slug].toollendinglibrary.com. This policy explains, in plain language, what information the library holds, why it holds it, and who can see it.",
+  "Welcome to the [Organization Name] Tool Lending Library at [slug].toollendinglibrary.com. This policy explains, in plain language, what information the library holds, why it holds it, and who can see it.",
   "",
   "What we collect. When you create an account we collect your email address, your full name, and your home address, and an optional profile photo if you add one. When you lend, we keep your tool listings and their photos. When you borrow or lend, we keep the borrow requests, the pickup window you pick, the confirmed pickup spot and time, and the loan and return records. We also keep a record of when you accepted the terms, this policy, and the cookie note, so the library knows which version you agreed to.",
   "",
@@ -894,7 +941,7 @@ function libraryOrgName() {
 }
 function libraryLabel() {
   const short = tenantShortName();
-  return short ? short + " Tool Library" : "Tool Lending Library";
+  return short ? short + " Tool Lending Library" : "Tool Lending Library";
 }
 function librarySignoff() {
   const org = libraryOrgName();
@@ -921,7 +968,7 @@ function fillTenantTokens(text) {
   if (nb.name) {
     out = out.split("[Organization Name]").join(nb.name);
   } else {
-    out = out.split("[Organization Name] Tool Library").join("Tool Lending Library")
+    out = out.split("[Organization Name] Tool Lending Library").join("Tool Lending Library")
              .split("[Organization Name]").join("this library");
   }
   return out;
@@ -1071,6 +1118,7 @@ function showSaveFailureNotice(err, options) {
   saveFailureEpisodeOpen = true;
   saveFailureNoticeAt = now;
   toast(SAVE_FAILURE_MESSAGE);
+  showActionNotice("error", "That change was not saved", SAVE_FAILURE_MESSAGE + " Nothing was changed. Check your connection and try again.");
 }
 async function save(options) {
   try {
@@ -1869,11 +1917,14 @@ const notify = (() => {
      gives their email, home address, and the join time. The address is
      included only for admins, so they can confirm the member lives in
      the library's area and is part of the community, and for safety.
-     Phase 5.9: this email is no longer sent from the browser. The
-     server-side notifications_check.js owns delivery and stamps
-     profiles.join_notified_at; its composeMemberJoinedEmail mirrors
-     this text exactly. This copy stays as the reference wording beside
-     the other composers; keep the two in step. */
+     TEMPORARY RESTORE (Nov 14, 2026): Phase 5.9 moved this send to
+     notifications_check.js, but that checker has no cron and its
+     stamp columns do not exist yet, so the in-app send below is live
+     again. When the server-side checker bundle lands (service key,
+     stamp columns, and its cron), REMOVE the in-app join send again
+     or admins will get duplicates. The checker's
+     composeMemberJoinedEmail mirrors this text exactly; keep the two
+     in step. */
   function composeMemberJoinedEmail(d) {
     const base = d.siteUrl || (window.location.origin + window.location.pathname);
     const lines = [
@@ -1906,11 +1957,13 @@ const notify = (() => {
      note carries the reporter's name and email, who was reported, the
      context the report came from, and the reporter's message verbatim,
      so the admin can act from the member list below it.
-     Phase 5.9: this email is no longer sent from the browser. The
-     server-side notifications_check.js owns delivery and stamps
-     reports.report_notified_at; its composeReportEmail mirrors this
-     text exactly. This copy stays as the reference wording beside the
-     other composers; keep the two in step. */
+     TEMPORARY RESTORE (Nov 14, 2026): Phase 5.9 moved this send to
+     notifications_check.js, but that checker has no cron and its
+     stamp columns do not exist yet, so the in-app send below is live
+     again. When the server-side checker bundle lands (service key,
+     stamp columns, and its cron), REMOVE the in-app report send again
+     or admins will get duplicates. The checker's composeReportEmail
+     mirrors this text exactly; keep the two in step. */
   function composeReportEmail(d) {
     const base = d.siteUrl || (window.location.origin + window.location.pathname);
     const lines = [
@@ -2023,10 +2076,12 @@ const notify = (() => {
       if (!message.to) { console.log("[STUB EMAIL] release email skipped, no email address on file."); return Promise.resolve({ ok: false, skipped: true }); }
       return deliver(message);
     },
-    /* Phase 5.9: no sendMemberJoinedEmail or sendReportEmail here any
-       more. Those two admin notes are sent by the server-side
-       notifications_check.js (see the mirror notes on the composers
-       above), so a closed browser tab can no longer lose them. */
+    /* TEMPORARY RESTORE (Nov 14, 2026): sendMemberJoinedEmail and
+       sendReportEmail are live in the app again because the Phase 5.9
+       server checker is not running yet. Remove both again when the
+       checker bundle lands, or admins will get duplicates. */
+    sendMemberJoinedEmail(details) { return deliver(composeMemberJoinedEmail(details)); },
+    sendReportEmail(details) { return deliver(composeReportEmail(details)); },
     get emailOutbox() { return loadOutbox(); }
   };
 })();
@@ -2475,6 +2530,69 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.add("hidden"), 3400);
 }
 
+/* Prominent confirmation panels (David, Nov 14, 2026): primary
+   actions report in a large, persistent panel in normal readable
+   text, because a small toast or a faint line is too easy to miss.
+   The panel stays until it is dismissed or replaced by the next
+   action. Error panels render inside an open dialog when the failed
+   action lives there, so the member sees the failure beside the form
+   that kept its data. Prominence comes from size, weight, border,
+   and placement, in neutral grays only. */
+function createProminentNotice() {
+  const el = document.createElement("div");
+  el.className = "prominent-notice rounded-2xl border-2 border-gray-900 bg-white p-5 shadow-card";
+  el.setAttribute("role", "status");
+  el.setAttribute("aria-live", "polite");
+  el.innerHTML = '<div class="flex items-start gap-3">' +
+    '<span class="notice-icon w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center shrink-0"></span>' +
+    '<div class="flex-1 min-w-0"><h3 class="notice-title font-display text-xl font-bold text-gray-950"></h3>' +
+    '<p class="notice-body text-base text-gray-700 mt-1"></p></div>' +
+    '<button type="button" class="notice-dismiss text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Dismiss message">×</button></div>';
+  return el;
+}
+function fillProminentNotice(el, variant, title, body) {
+  if (!el) return null;
+  el.dataset.variant = variant || "success";
+  el.setAttribute("role", variant === "error" ? "alert" : "status");
+  el.classList.remove("hidden");
+  el.classList.toggle("bg-gray-50", variant === "error");
+  el.classList.toggle("bg-white", variant !== "error");
+  const iconEl = el.querySelector(".notice-icon");
+  if (iconEl) iconEl.innerHTML = icon(variant === "error" ? "info" : "check", "w-5 h-5");
+  const titleEl = el.querySelector(".notice-title");
+  if (titleEl) titleEl.textContent = title || "";
+  const bodyEl = el.querySelector(".notice-body");
+  if (bodyEl) bodyEl.textContent = body || "";
+  return el;
+}
+function showActionNotice(variant, title, body, opts) {
+  const options = opts || {};
+  let el = options.elementId ? document.getElementById(options.elementId) : null;
+  if (!el && variant === "error") {
+    const dlg = document.querySelector("dialog[open]");
+    if (dlg) {
+      const form = dlg.querySelector("form") || dlg;
+      el = form.querySelector(":scope > .prominent-notice");
+      if (!el) {
+        el = createProminentNotice();
+        form.prepend(el);
+      }
+    }
+  }
+  if (!el) el = document.getElementById("actionNotice");
+  fillProminentNotice(el, variant, title, body);
+  if (el && options.scroll !== false && el.scrollIntoView) {
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  return el;
+}
+document.addEventListener("click", e => {
+  const btn = e.target.closest(".notice-dismiss");
+  if (!btn) return;
+  const notice = btn.closest(".prominent-notice");
+  if (notice) notice.classList.add("hidden");
+});
+
 const menuBtn = document.getElementById("menuBtn");
 if (menuBtn) menuBtn.addEventListener("click", () => setNavMenu(!navMenuOpen));
 document.addEventListener("click", e => {
@@ -2569,8 +2687,9 @@ document.getElementById("lendForm").addEventListener("submit", async e => {
   if (!(await saveUserAction(snapshot))) return;
   e.target.reset(); document.getElementById("lendDays").value = 3; clearLendPhoto(); applyIdentityToForms();
   activeCategory = "All";
-  render(); scrollToSection("catalog");
+  render();
   toast("Your tool is listed. Members can request it now." + photoNote);
+  showActionNotice("success", "Tool listed", "Your tool is listed in the catalog. Members can request it now, and you approve each request before anything is lent." + photoNote);
 });
 
 const modal = document.getElementById("borrowModal");
@@ -2658,6 +2777,7 @@ document.getElementById("borrowForm").addEventListener("submit", async e => {
     });
   }
   toast("Request sent to " + tool.owner + ". We emailed them a link straight to your request.");
+  showActionNotice("success", "Borrow request sent", "Request sent to " + tool.owner + ". We emailed them a link straight to your request. Next, the lender approves it and sets the exact pickup time and place; watch your email and Requests and loans for the pickup details.");
 });
 
 document.addEventListener("click", async e => {
@@ -2892,22 +3012,89 @@ function applyIdentityToForms() {
     contactInput.readOnly = signedIn;
   }
 }
-/* Phase 5.5 told the library's admins about a new member from this
-   browser; Phase 5.9 moved that email to the server. The saved profile
-   is the record: notifications_check.js finds complete memberships
-   whose profiles.join_notified_at stamp is still null and emails that
-   library's admins itself, so the note can no longer be lost when this
-   tab closes or a send fails here. Recipient resolution (the library's
-   active admins plus ADMIN_EMAILS, deduplicated, the joiner excluded)
-   lives in the checker now, mirroring what this page used to do. */
+/* TEMPORARY RESTORE (Nov 14, 2026): Phase 5.5 sent the admin join
+   email from this browser, Phase 5.9 moved it to the server side
+   notifications_check.js, and this restore makes the in-app send live
+   again because the checker bundle is not running yet (no cron, and
+   its stamp columns do not exist). When that bundle lands (service
+   key, migration-phase5-9.sql stamp columns, and a notifications
+   cron), REMOVE these in-app join and report sends again or admins
+   will receive duplicates. Recipient resolution matches the checker:
+   the library's active admin profiles plus ADMIN_EMAILS, deduplicated
+   case-insensitively, with the joiner or reporter excluded. Every
+   send is failure-wrapped: an email problem never breaks sign-up or
+   a report filing. */
+async function libraryAdminRecipients(excludedEmail) {
+  const excluded = String(excludedEmail || "").trim().toLowerCase();
+  const seen = new Map();
+  const add = raw => {
+    const email = String(raw || "").trim();
+    if (email && isEmail(email) && email.toLowerCase() !== excluded) seen.set(email.toLowerCase(), email);
+  };
+  try {
+    const profiles = await store.listProfiles();
+    (profiles || []).filter(p => p && p.status === "active" && p.role === "admin").forEach(p => add(p.email));
+  } catch (err) {
+    console.warn("Admin recipient lookup failed:", err);
+  }
+  ADMIN_EMAILS.forEach(add);
+  return Array.from(seen.values());
+}
+async function notifyAdminsOfMemberJoined(profile) {
+  try {
+    const recipients = await libraryAdminRecipients(profile && profile.email);
+    await Promise.all(recipients.map(to => notify.sendMemberJoinedEmail({
+      to: to,
+      memberName: (profile && profile.fullName) || "",
+      memberEmail: (profile && profile.email) || "",
+      memberAddress: (profile && profile.address) || "",
+      libraryName: libraryLabel(),
+      joinedAt: (profile && (profile.termsAcceptedAt || profile.createdAt)) || new Date().toISOString(),
+      siteUrl: window.location.origin + window.location.pathname
+    })));
+  } catch (err) {
+    console.warn("Member joined email failed:", err);
+  }
+}
+async function notifyAdminsOfReport(report) {
+  try {
+    const recipients = await libraryAdminRecipients(report && report.reporterEmail);
+    await Promise.all(recipients.map(to => notify.sendReportEmail({
+      to: to,
+      reportedName: (report && report.reportedName) || "",
+      context: (report && report.context) || "",
+      reporterName: (report && report.reporterName) || "",
+      reporterEmail: (report && report.reporterEmail) || "",
+      filedAt: (report && report.createdAt) || new Date().toISOString(),
+      message: (report && report.message) || "",
+      libraryName: libraryLabel(),
+      siteUrl: window.location.origin + window.location.pathname
+    })));
+  } catch (err) {
+    console.warn("Report email failed:", err);
+  }
+}
 document.getElementById("signupForm").addEventListener("submit", async e => {
   e.preventDefault();
   if (!currentUser) return;
+  const wasComplete = signupComplete();
   const fullName = document.getElementById("signupName").value.trim();
   const address = document.getElementById("signupAddress").value.trim();
-  if (!fullName || !address) { toast("Please add your full name and home address to finish signing up."); return; }
-  if (!document.getElementById("signupTermsAgree").checked) { toast("Please tick the box to agree to the terms."); return; }
-  if (!document.getElementById("signupPrivacyAgree").checked) { toast("Please tick the box to agree to the privacy policy."); return; }
+  if (!fullName || !address) {
+    toast("Please add your full name and home address to finish signing up.");
+    showActionNotice("error", "Your profile is not finished yet", "Please add your full name and home address to finish signing up.", { elementId: "profileNotice" });
+    return;
+  }
+  if (!document.getElementById("signupTermsAgree").checked) {
+    toast("Please tick the box to agree to the terms.");
+    showActionNotice("error", "Your profile is not finished yet", "Please tick the box to agree to the terms.", { elementId: "profileNotice" });
+    return;
+  }
+  if (!document.getElementById("signupPrivacyAgree").checked) {
+    toast("Please tick the box to agree to the privacy policy.");
+    showActionNotice("error", "Your profile is not finished yet", "Please tick the box to agree to the privacy policy.", { elementId: "profileNotice" });
+    return;
+  }
   const base = currentProfile || {
     id: currentUser.id, email: currentUser.email,
     role: isAdminEmail(currentUser.email) ? "admin" : "member",
@@ -2923,18 +3110,21 @@ document.getElementById("signupForm").addEventListener("submit", async e => {
   try {
     currentProfile = await store.upsertProfile(profile);
     anyProfile = currentProfile;
-    /* Phase 5.9: no admin join email from here. The saved profile is
-       stamped by notifications_check.js once it has emailed the
-       library's admins (see the note above this form's handler). */
+    /* Exactly once per completed join: only a submit that takes the
+       profile from incomplete to complete emails the admins. A later
+       save of an already complete profile sends nothing. */
+    if (!wasComplete) await notifyAdminsOfMemberJoined(currentProfile);
     syncCookieBannerWithProfile();
   } catch (err) {
     console.warn("Sign-up save failed:", err);
     toast(SAVE_FAILURE_MESSAGE);
+    showActionNotice("error", "Your sign-up was not saved", SAVE_FAILURE_MESSAGE + " Your details are still in the form, so you can try again.", { elementId: "profileNotice" });
     return;
   }
   renderAuth();
   render();
   toast("Welcome to the library, " + fullName.split(" ")[0] + ". Your sign-up is complete.");
+  showActionNotice("success", "Sign-up complete", "Welcome to the library, " + fullName.split(" ")[0] + ". Your profile is saved, so you can now browse the catalog, borrow tools, and list tools of your own.", { elementId: "profileNotice" });
 });
 
 /* Approve dialog: the lender confirms the exact pickup time inside the
@@ -2995,6 +3185,7 @@ document.getElementById("approveForm").addEventListener("submit", async e => {
     });
   }
   toast("Approved. " + r.borrower + " has been emailed the pickup details.");
+  showActionNotice("success", "Request approved", "Approved. " + r.borrower + " has been emailed the pickup details. The tool is reserved and waiting for pickup; the loan starts when either of you marks it picked up.");
 });
 
 /* Pickup confirmation: either side can confirm the pickup happened,
@@ -3029,6 +3220,7 @@ async function markPickedUp(r) {
     });
   }
   toast("Picked up. " + t.name + " is out on loan, due back " + fmtDateTime(r.dueAt) + ".");
+  showActionNotice("success", "Pickup confirmed", "Picked up. " + t.name + " is out on loan, due back " + fmtDateTime(r.dueAt) + ". Both sides have been emailed the loan details, and either side can mark it returned when it comes back.");
 }
 
 /* Not picked up: the borrower never showed. The request closes in the
@@ -3188,13 +3380,12 @@ async function resolveReportedUserId(identityEmail) {
   } catch (e) { return ""; }
 }
 /* The saved report is the record; the admin email is a notification
-   about it. Phase 5.6 sent that email from this browser; Phase 5.9
-   moved it to the server: notifications_check.js finds reports whose
-   reports.report_notified_at stamp is still null and emails that
-   library's admins itself (the library's active admins plus
-   ADMIN_EMAILS, deduplicated, the reporter excluded), so a mail
-   problem here can never undo a filing or block its confirmation,
-   and a closed tab can no longer lose the note. */
+   about it. TEMPORARY RESTORE (Nov 14, 2026): the Phase 5.6 in-app
+   send is live again because the Phase 5.9 server checker is not
+   running yet. The send below is failure-wrapped, so a mail problem
+   can never undo a filing or block its confirmation. When the
+   checker bundle lands, remove the in-app send again to avoid
+   duplicate admin emails. */
 const reportModal = document.getElementById("reportModal");
 let reportDraft = null;
 async function openReport(target) {
@@ -3228,7 +3419,11 @@ document.getElementById("reportForm").addEventListener("submit", async e => {
   if (!reportDraft || !currentUser || !currentProfile) return;
   const messageEl = document.getElementById("reportMessage");
   const message = messageEl.value.trim();
-  if (!message) { toast("Please tell the admin what happened."); return; }
+  if (!message) {
+    toast("Please tell the admin what happened.");
+    showActionNotice("error", "Your report was not sent", "Please tell the admin what happened.");
+    return;
+  }
   const report = {
     id: "rep" + Date.now(),
     neighborhood: CURRENT_SLUG,
@@ -3248,16 +3443,15 @@ document.getElementById("reportForm").addEventListener("submit", async e => {
   } catch (err) {
     console.warn("Report save failed:", err);
     toast("That report could not be saved. Check your connection and try again.");
+    showActionNotice("error", "Your report was not saved", "That report could not be saved. Your message is still in the form, so you can check your connection and try again.");
     return;
   }
   reportModal.close();
   messageEl.value = "";
   reportDraft = null;
-  /* Phase 5.9: the admin email is sent by notifications_check.js, not
-     from this browser; the confirmation below still holds, because the
-     filed report is in the admin's queue and the checker guarantees
-     the email follows within one of its runs. */
+  await notifyAdminsOfReport(report);
   toast("Your report has been sent to the library admin.");
+  showActionNotice("success", "Report sent", "Your report has been sent to the library admin. The member you reported is not told about it, and the admin can review it from the Admin area.");
   if (isAdminUser()) renderAdmin();
 });
 
@@ -3293,6 +3487,9 @@ document.getElementById("returnForm").addEventListener("submit", async e => {
   toast(thanks
     ? "Return recorded, and your thank-you is on its way to the lender. " + t.name + " is back on the shelf."
     : "Thanks! " + t.name + " is back on the shelf, ready for the next member.");
+  showActionNotice("success", "Tool returned", (thanks
+    ? "Return recorded, and your thank-you is on its way to the lender. "
+    : "Return recorded. ") + t.name + " is back on the shelf and available for the next member.");
 });
 
 /* Request deep links: the borrow-request email links to ?request=<id>.
@@ -3816,6 +4013,91 @@ function initAuth() {
   supabaseClient.auth.onAuthStateChange((_event, session) => { handleSession(session); });
 }
 
+/* Prominent sign-in panels (David, Nov 14, 2026): requesting a
+   sign-in link is the action whose next step happens off site, in
+   the member's inbox, so its outcome gets a large persistent panel
+   that names the address and says to check the inbox and spam
+   folder. The resend action on the panel honors the same roughly
+   one-minute rate limit as the mail service: it stays disabled
+   until a minute has passed since the last request, and an early
+   attempt gets the prominent rate-limit panel instead of a send. */
+const AUTH_LINK_RESEND_MS = 60 * 1000;
+const authNoticeState = {
+  auth: { email: "", afterSend: "", nextAllowedAt: 0, timer: null },
+  nb: { email: "", afterSend: "", nextAllowedAt: 0, timer: null }
+};
+function authNoticeElements(surface) {
+  const prefix = surface === "nb" ? "nbAuthNotice" : "authNotice";
+  return {
+    panel: document.getElementById(prefix),
+    icon: document.getElementById(prefix + "Icon"),
+    title: document.getElementById(prefix + "Title"),
+    body: document.getElementById(prefix + "Body"),
+    resend: document.getElementById(prefix + "Resend"),
+    note: document.getElementById(prefix + "ResendNote"),
+    msg: document.getElementById(surface === "nb" ? "nbSigninMsg" : "authMessage")
+  };
+}
+function updateAuthResend(surface) {
+  const st = authNoticeState[surface];
+  const els = authNoticeElements(surface);
+  if (!st || !els.resend || !els.note) return;
+  if (!st.email || (els.panel && els.panel.dataset.variant === "sending")) {
+    els.resend.classList.add("hidden");
+    els.note.classList.add("hidden");
+    return;
+  }
+  els.resend.classList.remove("hidden");
+  els.note.classList.remove("hidden");
+  const remaining = st.nextAllowedAt - Date.now();
+  if (st.timer) clearTimeout(st.timer);
+  if (remaining > 0) {
+    els.resend.disabled = true;
+    els.note.textContent = "A new link can be requested in about a minute.";
+    st.timer = setTimeout(() => updateAuthResend(surface), remaining + 60);
+  } else {
+    els.resend.disabled = false;
+    els.note.textContent = "Still nothing? You can request a fresh sign-in link now.";
+  }
+}
+function showAuthNotice(surface, variant, title, body, statePatch) {
+  const st = authNoticeState[surface];
+  if (st && statePatch) Object.assign(st, statePatch);
+  const els = authNoticeElements(surface);
+  if (!els.panel) return;
+  els.panel.dataset.variant = variant || "success";
+  els.panel.setAttribute("role", variant === "error" ? "alert" : "status");
+  els.panel.classList.remove("hidden");
+  els.panel.classList.toggle("bg-gray-50", variant === "error");
+  els.panel.classList.toggle("bg-white", variant !== "error");
+  if (els.icon) els.icon.innerHTML = icon(variant === "error" ? "info" : variant === "sending" ? "clock" : "inbox", "w-5 h-5");
+  if (els.title) els.title.textContent = title || "";
+  if (els.body) els.body.textContent = body || "";
+  if (els.msg) els.msg.textContent = "";
+  updateAuthResend(surface);
+  if (els.panel.scrollIntoView) els.panel.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+function hideAuthNotice(surface) {
+  const els = authNoticeElements(surface);
+  if (els.panel) els.panel.classList.add("hidden");
+}
+async function resendAuthLink(surface) {
+  const st = authNoticeState[surface];
+  const els = authNoticeElements(surface);
+  if (!st || !st.email || !els.msg) return;
+  if (Date.now() < st.nextAllowedAt) {
+    showAuthNotice(surface, "error", "Check your email: a link was just requested",
+      "A sign-in link was just requested for " + st.email + ". Links can only be sent about once a minute. Check your inbox and your spam folder, and if nothing arrives, wait a minute and try again.",
+      {});
+    return;
+  }
+  await signInWithEmail(st.email, els.msg, { afterSend: st.afterSend });
+}
+document.getElementById("authNoticeResend").addEventListener("click", () => resendAuthLink("auth"));
+document.getElementById("nbAuthNoticeResend").addEventListener("click", () => resendAuthLink("nb"));
+document.getElementById("authNoticeDismiss").addEventListener("click", () => hideAuthNotice("auth"));
+document.getElementById("nbAuthNoticeDismiss").addEventListener("click", () => hideAuthNotice("nb"));
+
 /* One sign-in path, two callers: the sign-in section's form and step 1
    of the create-a-library flow. msg is the element that reports
    progress to that caller; opts.afterSend is appended to the "check
@@ -3848,23 +4130,41 @@ async function signInWithEmail(email, msg, opts) {
     toast("Signed in (local preview) as " + localEmail + ".");
     return;
   }
-  if (!email) return;
-  msg.textContent = "Sending your sign-in link...";
+  const surface = msg && msg.id === "nbSigninMsg" ? "nb" : "auth";
+  const afterSend = opts.afterSend || "";
+  if (!email) {
+    showAuthNotice(surface, "error", "Enter your email address",
+      "Please enter a valid email address so we can send your sign-in link.",
+      { email: "", afterSend: afterSend, nextAllowedAt: 0 });
+    return;
+  }
+  const attemptAt = Date.now();
+  showAuthNotice(surface, "sending", "Sending your sign-in link",
+    "Sending a sign-in link to " + email + ".",
+    { email: email, afterSend: afterSend, nextAllowedAt: 0 });
   const { error } = await supabaseClient.auth.signInWithOtp({
     email: email,
     options: { emailRedirectTo: window.location.href.split("#")[0] }
   });
   if (!error) {
-    msg.textContent = "Check " + email + " for your sign-in link. A new one cannot be requested for about a minute." + (opts.afterSend || "");
+    showAuthNotice(surface, "success", "Check your email: your sign-in link was sent",
+      "We sent a sign-in link to " + email + ". Check your inbox and your spam folder, then open the link on this device. A new one cannot be requested for about a minute." + afterSend,
+      { email: email, afterSend: afterSend, nextAllowedAt: attemptAt + AUTH_LINK_RESEND_MS });
     return;
   }
   const errorCode = String(error.code || error.error_code || "");
   const errorMessage = String(error.message || "");
   const isRateLimit = Number(error.status) === 429 || errorCode === "over_email_send_rate_limit" ||
     /only request this after/i.test(errorMessage) || /request this after\s+\d+\s+seconds?/i.test(errorMessage);
-  msg.textContent = isRateLimit
-    ? "A sign-in link was just requested for this address. Links can only be sent about once a minute. Check your inbox, and if nothing arrives, wait a minute and try again."
-    : "That link did not send. Double-check the email address, and try again in a moment.";
+  if (isRateLimit) {
+    showAuthNotice(surface, "error", "Check your email: a link was just requested",
+      "A sign-in link was just requested for " + email + ". Links can only be sent about once a minute. Check your inbox and your spam folder, and if nothing arrives, wait a minute and try again.",
+      { email: email, afterSend: afterSend, nextAllowedAt: attemptAt + AUTH_LINK_RESEND_MS });
+  } else {
+    showAuthNotice(surface, "error", "That link did not send",
+      "That link did not send. Double-check the email address, and try again in a moment. You can use Resend sign-in link to try again.",
+      { email: email, afterSend: afterSend, nextAllowedAt: 0 });
+  }
 }
 document.getElementById("authForm").addEventListener("submit", e => {
   e.preventDefault();
@@ -3880,6 +4180,7 @@ async function signOutUser() {
     adminReports = [];
     reportsBadgeLoaded = false;
     document.getElementById("authMessage").textContent = "";
+    hideAuthNotice("auth");
     renderAuth();
     render();
     toast("You are signed out.");
@@ -3896,6 +4197,7 @@ async function signOutUser() {
   anyProfile = null;
   memberLibraries = [];
   document.getElementById("authMessage").textContent = "";
+  hideAuthNotice("auth");
   renderAuth();
   render();
   toast("You are signed out.");
@@ -3917,10 +4219,10 @@ function renderTenant() {
     return;
   }
   const nb = currentNeighborhood;
-  document.getElementById("tenantName").textContent = nb ? tenantShortName() : CURRENT_SLUG;
+  document.getElementById("tenantName").textContent = nb ? libraryLabel() : "Tool Lending Library";
   document.getElementById("tenantAddress").textContent = CURRENT_SLUG + ".toollendinglibrary.com";
   const barTitle = document.getElementById("barTitle");
-  if (barTitle) barTitle.textContent = nb ? libraryLabel() : CURRENT_SLUG + " Tool Library";
+  if (barTitle) barTitle.textContent = nb ? libraryLabel() : "Tool Lending Library";
   /* Phase 5.7: every organization-specific string in the page chrome
      comes from this library's own record, never from hardcoded copy.
      An organization that is not a neighborhood (University in the Sky
@@ -4055,7 +4357,10 @@ function updateRegistrationFlow() {
 document.getElementById("nbSigninBtn").addEventListener("click", async () => {
   const email = document.getElementById("nbEmail").value.trim();
   const msg = document.getElementById("nbSigninMsg");
-  if (!isEmail(email)) { msg.textContent = "Please enter a valid email address."; return; }
+  if (!isEmail(email)) {
+    showAuthNotice("nb", "error", "Check that email address", "Please enter a valid email address so we can send your sign-in link.", { email: "", afterSend: "", nextAllowedAt: 0 });
+    return;
+  }
   await signInWithEmail(email, msg, { afterSend: " Open the link in that email, then come back here and open Create the library again: your email step will be done and the rest of the form will be ready for you." });
   updateRegistrationFlow();
 });
@@ -4632,7 +4937,7 @@ const MARKETING_HTML = `
         </div>
         <div class="p-5 sm:p-7">
           <p class="text-gray-500 text-xs font-semibold tracking-widest uppercase">Maplewood Neighborhood Association</p>
-          <h3 class="font-display text-2xl font-bold text-gray-950 mt-1">Maplewood Tool Library</h3>
+          <h3 class="font-display text-2xl font-bold text-gray-950 mt-1">Maplewood Tool Lending Library</h3>
           <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
             <article class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-col">
               <div class="flex items-start justify-between gap-3">
