@@ -59,11 +59,19 @@ tailwind.config = {
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
     <button id="brandBtn" data-scroll-to="catalog" class="flex items-center gap-2.5 min-w-0 text-left">
       <img id="headerLogo" src="/logo-icon-64.png" class="h-9 w-auto shrink-0" alt="Tool Lending Library" onerror="this.classList.add('hidden')">
-      <span id="barTitle" class="font-display font-bold text-gray-950 truncate">Tool Lending Library</span>
+      <!-- Phase 5.16: the brand is stacked, organization on the first
+           line and Tool Lending Library in smaller type on the second,
+           so the full name never truncates at phone widths. renderBarBrand
+           fills the two lines; the neutral shell and the marketing root
+           keep the single platform line with the second line hidden. -->
+      <span id="barTitle" class="flex flex-col justify-center min-w-0 leading-tight">
+        <span id="barTitleOrg" class="font-display font-bold text-gray-950 whitespace-nowrap leading-tight text-base">Tool Lending Library</span>
+        <span id="barTitleSub" class="hidden text-xs font-medium text-gray-500 whitespace-nowrap leading-tight">Tool Lending Library</span>
+      </span>
     </button>
     <div class="flex items-center gap-2 sm:gap-3 shrink-0">
       <span id="barUserChip" class="hidden items-center gap-2 text-sm text-gray-600">
-        <span id="barUserEmail" class="font-medium text-gray-900 max-w-[10rem] sm:max-w-[16rem] truncate"></span>
+        <span id="barUserEmail" class="font-medium text-gray-900 max-w-[8rem] sm:max-w-[16rem] truncate"></span>
         <button id="barSignOut" type="button" class="font-semibold text-gray-700 underline decoration-dotted">Sign out</button>
       </span>
       <button id="barSignIn" data-scroll-to="signin" type="button" class="text-sm font-semibold text-gray-900 underline decoration-dotted">Sign in</button>
@@ -371,7 +379,7 @@ tailwind.config = {
          Until it is complete they can browse, but not list or borrow. -->
     <div id="signupSection" class="hidden section-anchor bg-gray-50 border border-gray-200 rounded-3xl px-5 py-7 sm:px-8 mt-8">
       <h3 class="font-display text-xl font-bold text-gray-950">Finish signing up</h3>
-      <p class="text-sm text-gray-500 mt-2 max-w-2xl">You are signed in. Add your name and home address to finish, it takes about a minute. Your address stays private: it is never shown in the library. Only a pickup spot you confirm is shared with a borrower, and only after you approve their request.</p>
+      <p class="text-sm text-gray-500 mt-2 max-w-2xl">You are signed in. Add your name and home address to finish, it takes about a minute. Your address stays private: it is never shown to other members. Only the library admin can see it, for the area and community check and for safety. Only a pickup spot you confirm is shared with a borrower, and only after you approve their request.</p>
       <form id="signupForm" class="mt-5 grid gap-4 max-w-2xl">
         <div>
           <label class="text-sm font-semibold" for="signupName">Full name</label>
@@ -428,7 +436,7 @@ tailwind.config = {
         <div>
           <label class="text-sm font-semibold" for="accountAddress">Home address</label>
           <input id="accountAddress" required maxlength="160" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
-          <p class="text-xs text-gray-400 mt-1">Still private: your address is never shown in the library.</p>
+          <p class="text-xs text-gray-400 mt-1">Still private: your address is never shown to other members. Only the library admin can see it, for the area and community check and for safety.</p>
         </div>
         <div>
           <span class="text-sm font-semibold">Profile photo</span>
@@ -736,7 +744,7 @@ tailwind.config = {
         <div>
           <label class="text-sm font-semibold" for="nbAboutAddress">Home address</label>
           <input id="nbAboutAddress" maxlength="160" placeholder="Street address, city, ZIP" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-          <p class="text-xs text-gray-400 mt-1">Your real home. It stays private: it is never shown in the library. Only a pickup spot you confirm is shared with a borrower, and only after you approve their request.</p>
+          <p class="text-xs text-gray-400 mt-1">Your real home. It stays private: it is never shown to other members. Only the library admin can see it, for the area and community check and for safety. Only a pickup spot you confirm is shared with a borrower, and only after you approve their request.</p>
         </div>
         <div>
           <span class="text-sm font-semibold">Terms</span>
@@ -1041,6 +1049,7 @@ const ICON_PATHS = {
   search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  calendar: '<rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 10h17"/><path d="M8 3v4M16 3v4"/>',
   check: '<path d="M20 6L9 17l-5-5"/>',
   pin: '<path d="M12 21s-7-5.4-7-11a7 7 0 0 1 14 0c0 5.6-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/>',
   shield: '<path d="M12 3l7 2.8V11c0 4.6-2.9 7.9-7 9.7C7.9 18.9 5 15.6 5 11V5.8L12 3z"/><path d="M9 11.6l2.1 2.1 3.9-4"/>',
@@ -1780,6 +1789,34 @@ const notify = (() => {
       body: lines.join("\n")
     };
   }
+  /* Add to calendar (Nov 14, 2026): the approval and checked-out
+     emails carry the confirmed pickup's calendar links in the body
+     and the same event as an .ics attachment, built by the calendar
+     helpers near fmtPickupMoment. These emails are written to the
+     borrower (the lender is copied), so the event description names
+     the lender and links back to the request. */
+  function pickupCalendarForEmail(d) {
+    if (!d.pickupAt) return null;
+    const base = d.siteUrl || (window.location.origin + window.location.pathname);
+    return buildPickupCalendar({
+      toolName: d.toolName,
+      pickupAt: d.pickupAt,
+      pickupLocation: d.pickupLocation,
+      description: "Lender: " + (d.ownerName || "The lender") +
+        (d.requestId ? "\nRequest: " + base + "?request=" + d.requestId : ""),
+      uidPart: d.requestId || d.toolId || "request"
+    });
+  }
+  function calendarEmailLines(cal) {
+    if (!cal) return [];
+    return [
+      "",
+      "Add to calendar:",
+      "Google Calendar: " + googleCalendarUrl(cal),
+      "Outlook: " + outlookCalendarUrl(cal),
+      "An .ics calendar file is attached for Apple Calendar and other calendar apps."
+    ];
+  }
   function composeCheckoutEmail(d) {
     const base = d.siteUrl || (window.location.origin + window.location.pathname);
     const link = base + "#tool-" + d.toolId;
@@ -1793,6 +1830,8 @@ const notify = (() => {
     if (d.pickupAt || d.pickupLocation) {
       lines.push("Pickup spot: " + (d.pickupLocation || "The lender's home"));
     }
+    const cal = pickupCalendarForEmail(d);
+    lines.push(...calendarEmailLines(cal));
     lines.push(
       "Due back: " + (d.dueAt ? fmtDateTime(d.dueAt) : "see the library site"),
       "Tool entry: " + link,
@@ -1801,12 +1840,14 @@ const notify = (() => {
       "",
       librarySignoff()
     );
-    return {
+    const message = {
       to: d.borrowerEmail || d.ownerEmail || "",
       cc: d.borrowerEmail && d.ownerEmail ? d.ownerEmail : "",
       subject: libraryLabel() + ": " + d.toolName + " checked out, due back " + (d.dueAt ? fmtDateTime(d.dueAt) : ""),
       body: lines.join("\n")
     };
+    if (cal) message.icsAttachment = { filename: "pickup.ics", content: buildPickupIcs(cal) };
+    return message;
   }
   /* Phase 5.1: approval no longer checks the tool out. The borrower gets
      this note instead: the tool is reserved, here is the pickup spot and
@@ -1825,18 +1866,22 @@ const notify = (() => {
     if (d.pickupAt || d.pickupLocation) {
       lines.push("Pickup spot: " + (d.pickupLocation || "The lender's home"));
     }
+    const cal = pickupCalendarForEmail(d);
+    lines.push(...calendarEmailLines(cal));
     lines.push(
       "Your loan runs " + d.days + (d.days === 1 ? " day" : " days") + " from the moment you pick the tool up. Once the lender marks it picked up, we will email you the exact due date.",
       "Tool entry: " + link,
       "",
       librarySignoff()
     );
-    return {
+    const message = {
       to: d.borrowerEmail || d.ownerEmail || "",
       cc: d.borrowerEmail && d.ownerEmail ? d.ownerEmail : "",
       subject: libraryLabel() + ": " + d.toolName + " approved, waiting for pickup",
       body: lines.join("\n")
     };
+    if (cal) message.icsAttachment = { filename: "pickup.ics", content: buildPickupIcs(cal) };
+    return message;
   }
   /* Phase 5.1: the lender marked the pickup as not picked up. The request
      is closed and the tool is back in the library. */
@@ -2099,6 +2144,71 @@ function fmtTime(ts) { if (!ts) return ""; const d = new Date(ts); if (isNaN(d.g
    in America/Chicago. Used on waiting-for-pickup cards, where the exact
    pickup the lender set replaces the window the borrower asked for. */
 function fmtPickupMoment(ts) { if (!ts) return ""; const d = new Date(ts); if (isNaN(d.getTime())) return ""; return d.toLocaleDateString("en-US", {timeZone:"America/Chicago", weekday:"short", month:"short", day:"numeric"}) + " at " + d.toLocaleTimeString("en-US", {timeZone:"America/Chicago", hour:"numeric", minute:"2-digit"}); }
+/* Add to calendar (Nov 14, 2026): for a CONFIRMED pickup only, the
+   three usual ways in: a Google Calendar template link, an Outlook
+   web compose link, and a downloadable .ics file (Apple Calendar and
+   others). The event runs 30 minutes from the confirmed pickup time.
+   pickupAt is stored as an instant (the approve flow converts the
+   agreed America/Chicago wall time to ISO), so stamping the event in
+   UTC is exact for every consumer, and each calendar service shows
+   it back in the viewer's own zone as the same moment. The title
+   names the tool and this library; the location is the pickup spot
+   the viewer is entitled to see; the description names the other
+   party the way the caller presents them and links back to the
+   request. Mirrored in reminder_check.js for the pickup reminder
+   emails (links only there). */
+function calendarUtcStamp(date) {
+  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+}
+function icsEscapeText(s) {
+  return String(s == null ? "" : s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+}
+function buildPickupCalendar(ev) {
+  const start = new Date(ev && ev.pickupAt);
+  if (isNaN(start.getTime())) return null;
+  const end = new Date(start.getTime() + 30 * 60000);
+  return {
+    title: "Pick up: " + (ev.toolName || "Tool") + " (" + libraryLabel() + ")",
+    startISO: start.toISOString(),
+    endISO: end.toISOString(),
+    location: ev.pickupLocation || "The lender's home",
+    description: ev.description || "",
+    uid: "pickup-" + (ev.uidPart || "request") + "@toollendinglibrary.com"
+  };
+}
+function googleCalendarUrl(cal) {
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+    "&text=" + encodeURIComponent(cal.title) +
+    "&dates=" + calendarUtcStamp(new Date(cal.startISO)) + "/" + calendarUtcStamp(new Date(cal.endISO)) +
+    "&details=" + encodeURIComponent(cal.description) +
+    "&location=" + encodeURIComponent(cal.location);
+}
+function outlookCalendarUrl(cal) {
+  return "https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent" +
+    "&subject=" + encodeURIComponent(cal.title) +
+    "&startdt=" + encodeURIComponent(cal.startISO) +
+    "&enddt=" + encodeURIComponent(cal.endISO) +
+    "&body=" + encodeURIComponent(cal.description) +
+    "&location=" + encodeURIComponent(cal.location);
+}
+function buildPickupIcs(cal) {
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Tool Lending Library//Pickup//EN",
+    "BEGIN:VEVENT",
+    "UID:" + cal.uid,
+    "DTSTAMP:" + calendarUtcStamp(new Date()),
+    "DTSTART:" + calendarUtcStamp(new Date(cal.startISO)),
+    "DTEND:" + calendarUtcStamp(new Date(cal.endISO)),
+    "SUMMARY:" + icsEscapeText(cal.title),
+    "LOCATION:" + icsEscapeText(cal.location),
+    "DESCRIPTION:" + icsEscapeText(cal.description),
+    "END:VEVENT",
+    "END:VCALENDAR"
+  ];
+  return lines.join("\r\n") + "\r\n";
+}
 function combineDateTime(isoDate, timeStr) { if (!isoDate) return ""; return isoDate + "T" + (timeStr || "18:00") + ":00"; }
 /* Central time conversion: pickup and due times are agreed in
    America/Chicago wall-clock time, so they are converted to UTC explicitly
@@ -2241,6 +2351,55 @@ function pickupSpotHTML(r) {
   if (!r) return "";
   if (r.status !== "approved" && r.status !== "checked_out" && r.status !== "returned") return "";
   return '<p class="text-sm text-gray-500 flex items-start gap-1.5"><span class="text-gray-400 mt-0.5 shrink-0 flex">' + icon("pin", "w-4 h-4") + '</span><span>Pickup spot: ' + esc(r.pickupLocation || "The lender's home") + (r.pickupAt ? ' · ' + esc(fmtDateTime(r.pickupAt)) : '') + '</span></p>';
+}
+
+/* Add to calendar (Nov 14, 2026): on a waiting-for-pickup card (an
+   approved request with a confirmed pickup time), both the lender
+   and the borrower get the calendar control: one button opening a
+   small menu with Google Calendar, Outlook, and an .ics download.
+   Pending requests show no control: their pickup is only a window,
+   not a confirmed moment. The event is built for THIS viewer: the
+   description names the other party the way this viewer sees them
+   (the borrower reads the lender's name, the lender reads the
+   borrower's), and the location is the confirmed spot this card
+   already shows them. */
+function pickupCalendarForRequest(r, tool) {
+  if (!r || r.status !== "approved" || !r.pickupAt) return null;
+  const otherLine = isRequestBorrower(r)
+    ? "Lender: " + (tool ? tool.owner : "")
+    : "Borrower: " + (r.borrower || "");
+  return buildPickupCalendar({
+    toolName: tool ? tool.name : "Tool",
+    pickupAt: r.pickupAt,
+    pickupLocation: r.pickupLocation,
+    description: otherLine + "\nRequest: " + window.location.origin + "/?request=" + r.id,
+    uidPart: r.id
+  });
+}
+function pickupCalendarHTML(r, tool) {
+  const cal = pickupCalendarForRequest(r, tool);
+  if (!cal) return "";
+  return '<div class="cal-wrap relative mt-2">' +
+    '<button type="button" class="cal-menu-btn inline-flex items-center gap-1.5 bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-3.5 py-1.5 rounded-full">' + icon("calendar", "w-4 h-4") + 'Add to calendar</button>' +
+    '<div class="cal-menu hidden absolute left-0 top-full mt-1.5 w-60 bg-white border border-gray-200 rounded-xl shadow-xl p-1.5 z-30">' +
+      '<a class="cal-link block px-3 py-2 rounded-lg text-sm text-gray-800 hover:bg-gray-50" target="_blank" rel="noopener" href="' + esc(googleCalendarUrl(cal)) + '">Google Calendar</a>' +
+      '<a class="cal-link block px-3 py-2 rounded-lg text-sm text-gray-800 hover:bg-gray-50" target="_blank" rel="noopener" href="' + esc(outlookCalendarUrl(cal)) + '">Outlook</a>' +
+      '<button type="button" class="cal-ics-btn block w-full text-left px-3 py-2 rounded-lg text-sm text-gray-800 hover:bg-gray-50" data-id="' + r.id + '">Apple Calendar (.ics file)</button>' +
+    '</div></div>';
+}
+function downloadPickupIcs(r) {
+  const tool = state.tools.find(t => t.id === r.toolId);
+  const cal = pickupCalendarForRequest(r, tool);
+  if (!cal) return;
+  const blob = new Blob([buildPickupIcs(cal)], { type: "text/calendar" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "pickup.ics";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
 function render() {
@@ -2395,6 +2554,7 @@ function render() {
         '<p class="text-sm text-gray-500 mt-0.5 flex items-center gap-1.5">' + avatarHTML(r.borrowerAvatar, r.borrower) + '<span>Requested by <span class="font-medium text-gray-700">' + esc(borrowerDisplayName(r)) + '</span></span></p>' +
         '<p class="text-sm text-gray-500 flex items-start gap-1.5"><span class="text-gray-400 mt-0.5 shrink-0 flex">' + icon("clock", "w-4 h-4") + '</span><span>' + infoLine + '</span></p>' +
         pickupSpotHTML(r) +
+        pickupCalendarHTML(r, tool) +
         (r.project ? '<p class="text-sm text-gray-500 italic">Project: ' + esc(r.project) + '</p>' : "") +
         (r.thanksNote ? (isRequestBorrower(r)
           ? '<p class="text-sm text-gray-500">Your thank-you: "' + esc(r.thanksNote) + '"</p>'
@@ -2781,6 +2941,33 @@ document.getElementById("borrowForm").addEventListener("submit", async e => {
 });
 
 document.addEventListener("click", async e => {
+  /* Add to calendar menus (Nov 14, 2026): a click anywhere outside a
+     calendar control closes any open calendar menu. */
+  if (!e.target.closest(".cal-wrap")) {
+    document.querySelectorAll(".cal-menu").forEach(m => m.classList.add("hidden"));
+  }
+  const calBtn = e.target.closest(".cal-menu-btn");
+  if (calBtn) {
+    const wrap = calBtn.closest(".cal-wrap");
+    const menu = wrap ? wrap.querySelector(".cal-menu") : null;
+    const wasHidden = Boolean(menu && menu.classList.contains("hidden"));
+    document.querySelectorAll(".cal-menu").forEach(m => m.classList.add("hidden"));
+    if (menu && wasHidden) menu.classList.remove("hidden");
+    return;
+  }
+  const calLink = e.target.closest(".cal-link");
+  if (calLink) {
+    document.querySelectorAll(".cal-menu").forEach(m => m.classList.add("hidden"));
+    return;
+  }
+  const calIcsBtn = e.target.closest(".cal-ics-btn");
+  if (calIcsBtn) {
+    const r = state.requests.find(x => x.id === calIcsBtn.dataset.id);
+    document.querySelectorAll(".cal-menu").forEach(m => m.classList.add("hidden"));
+    if (r) downloadPickupIcs(r);
+    return;
+  }
+
   const borrow = e.target.closest(".borrow-btn");
   if (borrow) { if (!gateSignup("borrow tools")) return; const t = state.tools.find(x => x.id === borrow.dataset.id); if (t && isToolOwner(t)) { toast("That is your own tool."); return; } if (t) openBorrow(t); return; }
 
@@ -3175,8 +3362,10 @@ document.getElementById("approveForm").addEventListener("submit", async e => {
     notify.sendApprovedEmail({
       borrowerEmail: isEmail(r.contact) ? r.contact : "",
       ownerEmail: isEmail(t.contact) ? t.contact : "",
+      ownerName: t.owner,
       toolName: t.name,
       toolId: t.id,
+      requestId: r.id,
       borrowerName: r.borrower,
       days: r.days,
       pickupAt: r.pickupAt,
@@ -3210,8 +3399,10 @@ async function markPickedUp(r) {
     notify.sendCheckoutEmail({
       borrowerEmail: isEmail(r.contact) ? r.contact : "",
       ownerEmail: isEmail(t.contact) ? t.contact : "",
+      ownerName: t.owner,
       toolName: t.name,
       toolId: t.id,
+      requestId: r.id,
       borrowerName: r.borrower,
       dueAt: r.dueAt,
       pickupAt: r.pickupAt,
@@ -4207,22 +4398,53 @@ const barSignOutBtn = document.getElementById("barSignOut");
 if (barSignOutBtn) barSignOutBtn.addEventListener("click", signOutUser);
 
 /* ================= PHASE 2: tenant display + neighborhood registration ================= */
+/* Phase 5.16 (Nov 14, 2026): the sticky bar brand is stacked. David's
+   phone screenshot showed the one-line full label truncating ("Valen…")
+   beside the logo, his email, Sign out, and the menu button, and the
+   University in the Sky label truncated even harder. His direction:
+   the organization on one line and Tool Lending Library on another,
+   adjusting the font as needed. So the brand takes two lines: the
+   organization part of the label (tenantShortName, exactly the part
+   libraryLabel puts before " Tool Lending Library") on the first
+   line, and "Tool Lending Library" in smaller type on the second.
+   Neither line truncates; the org line steps down in size as the
+   name grows (over 18 characters, then over 26) so a long name like
+   University in the Sky still fits a phone-width bar. The neutral
+   pre-load shell and the marketing root keep the single platform
+   line. The full label everywhere else (page title, hero, footer,
+   emails) is unchanged. */
+function renderBarBrand() {
+  const orgEl = document.getElementById("barTitleOrg");
+  const subEl = document.getElementById("barTitleSub");
+  if (!orgEl || !subEl) return;
+  const short = (!IS_ROOT_HOST && currentNeighborhood) ? tenantShortName() : "";
+  if (short) {
+    orgEl.textContent = short;
+    subEl.textContent = "Tool Lending Library";
+    subEl.classList.remove("hidden");
+    const size = short.length > 26 ? "text-[13px]" : short.length > 18 ? "text-sm" : "text-base";
+    orgEl.className = "font-display font-bold text-gray-950 whitespace-nowrap leading-tight " + size;
+  } else {
+    orgEl.textContent = "Tool Lending Library";
+    orgEl.className = "font-display font-bold text-gray-950 whitespace-nowrap leading-tight text-base";
+    subEl.classList.add("hidden");
+  }
+}
+
 function renderTenant() {
   /* Phase 5.15 (S17): on the root host the chrome belongs to the
      platform, never to a tenant. The marketing shell keeps the
      platform defaults (Tool Lending Library and the platform logo),
      so the tenant branding pass does not run there at all. */
   if (IS_ROOT_HOST) {
-    const rootBarTitle = document.getElementById("barTitle");
-    if (rootBarTitle) rootBarTitle.textContent = "Tool Lending Library";
+    renderBarBrand();
     applyNeighborhoodLogo(null);
     return;
   }
   const nb = currentNeighborhood;
   document.getElementById("tenantName").textContent = nb ? libraryLabel() : "Tool Lending Library";
   document.getElementById("tenantAddress").textContent = CURRENT_SLUG + ".toollendinglibrary.com";
-  const barTitle = document.getElementById("barTitle");
-  if (barTitle) barTitle.textContent = nb ? libraryLabel() : "Tool Lending Library";
+  renderBarBrand();
   /* Phase 5.7: every organization-specific string in the page chrome
      comes from this library's own record, never from hardcoded copy.
      An organization that is not a neighborhood (University in the Sky
