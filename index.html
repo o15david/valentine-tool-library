@@ -57,21 +57,28 @@ tailwind.config = {
      to each area instead of switching tabs. -->
 <nav class="bg-white/95 backdrop-blur border-b border-gray-200 sticky top-0 z-40">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
-    <button id="brandBtn" data-scroll-to="catalog" class="flex items-center gap-2.5 min-w-0 text-left">
+    <button id="brandBtn" data-scroll-to="catalog" class="flex flex-1 items-center gap-2.5 min-w-0 text-left">
       <img id="headerLogo" src="/logo-icon-64.png" class="h-9 w-auto shrink-0" alt="Tool Lending Library" onerror="this.classList.add('hidden')">
       <!-- Phase 5.16: the brand is stacked, organization on the first
            line and Tool Lending Library in smaller type on the second,
            so the full name never truncates at phone widths. renderBarBrand
            fills the two lines; the neutral shell and the marketing root
-           keep the single platform line with the second line hidden. -->
-      <span id="barTitle" class="flex flex-col justify-center min-w-0 leading-tight">
+           keep the single platform line with the second line hidden.
+           Nov 14, 2026 overlap fix: the brand block takes the flexible
+           space (flex-1, min-w-0), and the signed-in email is out of
+           the bar entirely, at every width. David's screenshot showed
+           the email starting mid-brand over a long organization name;
+           his call was that the user knows who they are, so the bar
+           carries only the logo, the stacked brand, Sign out, and the
+           menu button. The address still appears in the account area
+           ("Signed in as ...") and the sign-in section, as before. -->
+      <span id="barTitle" class="flex flex-1 flex-col justify-center min-w-0 leading-tight">
         <span id="barTitleOrg" class="font-display font-bold text-gray-950 whitespace-nowrap leading-tight text-base">Tool Lending Library</span>
         <span id="barTitleSub" class="hidden text-xs font-medium text-gray-500 whitespace-nowrap leading-tight">Tool Lending Library</span>
       </span>
     </button>
     <div class="flex items-center gap-2 sm:gap-3 shrink-0">
       <span id="barUserChip" class="hidden items-center gap-2 text-sm text-gray-600">
-        <span id="barUserEmail" class="font-medium text-gray-900 max-w-[8rem] sm:max-w-[16rem] truncate"></span>
         <button id="barSignOut" type="button" class="font-semibold text-gray-700 underline decoration-dotted">Sign out</button>
       </span>
       <button id="barSignIn" data-scroll-to="signin" type="button" class="text-sm font-semibold text-gray-900 underline decoration-dotted">Sign in</button>
@@ -106,7 +113,7 @@ tailwind.config = {
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
         <p id="tenantEyebrow" class="text-gray-500 text-xs sm:text-sm font-semibold tracking-widest uppercase">A sharing library</p>
-        <h1 id="tenantTitle" class="font-display text-3xl sm:text-5xl font-bold mt-2">Tool Lending Library</h1>
+        <h1 id="tenantTitle" class="font-display font-bold mt-2"><span id="tenantTitleOrg" class="hidden"></span> <span id="tenantTitleSub" class="block text-3xl sm:text-5xl leading-tight">Tool Lending Library</span></h1>
         <p class="text-gray-600 mt-3 max-w-xl text-sm sm:text-base">Borrow the ladder, pressure washer, or canopy you need for the weekend, from a member who already owns it. Lend the tools sitting in your garage and put them to work in your community.</p>
       </div>
       <div class="flex flex-col gap-2">
@@ -1272,6 +1279,7 @@ const supabaseStore = {
       start_date: r.start, end_date: addDaysISO(r.start, r.days),
       due_at: r.dueAt || null, pickup_at: r.pickupAt || null, pickup_window: r.pickup || "",
       pickup_location: r.pickupLocation || null, thanks_note: r.thanksNote || null,
+      unavailable_reason: r.unavailableReason || null,
       reminder_day_before_sent: Boolean(r.reminderDayBeforeSent),
       reminder_overdue_sent: Boolean(r.reminderOverdueSent),
       pickup_reminder_day_before_sent: Boolean(r.pickupReminderDayBeforeSent),
@@ -1336,6 +1344,7 @@ const supabaseStore = {
       days: Math.max(1, Math.round((new Date(row.end_date + "T12:00:00") - new Date(row.start_date + "T12:00:00")) / 86400000)),
       dueAt: row.due_at || "", pickupAt: row.pickup_at || "", pickup: row.pickup_window || "",
       pickupLocation: row.pickup_location || "", thanksNote: row.thanks_note || "",
+      unavailableReason: row.unavailable_reason || "",
       reminderDayBeforeSent: Boolean(row.reminder_day_before_sent), reminderOverdueSent: Boolean(row.reminder_overdue_sent),
       pickupReminderDayBeforeSent: Boolean(row.pickup_reminder_day_before_sent), pickupReminderSoonSent: Boolean(row.pickup_reminder_soon_sent),
       project: row.project || "", status: row.status
@@ -2412,7 +2421,7 @@ function render() {
   /* Phase 5.5: a viewer without a complete profile does not get the
      catalog, and the header counts are part of that reveal. Locked
      viewers see the gate card in the Catalog area and no numbers here. */
-  const catalogLocked = !signupComplete();
+  const catalogLocked = !signupComplete() && !profileLoadPending();
   const statsEl = document.getElementById("stats");
   statsEl.classList.toggle("hidden", catalogLocked);
   statsEl.innerHTML = catalogLocked ? "" : [
@@ -3100,7 +3109,11 @@ function gateSignup(what) {
 function renderSignup() {
   const sec = document.getElementById("signupSection");
   if (!sec) return;
-  const show = Boolean(currentUser && !signupComplete());
+  /* Profile-load race fix: the form engages only once the profile
+     load for the current user has settled (see profileLoadPending);
+     while it is still in flight the section stays hidden rather than
+     flashing at a member whose profile is about to arrive complete. */
+  const show = Boolean(currentUser && !profileLoadPending() && !signupComplete());
   sec.classList.toggle("hidden", !show);
   if (show) {
     document.getElementById("signupTerms").textContent = termsText();
@@ -3150,7 +3163,10 @@ function renderSignup() {
 let completionOnlyActive = false;
 let completionFocusDone = false;
 function applyCompletionOnly() {
-  const active = Boolean(!IS_ROOT_HOST && currentUser && !signupComplete());
+  /* Profile-load race fix: the lock (and its one-time scroll and
+     focus) engages only once the profile load has settled; a member
+     whose complete profile is still loading keeps the normal page. */
+  const active = Boolean(!IS_ROOT_HOST && currentUser && !profileLoadPending() && !signupComplete());
   const el = id => document.getElementById(id);
   const hide = e => { if (e) e.classList.add("hidden"); };
   const show = e => { if (e) e.classList.remove("hidden"); };
@@ -3717,6 +3733,10 @@ async function initLocalAuth() {
   if (!email) { renderAuth(); return; }
   currentUser = { id: localUserId(email), email: email };
   try { currentProfile = await store.getProfile(currentUser.id); } catch (e) { console.warn("Local profile load failed:", e); }
+  /* Profile-load race fix: the local path loads its profile inline,
+     so it stamps the load settled itself (see profileLoadPending). */
+  profileLoadSettled = true;
+  profileLoadSettledFor = currentUser.id;
   await loadAnyProfileFallback();
   if (currentProfile && currentProfile.status === "banned") {
     currentUser = null;
@@ -3733,6 +3753,31 @@ async function initLocalAuth() {
 /* ================= PHASE 2: sign-in, profiles, admin ================= */
 let currentUser = null;
 let currentProfile = null;
+/* Profile-load race fix (Nov 14, 2026): handleSession is called from
+   both getSession and onAuthStateChange, so two runs overlap at load
+   and again right after a magic-link redirect. Each run used to null
+   currentProfile and then await its own profile read; a run whose
+   read went out before the Supabase client had attached the fresh
+   session token read as anon, got no row, and could win the render
+   with a null profile for a member whose profile is complete, so the
+   finish-signing-up form and the completion-only lock engaged on a
+   complete member, intermittently and timing-dependent, exactly as
+   David reported. Two guards now work together. sessionRunSeq is a
+   monotonically increasing run token: only the latest handleSession
+   run may write state or render, and an older run aborts after every
+   await once it is no longer the latest. profileLoadSettled (with
+   profileLoadSettledFor naming the user id it belongs to) is the
+   distinct not-yet-loaded state: the finish-signing-up form and the
+   completion-only lock engage only once the latest run's profile
+   read, plus one bounded retry, has finished, whether it found a
+   profile or not. While the load is unsettled the neutral shell or
+   the existing content simply stays. */
+let sessionRunSeq = 0;
+let profileLoadSettled = false;
+let profileLoadSettledFor = null;
+function profileLoadPending() {
+  return Boolean(currentUser) && !(profileLoadSettled && profileLoadSettledFor === currentUser.id);
+}
 /* Phase 5.7: a membership the signed-in person holds in ANOTHER
    library, kept only so the sign-up form can prefill their name and
    home address when they join this one. It never grants anything here:
@@ -3789,7 +3834,10 @@ function canReturnTool(t) {
    state: they exist only for signed-in members, because listing takes
    an account and there is no guest listing. */
 function renderGateNotices() {
-  const incomplete = Boolean(currentUser && !signupComplete());
+  /* Profile-load race fix: while the profile load is unsettled the
+     member is not treated as incomplete, so the gate cards stay down
+     until the settled state is known. */
+  const incomplete = Boolean(currentUser && !profileLoadPending() && !signupComplete());
   const guest = !currentUser;
   const setNotice = (el, show) => {
     if (!el) return;
@@ -3810,8 +3858,9 @@ function renderGateNotices() {
      invited to sign in and create a profile; a signed-in member whose
      profile is unfinished is sent straight to the sign-up form. */
   const catalogGate = document.getElementById("catalogGateNotice");
-  setNotice(catalogGate, !signupComplete());
-  if (catalogGate && !signupComplete()) {
+  const catalogGated = !signupComplete() && !profileLoadPending();
+  setNotice(catalogGate, catalogGated);
+  if (catalogGate && catalogGated) {
     const title = document.getElementById("catalogGateTitle");
     const text = document.getElementById("catalogGateText");
     const button = document.getElementById("catalogGateButton");
@@ -3839,7 +3888,6 @@ function renderChrome() {
   if (chip) {
     chip.classList.toggle("hidden", !currentUser);
     chip.classList.toggle("flex", Boolean(currentUser));
-    if (currentUser) document.getElementById("barUserEmail").textContent = currentUser.email || "";
   }
   const signInBtn = document.getElementById("barSignIn");
   if (signInBtn) signInBtn.classList.toggle("hidden", Boolean(currentUser));
@@ -4121,7 +4169,15 @@ function renderAuth() {
 async function loadAnyProfileFallback() {
   anyProfile = null;
   if (!currentUser || currentProfile) { updateRegistrationFlow(); return; }
-  try { anyProfile = await store.getAnyProfile(currentUser.id); } catch (e) { anyProfile = null; }
+  /* Profile-load race fix: the read is stamped with the user id it
+     was started for, in the same style as refreshLibrarySwitcher, so
+     a late answer from a superseded session run cannot leave another
+     run's fallback profile behind. */
+  const userId = currentUser.id;
+  try {
+    const found = await store.getAnyProfile(userId);
+    if (currentUser && currentUser.id === userId) anyProfile = found;
+  } catch (e) { anyProfile = null; }
   updateRegistrationFlow();
 }
 
@@ -4168,29 +4224,64 @@ async function refreshLibrarySwitcher() {
 }
 
 async function handleSession(session) {
+  /* Profile-load race fix: this run's token. After every await, a run
+     that is no longer the latest aborts without writing state or
+     rendering, so the overlapping getSession and onAuthStateChange
+     runs can no longer interleave into a stale null profile. */
+  const run = ++sessionRunSeq;
+  const isLatest = () => run === sessionRunSeq;
   currentUser = session ? session.user : null;
   currentProfile = null;
   anyProfile = null;
   memberLibraries = [];
   adminReports = [];
   reportsBadgeLoaded = false;
+  profileLoadSettled = false;
+  profileLoadSettledFor = null;
   if (currentUser) {
+    const userId = currentUser.id;
     try {
       // No auto-create here: a profile row is written when the neighbor
       // finishes the sign-up form (name, address, terms), so the admin
       // user list shows real, completed profiles.
-      const profile = await store.getProfile(currentUser.id);
+      let profile = await store.getProfile(userId);
+      if (!isLatest()) return;
+      if (!profile) {
+        /* One bounded retry, shortly after: right after a magic-link
+           redirect the first read can go out before the client has
+           attached the fresh session token, read as anon, and find
+           no row for a member who has one. If the retry finds the
+           profile it is used; only a second miss settles into the
+           genuinely-no-profile state that engages the sign-up form. */
+        await new Promise(resolve => setTimeout(resolve, 250));
+        if (!isLatest()) return;
+        profile = await store.getProfile(userId);
+        if (!isLatest()) return;
+      }
       currentProfile = profile;
+      profileLoadSettled = true;
+      profileLoadSettledFor = userId;
       await loadAnyProfileFallback();
+      if (!isLatest()) return;
       if (profile && profile.status === "banned") {
         document.getElementById("authMessage").textContent = "This account has been banned from this tool library.";
         if (supabaseClient) await supabaseClient.auth.signOut();
         currentUser = null;
         currentProfile = null;
       }
-    } catch (e) { console.warn("Profile load failed:", e); }
+    } catch (e) {
+      if (!isLatest()) return;
+      console.warn("Profile load failed:", e);
+      /* A failed read still settles the load: the state is known to
+         be profile-less for now, so the form and lock may engage
+         exactly as they did before this fix. */
+      profileLoadSettled = true;
+      profileLoadSettledFor = userId;
+    }
   }
+  if (!isLatest()) return;
   await refreshLibrarySwitcher();
+  if (!isLatest()) return;
   syncCookieBannerWithProfile();
   renderAuth();
   render();
@@ -4302,6 +4393,8 @@ async function signInWithEmail(email, msg, opts) {
     currentUser = { id: localUserId(localEmail), email: localEmail };
     currentProfile = null;
     try { currentProfile = await store.getProfile(currentUser.id); } catch (err) { console.warn("Local profile load failed:", err); }
+    profileLoadSettled = true;
+    profileLoadSettledFor = currentUser.id;
     await loadAnyProfileFallback();
     if (currentProfile && currentProfile.status === "banned") {
       currentUser = null;
@@ -4364,6 +4457,12 @@ document.getElementById("authForm").addEventListener("submit", e => {
 async function signOutUser() {
   if (!supabaseClient) {
     try { localStorage.removeItem(LOCAL_USER_KEY); } catch (err) {}
+    /* Profile-load race fix: signing out invalidates any in-flight
+       session run and clears the settled stamp with the rest of the
+       session state. */
+    sessionRunSeq++;
+    profileLoadSettled = false;
+    profileLoadSettledFor = null;
     currentUser = null;
     currentProfile = null;
     anyProfile = null;
@@ -4383,6 +4482,9 @@ async function signOutUser() {
     toast("You could not be signed out. Check your connection and try again.");
     return;
   }
+  sessionRunSeq++;
+  profileLoadSettled = false;
+  profileLoadSettledFor = null;
   currentUser = null;
   currentProfile = null;
   anyProfile = null;
@@ -4431,6 +4533,34 @@ function renderBarBrand() {
   }
 }
 
+/* Nov 14, 2026: the hero heading follows David's direction in the
+   same two-line shape as the bar brand. By "the header" he meant
+   this big heading, which wrapped mid-name ("University in the Sky
+   Tool / Lending Library"). The organization now sits on its own
+   line and Tool Lending Library on the line below, as separate
+   elements inside the one h1, and the organization line steps down
+   in size as the name grows (the same 18 and 26 character thresholds
+   as the bar brand) so it fits one line at phone width without
+   wrapping mid-name. The eyebrow above the heading is unchanged, and
+   the page title, the footer, and the emails keep the full single
+   label exactly as before. */
+function renderHeroTitle() {
+  const orgEl = document.getElementById("tenantTitleOrg");
+  const subEl = document.getElementById("tenantTitleSub");
+  if (!orgEl || !subEl) return;
+  const short = tenantShortName();
+  if (short) {
+    orgEl.textContent = short;
+    const size = short.length > 26 ? "text-xl sm:text-3xl" : short.length > 18 ? "text-2xl sm:text-4xl" : "text-3xl sm:text-5xl";
+    orgEl.className = "block whitespace-nowrap leading-tight " + size;
+    subEl.textContent = "Tool Lending Library";
+  } else {
+    orgEl.textContent = "";
+    orgEl.classList.add("hidden");
+    subEl.textContent = "Tool Lending Library";
+  }
+}
+
 function renderTenant() {
   /* Phase 5.15 (S17): on the root host the chrome belongs to the
      platform, never to a tenant. The marketing shell keeps the
@@ -4456,8 +4586,7 @@ function renderTenant() {
     if (meta) meta.setAttribute("content", "Borrow and lend tools with your community. A sharing library run by " + libraryOrgName() + ".");
     const eyebrow = document.getElementById("tenantEyebrow");
     if (eyebrow) eyebrow.textContent = libraryOrgName();
-    const title = document.getElementById("tenantTitle");
-    if (title) title.textContent = libraryLabel();
+    renderHeroTitle();
     const footerName = document.getElementById("footerLibraryName");
     if (footerName) footerName.textContent = libraryLabel();
     const footerOrg = document.getElementById("footerOrgLine");
