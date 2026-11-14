@@ -7,6 +7,16 @@
      { to, cc, subject, body }   (cc may be "")
    Callers may also pass two optional branding fields:
      { libraryName, logoUrl }
+   And one optional attachment field, present only when the composer
+   supplies it (the approval and checked-out emails, for the confirmed
+   pickup's calendar event):
+     { icsAttachment: { filename, content } }
+   filename must be a plain .ics file name and content the raw .ics
+   text; resolveIcsAttachment validates both, and anything unusable
+   is dropped (the email still sends, without the attachment). The
+   endpoint base64-encodes the content for the Resend attachments
+   field. The plain text part and the branded HTML part are exactly
+   as before whether or not an attachment rides along.
    libraryName names the library the mail belongs to and logoUrl is
    that library's logo as an ABSOLUTE URL (email clients cannot load
    relative paths). Either one missing or unusable falls back to the
@@ -43,6 +53,7 @@ const MAX_SUBJECT = 300;
 const MAX_BODY = 20000;
 const MAX_LIBRARY_NAME = 200;
 const MAX_LOGO_URL = 1000;
+const MAX_ICS = 20000;
 
 /* Platform branding defaults (email branding, Nov 13, 2026). The
    platform logo files live on the platform domain next to the site;
@@ -122,6 +133,23 @@ function buildEmailHtml(fields) {
     "</body></html>";
 }
 
+/* The optional .ics attachment, validated: the file name must be a
+   plain .ics name (no paths, no characters that could break a
+   header), and the content must look like a calendar file and fit
+   the cap. Returns the Resend-ready shape (base64 content) or null
+   when the caller supplied nothing usable. Exported for the tests. */
+function resolveIcsAttachment(fields) {
+  const f = fields || {};
+  const att = f.icsAttachment;
+  if (!att || typeof att !== "object") return null;
+  const filename = String(att.filename || "").trim();
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]*\.ics$/.test(filename)) return null;
+  const content = String(att.content || "");
+  if (!content || content.length > MAX_ICS) return null;
+  if (!content.startsWith("BEGIN:VCALENDAR") || !content.includes("BEGIN:VEVENT")) return null;
+  return { filename: filename, content: Buffer.from(content, "utf8").toString("base64") };
+}
+
 function readBody(req) {
   return new Promise((resolve, reject) => {
     let data = "";
@@ -163,6 +191,9 @@ async function notifyHandler(req, res) {
      part is built from the same (capped) body as the text part. */
   const brand = resolveBrand(message);
   const html = buildEmailHtml({ libraryName: brand.libraryName, logoUrl: brand.logoUrl, body: body });
+  /* Optional .ics attachment (approval and checked-out emails only);
+     null when the composer supplied none or it failed validation. */
+  const ics = resolveIcsAttachment(message);
 
   if (!isPlausibleEmail(to)) {
     res.status(400).json({ ok: false, error: "A valid recipient (to) is required" });
@@ -181,7 +212,7 @@ async function notifyHandler(req, res) {
   const from = process.env.MAIL_FROM || DEFAULT_FROM;
 
   if (!apiKey) {
-    console.log("[STUB NOTIFY] RESEND_API_KEY not set, message not sent:", { to, cc, subject });
+    console.log("[STUB NOTIFY] RESEND_API_KEY not set, message not sent:", { to, cc, subject, icsAttachment: ics ? ics.filename : null });
     res.status(200).json({ ok: true, stub: true, note: "RESEND_API_KEY is not set on the server, so this message was composed and logged but not sent." });
     return;
   }
@@ -189,6 +220,7 @@ async function notifyHandler(req, res) {
   try {
     const payload = { from, to: [to], subject, text: body, html: html };
     if (cc) payload.cc = [cc];
+    if (ics) payload.attachments = [{ filename: ics.filename, content: ics.content }];
     const sendRes = await fetch(RESEND_ENDPOINT, {
       method: "POST",
       headers: {
@@ -215,5 +247,6 @@ module.exports = notifyHandler;
 module.exports.buildEmailHtml = buildEmailHtml;
 module.exports.escapeHtml = escapeHtml;
 module.exports.resolveBrand = resolveBrand;
+module.exports.resolveIcsAttachment = resolveIcsAttachment;
 module.exports.PLATFORM_LOGO_URL = PLATFORM_LOGO_URL;
 module.exports.DEFAULT_LIBRARY_NAME = DEFAULT_LIBRARY_NAME;
