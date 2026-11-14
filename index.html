@@ -74,7 +74,7 @@ tailwind.config = {
         </button>
         <div id="navMenu" class="hidden absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-2xl shadow-xl p-2 z-50">
           <button data-scroll-to="catalog" class="tenant-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="grid" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Browse the catalog</button>
-          <button data-scroll-to="lend" class="tenant-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="wrench" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Lend a tool</button>
+          <button data-scroll-to="lend" id="menuLendItem" class="tenant-nav-item w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left hidden"><span data-icon="wrench" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Lend a tool</button>
           <button data-scroll-to="requests" id="menuRequestsItem" class="tenant-nav-item w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left hidden"><span data-icon="inbox" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Requests and loans<span id="pendingBadge" class="ml-auto inline-flex items-center justify-center bg-gray-900 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></button>
           <button data-scroll-to="how" class="tenant-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="info" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>How it works</button>
           <button id="menuSigninItem" data-scroll-to="signin" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="user" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Sign in</button>
@@ -102,7 +102,7 @@ tailwind.config = {
         <p class="text-gray-600 mt-3 max-w-xl text-sm sm:text-base">Borrow the ladder, pressure washer, or canopy you need for the weekend, from a member who already owns it. Lend the tools sitting in your garage and put them to work in your community.</p>
       </div>
       <div class="flex flex-col gap-2">
-        <button data-scroll-to="lend" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shadow inline-flex items-center justify-center gap-2"><span data-icon="plus" data-icon-class="w-4 h-4" class="flex shrink-0"></span>Lend a tool</button>
+        <button data-scroll-to="lend" id="heroLendBtn" class="hidden bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shadow items-center justify-center gap-2"><span data-icon="plus" data-icon-class="w-4 h-4" class="flex shrink-0"></span>Lend a tool</button>
         <button data-scroll-to="requests" id="heroRequestsBtn" class="hidden bg-white hover:bg-gray-50 text-gray-900 font-semibold px-5 py-2.5 rounded-full text-sm border border-gray-300">Requests and loans</button>
       </div>
     </div>
@@ -151,12 +151,15 @@ tailwind.config = {
     <div id="catalogEmpty" class="hidden bg-white border border-dashed border-gray-300 rounded-2xl p-10 text-center">
       <p class="font-display text-xl font-bold text-gray-900">No tools match, yet</p>
       <p class="text-sm text-gray-500 mt-2">Try another word, or be the first member to lend one like it. Your garage might hold exactly what someone in your community needs.</p>
-      <button data-scroll-to="lend" class="mt-4 bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Lend a tool</button>
+      <button data-scroll-to="lend" id="catalogEmptyLendBtn" class="hidden mt-4 bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Lend a tool</button>
     </div>
   </section>
 
-  <!-- Lend -->
-  <section id="lend" class="section-anchor bg-gray-50 border border-gray-200 rounded-3xl px-5 py-7 sm:px-8 sm:py-9">
+  <!-- Lend: signed-in members only. The section ships hidden and
+       renderGateNotices reveals it once someone is signed in; a
+       signed-out visitor never sees the form (there is no guest
+       listing), and the buttons that scroll here hide too. -->
+  <section id="lend" class="section-anchor hidden bg-gray-50 border border-gray-200 rounded-3xl px-5 py-7 sm:px-8 sm:py-9">
     <div class="flex items-start gap-3 mb-6">
       <span class="w-10 h-10 rounded-xl bg-white border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="wrench" data-icon-class="w-5 h-5" class="flex"></span></span>
       <div>
@@ -164,10 +167,12 @@ tailwind.config = {
         <p class="text-sm text-gray-500 mt-0.5">Put a garage tool to work in your community.</p>
       </div>
     </div>
-    <!-- Phase 5: unmistakable sign-up gate for listing. One of these cards
-         sits at the top of this area whenever listing is not available, so
-         a blocked submit never reads as "nothing happened" again: the
-         typed form data stays, and the submit scrolls this card into view. -->
+    <!-- Phase 5: unmistakable sign-up gate for listing. This card sits
+         at the top of this area whenever a signed-in member has not
+         finished signing up, so a blocked submit never reads as
+         "nothing happened" again: the typed form data stays, and the
+         submit scrolls this card into view. (Signed-out visitors do
+         not see this section at all; listing takes an account.) -->
     <div id="lendGateIncomplete" class="hidden bg-white border border-gray-300 shadow-card rounded-2xl p-5 mb-6 flex-wrap items-center justify-between gap-3">
       <div class="flex items-start gap-3 min-w-0">
         <span class="w-9 h-9 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
@@ -177,16 +182,6 @@ tailwind.config = {
         </div>
       </div>
       <button data-scroll-to="signupSection" type="button" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shrink-0">Finish signing up</button>
-    </div>
-    <div id="lendGateGuest" class="hidden bg-white border border-gray-200 rounded-2xl p-5 mb-6 flex-wrap items-center justify-between gap-3">
-      <div class="flex items-start gap-3 min-w-0">
-        <span class="w-9 h-9 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
-        <div>
-          <p class="font-bold text-gray-950">Have an account? Sign in first</p>
-          <p class="text-sm text-gray-500 mt-0.5 max-w-xl">Signed-in members list with their saved name and contact, and can edit or remove their listings later. You can also list as a guest by filling in your name and contact in the form below.</p>
-        </div>
-      </div>
-      <button data-scroll-to="signin" type="button" class="bg-white hover:bg-gray-50 text-gray-900 font-semibold px-5 py-2.5 rounded-full text-sm border border-gray-300 shrink-0">Go to sign in</button>
     </div>
     <div class="grid lg:grid-cols-5 gap-8">
       <div class="lg:col-span-2">
@@ -2264,6 +2259,11 @@ function render() {
     const borrowerName = borrowerDisplay === "you" ? "you" : publicName(borrowerDisplay || t.borrower);
     const borrowerAvatarName = borrowerName === "you" ? t.borrower : borrowerName;
     const ownerName = publicName(t.owner);
+    /* Second-person convention (Phase 5.3), extended to the owner:
+       on your own catalog card the Lent by value reads "You", not
+       your own masked name. The avatar beside it is unchanged: it
+       still keys off the masked name for its photo or initials. */
+    const ownerDisplayName = isToolOwner(t) ? "You" : ownerName;
     let action = "";
     if (t.status === "available") action = isToolOwner(t) ? '<span class="text-sm text-gray-500 font-medium">Your tool</span>' : '<button class="borrow-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Request to borrow</button>';
     else if (t.status === "awaiting") action = '<span class="text-sm text-gray-600 font-medium">' + awaitingPickupLabel(t) + '</span>';
@@ -2279,7 +2279,7 @@ function render() {
       '</div>' +
       '<p class="text-sm text-gray-600 mt-3 flex-1">' + esc(t.desc) + '</p>' +
       '<dl class="text-xs text-gray-500 grid grid-cols-2 gap-y-1.5 mt-4">' +
-        '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Lent by</dt><dd class="text-sm text-gray-700 flex items-center gap-1.5">' + avatarHTML(t.ownerAvatar, ownerName) + '<span>' + esc(ownerName) + '</span></dd></div>' +
+        '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Lent by</dt><dd class="text-sm text-gray-700 flex items-center gap-1.5">' + avatarHTML(t.ownerAvatar, ownerName) + '<span>' + esc(ownerDisplayName) + '</span></dd></div>' +
         '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Loan</dt><dd class="text-sm text-gray-700">' + t.days + (t.days === 1 ? " day" : " days") + '</dd></div>' +
         '<div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Condition</dt><dd class="text-sm text-gray-700">' + esc(t.condition) + '</dd></div>' +
         (Array.isArray(t.pickupWindows) && t.pickupWindows.length ? '<div class="col-span-2"><dt class="font-semibold text-gray-400 uppercase tracking-wide">Pickup windows</dt><dd class="text-sm text-gray-700 flex items-start gap-1.5"><span class="text-gray-400 mt-0.5 shrink-0 flex">' + icon("clock", "w-4 h-4") + '</span><span>' + esc(t.pickupWindows.map(w => w.label).join(" · ")) + '</span></dd></div>' : "") +
@@ -2351,21 +2351,25 @@ function render() {
     return reqCard(r, pButtons);
   }).join("") : '<p class="text-sm text-gray-400 bg-white border border-dashed border-gray-200 rounded-2xl p-6 text-center">No requests waiting right now.</p>';
 
-  /* Phase 5.1: approved requests are waiting for pickup. The lender (or an
-     admin) confirms the pickup happened, or closes the request when the
-     borrower never showed. The loan clock starts only at pickup. */
+  /* Phase 5.1: approved requests are waiting for pickup. Either side
+     can confirm the pickup happened (the lender's "Picked up" or the
+     borrower's "I picked it up"); closing the request when the
+     borrower never showed stays lender-only. The loan clock starts
+     only at pickup. */
   const awaitingReqs = myReqs.filter(r => r.status === "approved");
   document.getElementById("awaitingList").innerHTML = awaitingReqs.length ? awaitingReqs.map(r => {
     const aTool = state.tools.find(t => t.id === r.toolId);
     /* Same priority as the pending list: owner (or another manager)
-       confirms the pickup; the borrower gets the release instead. */
+       confirms the pickup or closes it out; the borrower confirms
+       their own pickup, or releases the request instead. */
     let aButtons;
     if ((aTool && isToolOwner(aTool)) || (!isRequestBorrower(r) && canManageTool(aTool))) {
       aButtons = '<div class="flex flex-wrap gap-2"><button class="pickup-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Picked up</button>' +
         '<button class="nopickup-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Not picked up</button>' +
         '<button class="unavailable-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">No longer available</button></div>';
     } else if (isRequestBorrower(r)) {
-      aButtons = '<div class="flex flex-wrap items-center gap-2"><span class="text-sm text-gray-400 font-medium">Waiting for you to pick up</span><button class="release-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">I no longer need this tool</button></div>';
+      aButtons = '<div class="flex flex-wrap items-center gap-2"><span class="text-sm text-gray-400 font-medium">Waiting for you to pick up</span><button class="pickup-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">I picked it up</button>' +
+        '<button class="release-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">I no longer need this tool</button></div>';
     } else {
       aButtons = '<span class="text-sm text-gray-400 font-medium">Waiting for pickup</span>';
     }
@@ -2506,6 +2510,10 @@ document.getElementById("lendPhotoClear").addEventListener("click", clearLendPho
 
 document.getElementById("lendForm").addEventListener("submit", async e => {
   e.preventDefault();
+  /* Listing takes an account: the section is hidden while signed out,
+     and a submit that somehow still fires is refused out loud rather
+     than listing as a guest. */
+  if (!currentUser) { toast("Sign in first, and then you can list a tool. Listing takes an account."); return; }
   if (currentProfile && currentProfile.status === "banned") { toast("This account is banned from listing tools."); return; }
   if (!gateSignup("list tools")) return;
   const tool = {
@@ -2898,13 +2906,16 @@ document.getElementById("approveForm").addEventListener("submit", async e => {
   toast("Approved. " + r.borrower + " has been emailed the pickup details.");
 });
 
-/* Pickup confirmation: the lender confirms the borrower actually picked
-   the tool up. Only now does the loan clock start: the due date is the
-   pickup moment plus the loan days from the request, and the borrower
-   gets the checked-out email with that due date. */
+/* Pickup confirmation: either side can confirm the pickup happened,
+   the lender (or an admin) or the borrower on the request. Whoever
+   marks first wins: the request leaves the approved state, so the
+   other side's button no longer exists. Only now does the loan clock
+   start: the due date is the pickup moment plus the loan days from
+   the request, and both parties get the checked-out email with that
+   due date (borrower addressed, lender copied). */
 async function markPickedUp(r) {
   const t = state.tools.find(x => x.id === r.toolId);
-  if (!t || r.status !== "approved" || !canManageTool(t)) return false;
+  if (!t || r.status !== "approved" || (!canManageTool(t) && !isRequestBorrower(r))) return false;
   const snapshot = snapshotState();
   const now = new Date();
   r.pickupAt = now.toISOString();
@@ -3294,7 +3305,10 @@ function canReturnTool(t) {
 /* Phase 5 chrome state: the inline sign-up gate cards, the admin area
    and its menu item, and the top bar's sign-in chip all follow the
    current sign-in state. renderAuth calls renderChrome on every auth or
-   profile change, in both local preview and Supabase modes. */
+   profile change, in both local preview and Supabase modes. The Lend a
+   tool section and every control that scrolls to it follow the same
+   state: they exist only for signed-in members, because listing takes
+   an account and there is no guest listing. */
 function renderGateNotices() {
   const incomplete = Boolean(currentUser && !signupComplete());
   const guest = !currentUser;
@@ -3304,7 +3318,15 @@ function renderGateNotices() {
     el.classList.toggle("flex", show);
   };
   setNotice(document.getElementById("lendGateIncomplete"), incomplete);
-  setNotice(document.getElementById("lendGateGuest"), guest);
+  const setLendVisible = (el, show, displayClass) => {
+    if (!el) return;
+    el.classList.toggle("hidden", !show);
+    if (displayClass) el.classList.toggle(displayClass, show);
+  };
+  setLendVisible(document.getElementById("lend"), !guest, null);
+  setLendVisible(document.getElementById("menuLendItem"), !guest, "flex");
+  setLendVisible(document.getElementById("heroLendBtn"), !guest, "inline-flex");
+  setLendVisible(document.getElementById("catalogEmptyLendBtn"), !guest, null);
   /* Phase 5.5: the catalog gate has two states. A signed-out visitor is
      invited to sign in and create a profile; a signed-in member whose
      profile is unfinished is sent straight to the sign-up form. */
