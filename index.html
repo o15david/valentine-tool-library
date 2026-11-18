@@ -907,7 +907,7 @@ const ADMIN_EMAILS = ["david.snodgrass@gmail.com"]; // David, platform admin (fi
    the current neighborhood's record (its name and its residency_area from
    the neighborhoods table) when the form renders, so every tenant's terms
    name its own neighborhood and residency area. */
-const TERMS_VERSION = "2026-11-13";
+const TERMS_VERSION = "2026-11-18";
 const TERMS_TEXT = [
   "Welcome to the [Organization Name] Tool Lending Library, run by members, for members, at [slug].toollendinglibrary.com.",
   "",
@@ -934,7 +934,7 @@ const COOKIE_NOTE = "This site uses only the cookies and browser storage it need
    the current neighborhood's record when the text renders. Every claim
    here matches the app's actual behavior in this build: if a sentence
    would not be true, it does not belong in the policy. */
-const PRIVACY_VERSION = "2026-11-13.2";
+const PRIVACY_VERSION = "2026-11-18";
 const PRIVACY_TEXT = [
   "Welcome to the [Organization Name] Tool Lending Library at [slug].toollendinglibrary.com. This policy explains, in plain language, what information the library holds, why it holds it, and who can see it.",
   "",
@@ -1002,19 +1002,31 @@ function tenantResidency() {
    before. In the neutral state (no library loaded, Phase 5.11) the
    welcome line names just the Tool Lending Library and the residency token
    reads "the area this library serves", so the texts stay generic
-   rather than borrowing another library's name. */
+   rather than borrowing another library's name.
+   Nov 18, 2026 fix: the platform root host (the marketing site) is
+   also a neutral context. The root still resolves the default tenant
+   so the shared registration flow works, which meant the footer terms
+   and privacy dialogs on toollendinglibrary.com, and the About step
+   of the create-a-library flow that runs there before the new library
+   exists, rendered filled with the default tenant's name, web
+   address, and residency area. On the root host the texts now always
+   render neutral: the welcome line names toollendinglibrary.com
+   itself, and no library's name, slug, or residency area appears. */
 function fillTenantTokens(text) {
   const nb = tenantRecord();
-  let out = text
-    .split("[Organization Name / residency area]").join(tenantResidency())
-    .split("[slug]").join(CURRENT_SLUG);
-  if (nb.name) {
-    out = out.split("[Organization Name]").join(nb.name);
-  } else {
-    out = out.split("[Organization Name] Tool Lending Library").join("Tool Lending Library")
-             .split("[Organization Name]").join("this library");
+  const neutral = IS_ROOT_HOST || !nb.name;
+  if (neutral) {
+    return text
+      .split("[Organization Name / residency area]").join("the area this library serves")
+      .split("[slug].toollendinglibrary.com").join("toollendinglibrary.com")
+      .split("[slug]").join("toollendinglibrary.com")
+      .split("[Organization Name] Tool Lending Library").join("Tool Lending Library")
+      .split("[Organization Name]").join("this library");
   }
-  return out;
+  return text
+    .split("[Organization Name / residency area]").join(tenantResidency())
+    .split("[slug]").join(CURRENT_SLUG)
+    .split("[Organization Name]").join(nb.name);
 }
 
 /* Render the privacy policy for the library currently being browsed. */
