@@ -251,8 +251,8 @@ tailwind.config = {
           </select>
         </div>
         <div>
-          <label class="text-sm font-semibold" for="lendDesc">Description and what is included</label>
-          <textarea id="lendDesc" required maxlength="280" rows="3" placeholder="What it is, what comes with it, anything a borrower should know" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></textarea>
+          <label class="text-sm font-semibold" for="lendDesc">Description and what is included <span class="font-normal text-gray-400">(optional)</span></label>
+          <textarea id="lendDesc" maxlength="280" rows="3" placeholder="What it is, what comes with it, anything a borrower should know" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></textarea>
         </div>
         <div>
           <span class="text-sm font-semibold">Pickup windows</span>
@@ -598,8 +598,8 @@ tailwind.config = {
       </div>
     </div>
     <div>
-      <label class="text-sm font-semibold" for="editDesc">Description and what is included</label>
-      <textarea id="editDesc" required maxlength="280" rows="3" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></textarea>
+      <label class="text-sm font-semibold" for="editDesc">Description and what is included <span class="font-normal text-gray-400">(optional)</span></label>
+      <textarea id="editDesc" maxlength="280" rows="3" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></textarea>
     </div>
     <div>
       <span class="text-sm font-semibold">Pickup windows</span>
@@ -722,16 +722,16 @@ tailwind.config = {
   <form id="neighborhoodForm" class="p-6 space-y-4">
     <div class="flex items-start justify-between gap-4">
       <div>
-        <h3 class="font-display text-xl font-bold text-gray-950">Start a library for your organization</h3>
-        <p class="text-sm text-gray-500 mt-1">A few short steps. You become the first admin of the new library.</p>
+        <h3 id="nbDialogTitle" class="font-display text-xl font-bold text-gray-950">Start a library for your organization</h3>
+        <p id="nbDialogSubtitle" class="text-sm text-gray-500 mt-1">A few short steps. You become the first admin of the new library.</p>
       </div>
       <button type="button" id="nbClose" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Close">×</button>
     </div>
 
     <div id="nbStep1">
-      <h4 class="text-sm font-bold text-gray-950">Step 1: Your email</h4>
+      <h4 id="nbStep1Heading" class="text-sm font-bold text-gray-950">Step 1: Your email</h4>
       <div id="nbSigninBlock" class="mt-2 space-y-3">
-        <p class="text-sm text-gray-600">Creating a library starts with your email, because the person who creates it becomes its admin. Your email is your login: we email you a sign-in link, and there is no password to make or remember. If you are new here, we will ask your name and address next. If you have been here before, the link just signs you in, and your new library is added to your account.</p>
+        <p id="nbStep1Copy" class="text-sm text-gray-600">Creating a library starts with your email, because the person who creates it becomes its admin. Your email is your login: we email you a sign-in link, and there is no password to make or remember. If you are new here, we will ask your name and address next. If you have been here before, the link just signs you in, and your new library is added to your account.</p>
         <div class="flex flex-wrap items-center gap-2">
           <label class="sr-only" for="nbEmail">Your email address</label>
           <input id="nbEmail" type="email" placeholder="you@example.com" class="flex-1 min-w-[12rem] rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
@@ -765,7 +765,9 @@ tailwind.config = {
         </div>
         <p id="nbSigninMsg" class="text-sm text-gray-500"></p>
       </div>
-      <p id="nbSignedInBlock" class="hidden mt-2 text-sm text-gray-600">Done. You are signed in as <span id="nbSignedInEmail" class="font-semibold text-gray-900"></span>, so you will be the admin of the new library.</p>
+      <p id="nbSignedInBlock" class="hidden mt-2 text-sm text-gray-600">Done. You are signed in as <span id="nbSignedInEmail" class="font-semibold text-gray-900"></span><span id="nbSignedInTail">, so you will be the admin of the new library.</span></p>
+      <div id="nbSignedInLibraries" class="hidden mt-3 space-y-1"></div>
+      <p id="nbSignedInNoLibraries" class="hidden mt-2 text-sm text-gray-600">You are not a member of a library yet. To join one, visit that library's own web address. To start one, close this and use Create your library.</p>
     </div>
 
     <div id="nbAboutStep" class="hidden">
@@ -4295,6 +4297,10 @@ async function refreshLibrarySwitcher() {
     console.warn("Library memberships load failed:", e);
   }
   renderLibrarySwitcher();
+  /* The sign-in dialog lists the same memberships; refresh it too so
+     the links appear once the read lands, even if the dialog opened
+     before it finished. */
+  if (nbDialogMode === "signin") updateRegistrationFlow();
 }
 
 async function handleSession(session) {
@@ -4841,16 +4847,65 @@ const neighborhoodModal = document.getElementById("neighborhoodModal");
 function registrationIsNewPerson() {
   return Boolean(currentUser) && !currentProfile && !anyProfile;
 }
+/* The dialog has two modes. "create" is the original flow: sign in,
+   then About you for a brand-new person, then the organization step.
+   "signin" is a plain sign-in (Nov 18, 2026: David found that Sign in
+   on the marketing site opened this dialog framed as starting a
+   library, which reads as the wrong card when all you want is to
+   sign in). Sign-in mode reframes the header and the email step,
+   never shows the About or organization steps, and once signed in it
+   lists the person's libraries right in the dialog, with a plain
+   note when they have none yet. The email form, the notice panel,
+   and the code entry are shared, so both modes sign in identically. */
+let nbDialogMode = "create";
+function applyNbDialogMode() {
+  const signin = nbDialogMode === "signin";
+  document.getElementById("nbDialogTitle").textContent = signin ? "Sign in" : "Start a library for your organization";
+  document.getElementById("nbDialogSubtitle").textContent = signin ? "Sign in to your Tool Lending Library account." : "A few short steps. You become the first admin of the new library.";
+  document.getElementById("nbStep1Heading").textContent = signin ? "Your email" : "Step 1: Your email";
+  document.getElementById("nbStep1Copy").textContent = signin
+    ? "Your email is your login: we email you a sign-in link, and there is no password to make or remember. If you are new here, that link creates your account too. Once you are signed in, your libraries are one tap away."
+    : "Creating a library starts with your email, because the person who creates it becomes its admin. Your email is your login: we email you a sign-in link, and there is no password to make or remember. If you are new here, we will ask your name and address next. If you have been here before, the link just signs you in, and your new library is added to your account.";
+}
+async function openNbDialog(mode) {
+  nbDialogMode = mode === "signin" ? "signin" : "create";
+  applyNbDialogMode();
+  try { allNeighborhoods = await store.listNeighborhoods(); } catch (e) { console.warn("Neighborhood list failed:", e); }
+  document.getElementById("nbResult").classList.add("hidden");
+  document.getElementById("nbStep1").classList.remove("hidden");
+  document.getElementById("nbStep2").classList.remove("hidden");
+  updateRegistrationFlow();
+  neighborhoodModal.showModal();
+}
 function updateRegistrationFlow() {
   const signinBlock = document.getElementById("nbSigninBlock");
   if (!signinBlock) return;
+  const signinMode = nbDialogMode === "signin";
   const signedIn = Boolean(currentUser);
   const newPerson = registrationIsNewPerson();
   signinBlock.classList.toggle("hidden", signedIn);
   document.getElementById("nbSignedInBlock").classList.toggle("hidden", !signedIn);
   if (signedIn) document.getElementById("nbSignedInEmail").textContent = currentUser.email || "";
-  document.getElementById("nbAboutStep").classList.toggle("hidden", !newPerson);
-  if (newPerson) {
+  document.getElementById("nbSignedInTail").textContent = signinMode ? "." : ", so you will be the admin of the new library.";
+  /* Sign-in mode: the signed-in state lists the person's libraries
+     (the same memberships the navigation switcher uses), or a plain
+     note when they have none. Create mode never shows either. */
+  const libsWrap = document.getElementById("nbSignedInLibraries");
+  const noLibs = document.getElementById("nbSignedInNoLibraries");
+  if (signinMode && signedIn) {
+    const libs = memberLibraries.filter(m => m && m.slug && (IS_ROOT_HOST || m.slug !== CURRENT_SLUG));
+    libsWrap.innerHTML = libs.map(m =>
+      '<a href="https://' + esc(m.slug) + '.toollendinglibrary.com/" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 border border-gray-200">' +
+      '<span class="truncate">' + esc(m.name) + ' Tool Lending Library</span></a>'
+    ).join("");
+    libsWrap.classList.toggle("hidden", !libs.length);
+    noLibs.classList.toggle("hidden", Boolean(libs.length));
+  } else {
+    libsWrap.classList.add("hidden");
+    noLibs.classList.add("hidden");
+  }
+  document.getElementById("nbAboutStep").classList.toggle("hidden", !newPerson || signinMode);
+  if (newPerson && !signinMode) {
     document.getElementById("nbAboutTerms").textContent = termsText();
     document.getElementById("nbAboutPrivacy").textContent = privacyText();
     document.getElementById("nbAboutCookie").textContent = COOKIE_NOTE;
@@ -4861,8 +4916,8 @@ function updateRegistrationFlow() {
      is up: this refresh runs on every auth render, and the panel is
      what replaces the steps after a creation. */
   const doneShown = !document.getElementById("nbResult").classList.contains("hidden");
-  document.getElementById("nbStep2").classList.toggle("hidden", !signedIn || doneShown);
-  document.getElementById("nbAboutFirstNote").classList.toggle("hidden", !newPerson);
+  document.getElementById("nbStep2").classList.toggle("hidden", !signedIn || doneShown || signinMode);
+  document.getElementById("nbAboutFirstNote").classList.toggle("hidden", !newPerson || signinMode);
   document.getElementById("nbOrgFields").disabled = !signedIn;
 }
 document.getElementById("nbSigninBtn").addEventListener("click", async () => {
@@ -4872,21 +4927,16 @@ document.getElementById("nbSigninBtn").addEventListener("click", async () => {
     showAuthNotice("nb", "error", "Check that email address", "Please enter a valid email address so we can send your sign-in link.", { email: "", afterSend: "", nextAllowedAt: 0 });
     return;
   }
-  await signInWithEmail(email, msg, { afterSend: " Open the link in that email, then come back here and open Create the library again: your email step will be done and the rest of the form will be ready for you." });
+  await signInWithEmail(email, msg, { afterSend: nbDialogMode === "signin"
+    ? " Open the link in that email and you will be signed in here, with your libraries one tap away."
+    : " Open the link in that email, then come back here and open Create the library again: your email step will be done and the rest of the form will be ready for you." });
   updateRegistrationFlow();
 });
 document.getElementById("nbEmail").addEventListener("keydown", e => {
   if (e.key === "Enter") { e.preventDefault(); document.getElementById("nbSigninBtn").click(); }
 });
 
-document.getElementById("startNeighborhoodBtn").addEventListener("click", async () => {
-  try { allNeighborhoods = await store.listNeighborhoods(); } catch (e) { console.warn("Neighborhood list failed:", e); }
-  document.getElementById("nbResult").classList.add("hidden");
-  document.getElementById("nbStep1").classList.remove("hidden");
-  document.getElementById("nbStep2").classList.remove("hidden");
-  updateRegistrationFlow();
-  neighborhoodModal.showModal();
-});
+document.getElementById("startNeighborhoodBtn").addEventListener("click", () => { openNbDialog("create"); });
 document.getElementById("nbClose").addEventListener("click", () => neighborhoodModal.close());
 neighborhoodModal.addEventListener("click", e => { if (e.target === neighborhoodModal) neighborhoodModal.close(); });
 document.getElementById("nbSlug").addEventListener("input", e => {
@@ -5761,13 +5811,14 @@ function setupMarketingMode() {
   if (menuSigninItem) {
     /* On the root the tenant sign-in section is hidden with the rest
        of the tenant page, so the menu's Sign in item opens the shared
-       dialog instead: its first step is the same sign-in form (the
-       same signInWithEmail path), not a second form. */
+       dialog in its sign-in mode (Nov 18, 2026): the same sign-in
+       form and signInWithEmail path, framed as signing in, and it
+       ends at the signed-in state with the person's libraries listed.
+       It no longer presents the create-a-library framing. */
     menuSigninItem.removeAttribute("data-scroll-to");
     menuSigninItem.addEventListener("click", () => {
       setNavMenu(false);
-      const opener = document.getElementById("startNeighborhoodBtn");
-      if (opener) opener.click();
+      openNbDialog("signin");
     });
   }
   document.querySelectorAll(".root-nav-item").forEach(el => { el.classList.remove("hidden"); el.classList.add("flex"); });
