@@ -24,8 +24,12 @@ tailwind.config = {
           display: ['system-ui','-apple-system','Segoe UI','Roboto','Helvetica','Arial','sans-serif'],
           sans: ['system-ui','-apple-system','Segoe UI','Roboto','Helvetica','Arial','sans-serif']
         },
+      colors: {
+        gray: {50:'#fafaf9',100:'#f5f5f4',200:'#e7e5e4',300:'#d6d3d1',400:'#a8a29e',500:'#78716c',600:'#57534e',700:'#44403c',800:'#292524',900:'#1c1917',950:'#0c0a09'},
+        brand: {50:'#eff6fd',100:'#dcebfa',200:'#c0dbf7',300:'#94c2f1',400:'#61a3e8',500:'#3d84d8',600:'#0366c0',700:'#025aa8',800:'#074c8a',900:'#0a406f',950:'#082f52'}
+      },
       boxShadow: {
-        card: '0 1px 3px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.05)'
+        card: '0 1px 3px rgba(28,25,23,.05), 0 8px 24px rgba(28,25,23,.06)'
       }
     }
   }
@@ -33,7 +37,14 @@ tailwind.config = {
 </script>
 <style>
   html { scroll-behavior: smooth; }
-  body { background-color: #ffffff; }
+  body { background-color: #fafaf9; }
+  /* Theme warm-up (Nov 19, 2026; David picked the full warm-up after
+     calling the old look sterile): the gray palette is remapped to warm
+     stone in the Tailwind config above, the logo blue #0366C0 is now the
+     brand accent for primary buttons, badges, notice panels, and
+     section icons, and the heroes get this soft warm-to-blue wash.
+     Cards stay white on the warm off-white page. */
+  .hero-warm { background: linear-gradient(165deg, #fdfcf9 0%, #f7f3ec 55%, #e9f1fa 100%); }
   /* Category chips: default and active backgrounds live in this custom
      block, never in a Tailwind utility on the button. The Play CDN injects
      its stylesheet after this block, so a utility like bg-white wins an
@@ -41,7 +52,7 @@ tailwind.config = {
      white pill with white text and icon. .chip.chip-active (two classes)
      outranks any single utility regardless of order. */
   .chip { background-color: #ffffff; }
-  .chip.chip-active { background-color: #171717; color: #fff; border-color: #171717; }
+  .chip.chip-active { background-color: #0366c0; color: #fff; border-color: #0366c0; }
   /* Phase 5: one-page areas. Anchored sections clear the sticky top bar
      when scrolled to, so a section title is never hidden underneath it. */
   .section-anchor { scroll-margin-top: 88px; }
@@ -90,7 +101,7 @@ tailwind.config = {
         <div id="navMenu" class="hidden absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-2xl shadow-xl p-2 z-50">
           <button data-scroll-to="catalog" class="tenant-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="grid" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Browse the catalog</button>
           <button data-scroll-to="lend" id="menuLendItem" class="tenant-nav-item w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left hidden"><span data-icon="wrench" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Lend a tool</button>
-          <button data-scroll-to="requests" id="menuRequestsItem" class="tenant-nav-item w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left hidden"><span data-icon="inbox" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Requests and loans<span id="pendingBadge" class="ml-auto inline-flex items-center justify-center bg-gray-900 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></button>
+          <button data-scroll-to="requests" id="menuRequestsItem" class="tenant-nav-item w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left hidden"><span data-icon="inbox" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Requests and loans<span id="pendingBadge" class="ml-auto inline-flex items-center justify-center bg-brand-600 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></button>
           <button data-scroll-to="how" class="tenant-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="info" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>How it works</button>
           <button id="menuSigninItem" data-scroll-to="signin" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="user" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Sign in</button>
           <button id="menuProfileItem" data-scroll-to="signin" class="tenant-nav-item hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="user" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Your profile</button>
@@ -99,7 +110,7 @@ tailwind.config = {
           <button data-scroll-to="mk-audience" class="root-nav-item hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="user" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Who it is for</button>
           <button type="button" class="root-nav-item mk-create-btn hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="plus" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Create your library</button>
           <div id="librarySwitcher" class="hidden"></div>
-          <button id="adminMenuItem" data-scroll-to="admin" class="tenant-nav-item hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="shield" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Admin <span id="reportsBadge" class="hidden ml-auto inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-gray-900 text-white text-[11px] font-bold"></span></button>
+          <button id="adminMenuItem" data-scroll-to="admin" class="tenant-nav-item hidden w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-800 hover:bg-gray-50 text-left"><span data-icon="shield" data-icon-class="w-5 h-5" class="text-gray-400 flex shrink-0"></span>Admin <span id="reportsBadge" class="hidden ml-auto inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-brand-600 text-white text-[11px] font-bold"></span></button>
         </div>
       </div>
     </div>
@@ -108,16 +119,16 @@ tailwind.config = {
 
 
 <!-- Header -->
-<header id="tenantHero" class="bg-white text-gray-900 border-b border-gray-200">
+<header id="tenantHero" class="hero-warm text-gray-900 border-b border-gray-200">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <p id="tenantEyebrow" class="text-gray-500 text-xs sm:text-sm font-semibold tracking-widest uppercase">A sharing library</p>
+        <p id="tenantEyebrow" class="text-brand-700 text-xs sm:text-sm font-semibold tracking-widest uppercase">A sharing library</p>
         <h1 id="tenantTitle" class="font-display font-bold mt-2"><span id="tenantTitleOrg" class="hidden"></span> <span id="tenantTitleSub" class="block text-3xl sm:text-5xl leading-tight">Tool Lending Library</span></h1>
         <p class="text-gray-600 mt-3 max-w-xl text-sm sm:text-base">Borrow the ladder, pressure washer, or canopy you need for the weekend, from a member who already owns it. Lend the tools sitting in your garage and put them to work in your community.</p>
       </div>
       <div class="flex flex-col gap-2">
-        <button data-scroll-to="lend" id="heroLendBtn" class="hidden bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shadow items-center justify-center gap-2"><span data-icon="plus" data-icon-class="w-4 h-4" class="flex shrink-0"></span>Lend a tool</button>
+        <button data-scroll-to="lend" id="heroLendBtn" class="hidden bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shadow items-center justify-center gap-2"><span data-icon="plus" data-icon-class="w-4 h-4" class="flex shrink-0"></span>Lend a tool</button>
         <button data-scroll-to="requests" id="heroRequestsBtn" class="hidden bg-white hover:bg-gray-50 text-gray-900 font-semibold px-5 py-2.5 rounded-full text-sm border border-gray-300">Requests and loans</button>
       </div>
     </div>
@@ -131,9 +142,9 @@ tailwind.config = {
 
   <!-- Prominent action confirmation: primary actions report here in a
        persistent panel, not only in the small toast. -->
-  <div id="actionNotice" class="prominent-notice hidden rounded-2xl border-2 border-gray-900 bg-white p-5 shadow-card" role="status" aria-live="polite">
+  <div id="actionNotice" class="prominent-notice hidden rounded-2xl border-2 border-brand-600 bg-white p-5 shadow-card" role="status" aria-live="polite">
     <div class="flex items-start gap-3">
-      <span class="notice-icon w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center shrink-0"></span>
+      <span class="notice-icon w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0"></span>
       <div class="flex-1 min-w-0">
         <h2 class="notice-title font-display text-xl font-bold text-gray-950"></h2>
         <p class="notice-body text-base text-gray-700 mt-1"></p>
@@ -145,7 +156,7 @@ tailwind.config = {
   <!-- Catalog -->
   <section id="catalog" class="section-anchor">
     <div class="flex items-start gap-3 mb-6">
-      <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="grid" data-icon-class="w-5 h-5" class="flex"></span></span>
+      <span class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 flex items-center justify-center shrink-0"><span data-icon="grid" data-icon-class="w-5 h-5" class="flex"></span></span>
       <div>
         <h2 class="font-display text-2xl font-bold text-gray-950">Browse the catalog</h2>
         <p class="text-sm text-gray-500 mt-0.5">Tools members are lending. Search or filter, then send a request.</p>
@@ -162,12 +173,12 @@ tailwind.config = {
           <p id="catalogGateText" class="text-sm text-gray-500 mt-0.5 max-w-xl">This library is for members of this organization. Sign in and create your profile to browse the tools members are lending.</p>
         </div>
       </div>
-      <button id="catalogGateButton" data-scroll-to="signin" type="button" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shrink-0">Sign in and create your profile</button>
+      <button id="catalogGateButton" data-scroll-to="signin" type="button" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shrink-0">Sign in and create your profile</button>
     </div>
     <div id="catalogControls" class="flex flex-col lg:flex-row lg:items-center gap-3">
       <div class="relative flex-1">
         <span data-icon="search" data-icon-class="w-5 h-5" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none flex"></span>
-        <input id="searchInput" type="search" placeholder="Search tools, for example ladder, drill, canopy" class="w-full rounded-xl border border-gray-200 bg-white pl-12 pr-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+        <input id="searchInput" type="search" placeholder="Search tools, for example ladder, drill, canopy" class="w-full rounded-xl border border-gray-200 bg-white pl-12 pr-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
       </div>
       <label class="inline-flex items-center gap-2 text-sm font-medium bg-white border border-gray-200 rounded-xl px-4 py-3 cursor-pointer">
         <input id="availableOnly" type="checkbox" class="accent-gray-900 w-4 h-4"> Available only
@@ -179,7 +190,7 @@ tailwind.config = {
     <div id="catalogEmpty" class="hidden bg-white border border-dashed border-gray-300 rounded-2xl p-10 text-center">
       <p class="font-display text-xl font-bold text-gray-900">No tools match, yet</p>
       <p class="text-sm text-gray-500 mt-2">Try another word, or be the first member to lend one like it. Your garage might hold exactly what someone in your community needs.</p>
-      <button data-scroll-to="lend" id="catalogEmptyLendBtn" class="hidden mt-4 bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Lend a tool</button>
+      <button data-scroll-to="lend" id="catalogEmptyLendBtn" class="hidden mt-4 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Lend a tool</button>
     </div>
   </section>
 
@@ -209,7 +220,7 @@ tailwind.config = {
           <p class="text-sm text-gray-500 mt-0.5 max-w-xl">You are signed in, but the library still needs your name, home address, and terms agreement before you can list or borrow. It takes about a minute. Anything you type in the form below stays put while you finish.</p>
         </div>
       </div>
-      <button data-scroll-to="signupSection" type="button" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shrink-0">Finish signing up</button>
+      <button data-scroll-to="signupSection" type="button" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm shrink-0">Finish signing up</button>
     </div>
     <div class="grid lg:grid-cols-5 gap-8">
       <div class="lg:col-span-2">
@@ -222,47 +233,47 @@ tailwind.config = {
       <form id="lendForm" class="lg:col-span-3 bg-white rounded-2xl shadow-card border border-gray-200 p-6 space-y-4">
         <div>
           <label class="text-sm font-semibold" for="lendName">Tool name</label>
-          <input id="lendName" required maxlength="60" placeholder="For example: 24 ft extension ladder" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <input id="lendName" required maxlength="60" placeholder="For example: 24 ft extension ladder" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
         </div>
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label class="text-sm font-semibold" for="lendCategory">Category</label>
-            <select id="lendCategory" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"></select>
+            <select id="lendCategory" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-400"></select>
           </div>
           <div>
             <label class="text-sm font-semibold" for="lendDays">Standard loan length (days)</label>
-            <input id="lendDays" type="number" min="1" max="30" value="3" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+            <input id="lendDays" type="number" min="1" max="30" value="3" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
           </div>
         </div>
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label class="text-sm font-semibold" for="lendOwner">Your name</label>
-            <input id="lendOwner" required maxlength="40" placeholder="For example: Dana W." class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+            <input id="lendOwner" required maxlength="40" placeholder="For example: Dana W." class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
           </div>
           <div>
             <label class="text-sm font-semibold" for="lendContact">Your email or phone</label>
-            <input id="lendContact" required maxlength="60" placeholder="How borrowers reach you" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+            <input id="lendContact" required maxlength="60" placeholder="How borrowers reach you" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
           </div>
         </div>
         <div>
           <label class="text-sm font-semibold" for="lendCondition">Condition</label>
-          <select id="lendCondition" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <select id="lendCondition" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-400">
             <option>Excellent</option><option selected>Good</option><option>Fair, works fine</option>
           </select>
         </div>
         <div>
           <label class="text-sm font-semibold" for="lendDesc">Description and what is included <span class="font-normal text-gray-400">(optional)</span></label>
-          <textarea id="lendDesc" maxlength="280" rows="3" placeholder="What it is, what comes with it, anything a borrower should know" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></textarea>
+          <textarea id="lendDesc" maxlength="280" rows="3" placeholder="What it is, what comes with it, anything a borrower should know" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"></textarea>
         </div>
         <div>
           <span class="text-sm font-semibold">Pickup windows</span>
           <p class="text-xs text-gray-400 mt-0.5">When can members pick up from you? Tick any that work, or write your own. Borrowers pick one when they request.</p>
           <div id="lendPickupPresets" class="mt-2 space-y-1.5 text-sm"></div>
-          <input id="lendPickupOther" maxlength="80" placeholder="Other window, for example: weekday mornings before 9" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <input id="lendPickupOther" maxlength="80" placeholder="Other window, for example: weekday mornings before 9" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
         </div>
         <div>
           <label class="text-sm font-semibold" for="lendPickupLocation">Pickup location <span class="font-normal text-gray-400">(optional)</span></label>
-          <input id="lendPickupLocation" maxlength="120" placeholder="Leave blank for your home address, or name another spot" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <input id="lendPickupLocation" maxlength="120" placeholder="Leave blank for your home address, or name another spot" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
           <p class="text-xs text-gray-400 mt-1">Your address stays private. This spot is only shared with a borrower after you approve their request.</p>
         </div>
         <div>
@@ -271,7 +282,7 @@ tailwind.config = {
           <input id="lendPhoto" type="file" accept="image/*" class="mt-2 w-full text-sm">
           <button type="button" id="lendPhotoClear" class="hidden mt-2 text-sm text-gray-500 underline decoration-dotted hover:text-gray-800">Remove photo</button>
         </div>
-        <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full sm:w-auto">Add to the library</button>
+        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full sm:w-auto">Add to the library</button>
       </form>
     </div>
   </section>
@@ -280,9 +291,9 @@ tailwind.config = {
        here (render() toggles it); ships hidden so it never flashes empty. -->
   <section id="requests" class="section-anchor hidden">
     <div class="flex items-start gap-3 mb-6">
-      <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="inbox" data-icon-class="w-5 h-5" class="flex"></span></span>
+      <span class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 flex items-center justify-center shrink-0"><span data-icon="inbox" data-icon-class="w-5 h-5" class="flex"></span></span>
       <div>
-        <h2 class="font-display text-2xl font-bold text-gray-950 flex items-center gap-2.5">Requests and loans <span id="pendingBadgeSection" class="inline-flex items-center justify-center bg-gray-900 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></h2>
+        <h2 class="font-display text-2xl font-bold text-gray-950 flex items-center gap-2.5">Requests and loans <span id="pendingBadgeSection" class="inline-flex items-center justify-center bg-brand-600 text-white text-xs font-bold rounded-full min-w-[1.25rem] h-5 px-1 hidden">0</span></h2>
         <p class="text-sm text-gray-500 mt-0.5 max-w-2xl">Members approve requests for their own tools here. Approving reserves the tool and sets the pickup time. When the borrower picks it up, mark it picked up and the loan clock starts; if they do not show, mark it not picked up and the tool goes back on the shelf. When a loan comes back, mark it returned.</p>
       </div>
     </div>
@@ -337,7 +348,7 @@ tailwind.config = {
   <!-- Sign in and profile (Phase 2 auth + Phase 3 sign-up, one defined area) -->
   <section id="signin" class="section-anchor">
     <div class="flex items-start gap-3 mb-6">
-      <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
+      <span class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
       <div>
         <h2 class="font-display text-2xl font-bold text-gray-950">Sign in and your profile</h2>
         <p class="text-sm text-gray-500 mt-0.5">Sign in with a one-time link sent to your email. Your profile holds the name and address you list and borrow with.</p>
@@ -350,20 +361,20 @@ tailwind.config = {
     <p id="authNotConfigured" class="text-sm text-gray-500">Sign-in is not configured yet. You can still browse the catalog, request tools, and lend tools on this page.</p>
     <form id="authForm" class="hidden flex-wrap items-center gap-2">
       <label class="text-sm font-semibold text-gray-900" for="authEmail">Member sign-in</label>
-      <input id="authEmail" type="email" required placeholder="you@example.com" class="flex-1 min-w-[12rem] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-      <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-4 py-2 rounded-full text-sm">Email me a sign-in link</button>
+      <input id="authEmail" type="email" required placeholder="you@example.com" class="flex-1 min-w-[12rem] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
+      <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2 rounded-full text-sm">Email me a sign-in link</button>
     </form>
     <div id="authSignedIn" class="hidden flex-wrap items-center gap-3">
       <p class="text-sm text-gray-600">Signed in as <span id="authUserEmail" class="font-semibold text-gray-900"></span></p>
       <button id="authSignOut" type="button" class="text-sm font-semibold text-gray-700 underline decoration-dotted">Sign out</button>
     </div>
-    <div id="authNotice" class="hidden mt-5 max-w-2xl rounded-2xl border-2 border-gray-900 bg-white p-5 shadow-card" role="status" aria-live="polite">
+    <div id="authNotice" class="hidden mt-5 max-w-2xl rounded-2xl border-2 border-brand-600 bg-white p-5 shadow-card" role="status" aria-live="polite">
       <div class="flex items-start gap-3">
-        <span id="authNoticeIcon" class="w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center shrink-0"></span>
+        <span id="authNoticeIcon" class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0"></span>
         <div class="flex-1 min-w-0">
           <h3 id="authNoticeTitle" class="font-display text-xl font-bold text-gray-950"></h3>
           <p id="authNoticeBody" class="text-base text-gray-700 mt-1"></p>
-          <button id="authNoticeResend" type="button" class="hidden mt-4 bg-gray-900 hover:bg-gray-700 disabled:bg-gray-300 disabled:text-gray-600 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Resend sign-in link</button>
+          <button id="authNoticeResend" type="button" class="hidden mt-4 bg-brand-600 hover:bg-brand-700 disabled:bg-gray-300 disabled:text-gray-600 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Resend sign-in link</button>
           <p id="authNoticeResendNote" class="hidden text-sm text-gray-500 mt-2"></p>
         </div>
         <button id="authNoticeDismiss" type="button" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Dismiss sign-in message">×</button>
@@ -377,16 +388,16 @@ tailwind.config = {
           <p class="text-sm text-gray-600 mt-1">The same email also includes a short sign-in code for <span id="authCodeEmail" class="font-semibold text-gray-900"></span>. Enter it here if the link is hard to find.</p>
           <div class="flex flex-wrap items-center gap-2 mt-4">
             <label class="sr-only" for="authCode">Sign-in code</label>
-            <input id="authCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="12" placeholder="Sign-in code" class="flex-1 min-w-[10rem] rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-            <button id="authCodeBtn" type="button" class="bg-gray-900 hover:bg-gray-700 disabled:bg-gray-300 disabled:text-gray-600 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Sign in with this code</button>
+            <input id="authCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="12" placeholder="Sign-in code" class="flex-1 min-w-[10rem] rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
+            <button id="authCodeBtn" type="button" class="bg-brand-600 hover:bg-brand-700 disabled:bg-gray-300 disabled:text-gray-600 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Sign in with this code</button>
           </div>
         </div>
       </div>
     </div>
     <p id="authMessage" class="text-sm text-gray-500 mt-1"></p>
-    <div id="profileNotice" class="prominent-notice hidden mt-5 max-w-2xl rounded-2xl border-2 border-gray-900 bg-white p-5 shadow-card" role="status" aria-live="polite">
+    <div id="profileNotice" class="prominent-notice hidden mt-5 max-w-2xl rounded-2xl border-2 border-brand-600 bg-white p-5 shadow-card" role="status" aria-live="polite">
       <div class="flex items-start gap-3">
-        <span class="notice-icon w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center shrink-0"></span>
+        <span class="notice-icon w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0"></span>
         <div class="flex-1 min-w-0">
           <h3 class="notice-title font-display text-xl font-bold text-gray-950"></h3>
           <p class="notice-body text-base text-gray-700 mt-1"></p>
@@ -404,11 +415,11 @@ tailwind.config = {
       <form id="signupForm" class="mt-5 grid gap-4 max-w-2xl">
         <div>
           <label class="text-sm font-semibold" for="signupName">Full name</label>
-          <input id="signupName" required maxlength="80" placeholder="Your full name" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <input id="signupName" required maxlength="80" placeholder="Your full name" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-400">
         </div>
         <div>
           <label class="text-sm font-semibold" for="signupAddress">Home address</label>
-          <input id="signupAddress" required maxlength="160" placeholder="Street address, city, ZIP" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <input id="signupAddress" required maxlength="160" placeholder="Street address, city, ZIP" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-400">
           <p id="signupAddressHelp" class="text-xs text-gray-400 mt-1">The home you actually live in. Members must live in the area this library serves, so the address has to be your real home.</p>
         </div>
         <div>
@@ -429,7 +440,7 @@ tailwind.config = {
           </label>
         </div>
         <div>
-          <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm">Finish signing up</button>
+          <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-full text-sm">Finish signing up</button>
         </div>
       </form>
     </div>
@@ -438,7 +449,7 @@ tailwind.config = {
          their name and home address here, or delete their account. -->
     <div id="accountSection" class="hidden bg-white border border-gray-200 rounded-3xl px-5 py-7 sm:px-8 mt-8">
       <div class="flex items-start gap-3 mb-5">
-        <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
+        <span class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
         <div>
           <h3 class="font-display text-xl font-bold text-gray-950">Your account</h3>
           <p class="text-sm text-gray-500 mt-0.5">The details you lend and borrow with. Keep them current so your account stays accurate.</p>
@@ -452,11 +463,11 @@ tailwind.config = {
         </div>
         <div>
           <label class="text-sm font-semibold" for="accountName">Full name</label>
-          <input id="accountName" required maxlength="80" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <input id="accountName" required maxlength="80" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-400">
         </div>
         <div>
           <label class="text-sm font-semibold" for="accountAddress">Home address</label>
-          <input id="accountAddress" required maxlength="160" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <input id="accountAddress" required maxlength="160" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-400">
           <p class="text-xs text-gray-400 mt-1">Still private: your address is never shown to other members. Only the library admin can see it, for the area and community check and for safety.</p>
         </div>
         <div>
@@ -471,7 +482,7 @@ tailwind.config = {
           <p class="text-xs text-gray-400 mt-1">Pick a photo, then Save changes. Removing a photo also takes effect when you save.</p>
         </div>
         <div>
-          <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm">Save changes</button>
+          <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-full text-sm">Save changes</button>
         </div>
       </form>
       <div class="border-t border-gray-200 mt-8 pt-6 max-w-2xl">
@@ -486,7 +497,7 @@ tailwind.config = {
   <!-- Phase 2: admin (visible only to admins of this neighborhood) -->
   <section id="admin" class="hidden section-anchor">
     <div class="flex items-start gap-3 mb-6">
-      <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="shield" data-icon-class="w-5 h-5" class="flex"></span></span>
+      <span class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 flex items-center justify-center shrink-0"><span data-icon="shield" data-icon-class="w-5 h-5" class="flex"></span></span>
       <div>
         <h2 class="font-display text-2xl font-bold text-gray-950">Admin</h2>
         <p class="text-sm text-gray-500 mt-0.5 max-w-2xl">Member accounts for this library. Banning blocks sign-in and new requests. Deleting removes the member's profile, their tools, and their requests from this library.</p>
@@ -497,15 +508,15 @@ tailwind.config = {
       <p class="text-sm text-gray-500 mt-1">Shown at the top of this library and used as the browser tab icon. Paste a public URL or a path on this site, for example /logo.png, or upload an image file below. A PNG with a transparent background works best.</p>
       <div class="flex flex-wrap items-center gap-3 mt-3">
         <img id="adminLogoPreview" class="hidden h-10 w-auto shrink-0" alt="" onerror="this.classList.add('hidden')">
-        <input id="adminLogoUrl" maxlength="300" placeholder="/your-logo.png or https://example.org/logo.png" class="flex-1 min-w-[14rem] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-        <button id="adminLogoSave" type="button" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-4 py-2 rounded-full text-sm">Save logo</button>
+        <input id="adminLogoUrl" maxlength="300" placeholder="/your-logo.png or https://example.org/logo.png" class="flex-1 min-w-[14rem] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
+        <button id="adminLogoSave" type="button" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2 rounded-full text-sm">Save logo</button>
         <button id="adminLogoRemove" type="button" class="bg-white border border-gray-300 hover:border-gray-500 text-gray-700 font-semibold px-4 py-2 rounded-full text-sm">Remove logo</button>
       </div>
       <div class="flex flex-wrap items-center gap-3 mt-3">
         <label class="text-sm font-semibold" for="adminLogoFile">Upload a logo image</label>
         <input id="adminLogoFile" type="file" accept="image/*" class="text-sm">
         <img id="adminLogoFilePreview" class="hidden h-10 w-auto shrink-0" alt="">
-        <button id="adminLogoUpload" type="button" class="hidden bg-gray-900 hover:bg-gray-700 text-white font-semibold px-4 py-2 rounded-full text-sm">Upload and use this image</button>
+        <button id="adminLogoUpload" type="button" class="hidden bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2 rounded-full text-sm">Upload and use this image</button>
       </div>
       <p id="adminLogoMsg" class="text-sm text-gray-500 mt-2"></p>
     </div>
@@ -546,33 +557,33 @@ tailwind.config = {
     <div class="grid sm:grid-cols-2 gap-4">
       <div>
         <label class="text-sm font-semibold" for="borrowerName">Your name</label>
-        <input id="borrowerName" required maxlength="40" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+        <input id="borrowerName" required maxlength="40" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
       </div>
       <div>
         <label class="text-sm font-semibold" for="borrowerContact">Email or phone</label>
-        <input id="borrowerContact" required maxlength="60" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+        <input id="borrowerContact" required maxlength="60" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
       </div>
     </div>
     <div class="grid sm:grid-cols-2 gap-4">
       <div>
         <label class="text-sm font-semibold" for="borrowStart">Pickup date</label>
-        <input id="borrowStart" type="date" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+        <input id="borrowStart" type="date" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
       </div>
       <div>
         <label class="text-sm font-semibold" for="borrowDays">Days needed</label>
-        <input id="borrowDays" type="number" min="1" max="30" value="3" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+        <input id="borrowDays" type="number" min="1" max="30" value="3" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
       </div>
     </div>
     <div id="borrowPickupSelectWrap">
       <label class="text-sm font-semibold" for="borrowPickup">Pickup window</label>
-      <select id="borrowPickup" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"></select>
+      <select id="borrowPickup" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-400"></select>
     </div>
     <div>
       <label class="text-sm font-semibold" for="borrowProject">What is the project? <span class="font-normal text-gray-400">(optional)</span></label>
-      <input id="borrowProject" maxlength="120" placeholder="For example: gutters before the leaf drop" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+      <input id="borrowProject" maxlength="120" placeholder="For example: gutters before the leaf drop" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
     </div>
     <p class="text-xs text-gray-400">Just pick a window here. The owner confirms the exact pickup time and place when they approve, and you get an email with the details.</p>
-    <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Send request</button>
+    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Send request</button>
   </form>
 </dialog>
 
@@ -585,31 +596,31 @@ tailwind.config = {
     </div>
     <div>
       <label class="text-sm font-semibold" for="editName">Tool name</label>
-      <input id="editName" required maxlength="60" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+      <input id="editName" required maxlength="60" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
     </div>
     <div class="grid sm:grid-cols-2 gap-4">
       <div>
         <label class="text-sm font-semibold" for="editCategory">Category</label>
-        <select id="editCategory" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"></select>
+        <select id="editCategory" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-400"></select>
       </div>
       <div>
         <label class="text-sm font-semibold" for="editContact">Your email or phone</label>
-        <input id="editContact" required maxlength="60" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+        <input id="editContact" required maxlength="60" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
       </div>
     </div>
     <div>
       <label class="text-sm font-semibold" for="editDesc">Description and what is included <span class="font-normal text-gray-400">(optional)</span></label>
-      <textarea id="editDesc" maxlength="280" rows="3" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></textarea>
+      <textarea id="editDesc" maxlength="280" rows="3" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"></textarea>
     </div>
     <div>
       <span class="text-sm font-semibold">Pickup windows</span>
       <p class="text-xs text-gray-400 mt-0.5">When can members pick up from you? Tick any that work, or write your own.</p>
       <div id="editPickupPresets" class="mt-2 space-y-1.5 text-sm"></div>
-      <input id="editPickupOther" maxlength="80" placeholder="Other window, for example: weekday mornings before 9" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+      <input id="editPickupOther" maxlength="80" placeholder="Other window, for example: weekday mornings before 9" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
     </div>
     <div>
       <label class="text-sm font-semibold" for="editPickupLocation">Pickup location <span class="font-normal text-gray-400">(optional)</span></label>
-      <input id="editPickupLocation" maxlength="120" placeholder="Leave blank for your home address, or name another spot" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+      <input id="editPickupLocation" maxlength="120" placeholder="Leave blank for your home address, or name another spot" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
       <p class="text-xs text-gray-400 mt-1">Shared with a borrower only after you approve their request.</p>
     </div>
     <div>
@@ -619,7 +630,7 @@ tailwind.config = {
       <label class="flex items-center gap-2 text-sm mt-2"><input id="editRemovePhoto" type="checkbox" class="accent-gray-900 w-4 h-4"> Remove the current photo</label>
     </div>
     <div class="flex flex-wrap gap-2">
-      <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm">Save changes</button>
+      <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-full text-sm">Save changes</button>
       <button type="button" id="editDelete" class="bg-white border border-gray-300 hover:border-gray-500 text-gray-700 font-semibold px-6 py-3 rounded-full text-sm">Delete this tool</button>
     </div>
   </form>
@@ -638,19 +649,19 @@ tailwind.config = {
     <div class="grid sm:grid-cols-2 gap-4">
       <div>
         <label class="text-sm font-semibold" for="approvePickupDate">Pickup date</label>
-        <input id="approvePickupDate" type="date" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+        <input id="approvePickupDate" type="date" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
       </div>
       <div>
         <label class="text-sm font-semibold" for="approvePickupTime">Exact pickup time</label>
-        <input id="approvePickupTime" type="time" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+        <input id="approvePickupTime" type="time" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
       </div>
     </div>
     <div>
       <label class="text-sm font-semibold" for="approvePickupLocation">Pickup location</label>
-      <input id="approvePickupLocation" maxlength="120" placeholder="Leave blank for your home address, or name another spot" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+      <input id="approvePickupLocation" maxlength="120" placeholder="Leave blank for your home address, or name another spot" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
       <p class="text-xs text-gray-400 mt-1">The borrower picked the window; you set the exact time and place. The exact spot entered here is shared with the borrower in their approval email once you approve.</p>
     </div>
-    <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Approve</button>
+    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Approve</button>
   </form>
 </dialog>
 
@@ -666,9 +677,9 @@ tailwind.config = {
     </div>
     <div id="returnThanksWrap">
       <label class="text-sm font-semibold" for="returnThanks">Say thanks to the lender <span class="font-normal text-gray-400">(optional)</span></label>
-      <input id="returnThanks" maxlength="140" placeholder="For example: Thanks, the gutters are done!" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+      <input id="returnThanks" maxlength="140" placeholder="For example: Thanks, the gutters are done!" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
     </div>
-    <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Record the return</button>
+    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Record the return</button>
   </form>
 </dialog>
 
@@ -687,10 +698,10 @@ tailwind.config = {
     <p class="text-sm text-gray-600">If something has come up and you cannot loan this tool, confirming cancels the request and puts the tool back to Available for other members. The borrower is emailed that the pickup is cancelled. Your listing stays in the library; use Remove listing instead if you want to take the tool out entirely.</p>
     <div>
       <label class="text-sm font-semibold" for="unavailableReason">Reason <span class="font-normal text-gray-400">(optional, shared with the borrower)</span></label>
-      <input id="unavailableReason" maxlength="140" placeholder="For example: It stopped working this morning" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+      <input id="unavailableReason" maxlength="140" placeholder="For example: It stopped working this morning" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
     </div>
     <div class="flex flex-wrap gap-2 justify-end pt-1">
-      <button type="button" id="unavailableCancel" autofocus class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Cancel</button>
+      <button type="button" id="unavailableCancel" autofocus class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Cancel</button>
       <button type="submit" class="bg-white border border-gray-400 hover:border-gray-600 text-gray-900 font-semibold px-5 py-2.5 rounded-full text-sm">Yes, mark it unavailable</button>
     </div>
   </form>
@@ -711,9 +722,9 @@ tailwind.config = {
     <p class="text-sm text-gray-600">Your report goes only to the library admin. The other member is not told who reported them.</p>
     <div>
       <label class="text-sm font-semibold" for="reportMessage">What happened?</label>
-      <textarea id="reportMessage" required maxlength="2000" rows="5" placeholder="Tell the admin what happened" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"></textarea>
+      <textarea id="reportMessage" required maxlength="2000" rows="5" placeholder="Tell the admin what happened" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"></textarea>
     </div>
-    <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Send report</button>
+    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Send report</button>
   </form>
 </dialog>
 
@@ -734,16 +745,16 @@ tailwind.config = {
         <p id="nbStep1Copy" class="text-sm text-gray-600">Creating a library starts with your email, because the person who creates it becomes its admin. Your email is your login: we email you a sign-in link, and there is no password to make or remember. If you are new here, we will ask your name and address next. If you have been here before, the link just signs you in, and your new library is added to your account.</p>
         <div class="flex flex-wrap items-center gap-2">
           <label class="sr-only" for="nbEmail">Your email address</label>
-          <input id="nbEmail" type="email" placeholder="you@example.com" class="flex-1 min-w-[12rem] rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-          <button type="button" id="nbSigninBtn" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-4 py-2.5 rounded-full text-sm">Email me a sign-in link</button>
+          <input id="nbEmail" type="email" placeholder="you@example.com" class="flex-1 min-w-[12rem] rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
+          <button type="button" id="nbSigninBtn" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-4 py-2.5 rounded-full text-sm">Email me a sign-in link</button>
         </div>
-        <div id="nbAuthNotice" class="hidden rounded-2xl border-2 border-gray-900 bg-white p-5 shadow-card" role="status" aria-live="polite">
+        <div id="nbAuthNotice" class="hidden rounded-2xl border-2 border-brand-600 bg-white p-5 shadow-card" role="status" aria-live="polite">
           <div class="flex items-start gap-3">
-            <span id="nbAuthNoticeIcon" class="w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center shrink-0"></span>
+            <span id="nbAuthNoticeIcon" class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0"></span>
             <div class="flex-1 min-w-0">
               <h4 id="nbAuthNoticeTitle" class="font-display text-lg font-bold text-gray-950"></h4>
               <p id="nbAuthNoticeBody" class="text-base text-gray-700 mt-1"></p>
-              <button id="nbAuthNoticeResend" type="button" class="hidden mt-4 bg-gray-900 hover:bg-gray-700 disabled:bg-gray-300 disabled:text-gray-600 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Resend sign-in link</button>
+              <button id="nbAuthNoticeResend" type="button" class="hidden mt-4 bg-brand-600 hover:bg-brand-700 disabled:bg-gray-300 disabled:text-gray-600 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Resend sign-in link</button>
               <p id="nbAuthNoticeResendNote" class="hidden text-sm text-gray-500 mt-2"></p>
             </div>
             <button id="nbAuthNoticeDismiss" type="button" class="text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Dismiss sign-in message">×</button>
@@ -757,8 +768,8 @@ tailwind.config = {
               <p class="text-sm text-gray-600 mt-1">The same email also includes a short sign-in code for <span id="nbAuthCodeEmail" class="font-semibold text-gray-900"></span>. Enter it here if the link is hard to find.</p>
               <div class="flex flex-wrap items-center gap-2 mt-4">
                 <label class="sr-only" for="nbAuthCode">Sign-in code</label>
-                <input id="nbAuthCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="12" placeholder="Sign-in code" class="flex-1 min-w-[10rem] rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
-                <button id="nbAuthCodeBtn" type="button" class="bg-gray-900 hover:bg-gray-700 disabled:bg-gray-300 disabled:text-gray-600 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Sign in with this code</button>
+                <input id="nbAuthCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="12" placeholder="Sign-in code" class="flex-1 min-w-[10rem] rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
+                <button id="nbAuthCodeBtn" type="button" class="bg-brand-600 hover:bg-brand-700 disabled:bg-gray-300 disabled:text-gray-600 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Sign in with this code</button>
               </div>
             </div>
           </div>
@@ -776,11 +787,11 @@ tailwind.config = {
       <div class="mt-3 space-y-4">
         <div>
           <label class="text-sm font-semibold" for="nbAboutName">Full name</label>
-          <input id="nbAboutName" maxlength="80" placeholder="Your full name" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <input id="nbAboutName" maxlength="80" placeholder="Your full name" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
         </div>
         <div>
           <label class="text-sm font-semibold" for="nbAboutAddress">Home address</label>
-          <input id="nbAboutAddress" maxlength="160" placeholder="Street address, city, ZIP" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <input id="nbAboutAddress" maxlength="160" placeholder="Street address, city, ZIP" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
           <p class="text-xs text-gray-400 mt-1">Your real home. It stays private: it is never shown to other members. Only the library admin can see it, for the area and community check and for safety. Only a pickup spot you confirm is shared with a borrower, and only after you approve their request.</p>
         </div>
         <div>
@@ -809,18 +820,18 @@ tailwind.config = {
       <fieldset id="nbOrgFields" class="mt-3 space-y-4">
         <div>
           <label class="text-sm font-semibold" for="nbName">Organization name</label>
-          <input id="nbName" required maxlength="80" placeholder="For example: Greenfield Community Group" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <input id="nbName" required maxlength="80" placeholder="For example: Greenfield Community Group" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
           <p class="text-xs text-gray-400 mt-1">The full name of your group. It appears at the top of your library.</p>
         </div>
         <div>
           <label class="text-sm font-semibold" for="nbSlug">Web address</label>
           <div class="mt-1 flex items-center gap-1">
-            <input id="nbSlug" required maxlength="30" placeholder="yourname" class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
+            <input id="nbSlug" required maxlength="30" placeholder="yourname" class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
             <span class="text-sm text-gray-500">.toollendinglibrary.com</span>
           </div>
           <p id="nbSlugMsg" class="text-xs mt-1 text-gray-400">For example: yourname.toollendinglibrary.com. Lowercase letters, numbers, and hyphens.</p>
         </div>
-        <button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Create the library</button>
+        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-full text-sm w-full">Create the library</button>
       </fieldset>
     </div>
 
@@ -836,7 +847,7 @@ tailwind.config = {
     <p class="text-sm text-gray-600">This permanently removes your account from THIS library: your profile here, every tool you have listed here, and your request history here. It cannot be undone. Any accounts you hold in other libraries stay exactly as they are.</p>
     <p class="text-sm text-gray-600">Signing in again with the same email would start a fresh, empty account.</p>
     <div class="flex flex-wrap gap-2 justify-end pt-1">
-      <button type="button" id="deleteAccountCancel" autofocus class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Cancel</button>
+      <button type="button" id="deleteAccountCancel" autofocus class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Cancel</button>
       <button type="button" id="deleteAccountConfirm" class="bg-white border border-gray-400 hover:border-gray-600 text-gray-900 font-semibold px-5 py-2.5 rounded-full text-sm">Yes, delete my account</button>
     </div>
   </form>
@@ -853,7 +864,7 @@ tailwind.config = {
     </div>
     <div id="termsDialogText" class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-600 whitespace-pre-wrap max-h-80 overflow-y-auto"></div>
     <div class="flex justify-end">
-      <button type="button" id="termsCloseBtn" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Close</button>
+      <button type="button" id="termsCloseBtn" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Close</button>
     </div>
   </div>
 </dialog>
@@ -866,7 +877,7 @@ tailwind.config = {
     </div>
     <div id="privacyDialogText" class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-600 whitespace-pre-wrap max-h-80 overflow-y-auto"></div>
     <div class="flex justify-end">
-      <button type="button" id="privacyCloseBtn" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Close</button>
+      <button type="button" id="privacyCloseBtn" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Close</button>
     </div>
   </div>
 </dialog>
@@ -879,7 +890,7 @@ tailwind.config = {
     </div>
     <p id="cookieDialogText" class="text-sm text-gray-600"></p>
     <div class="flex justify-end">
-      <button type="button" id="cookieCloseBtn" class="bg-gray-900 hover:bg-gray-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Close</button>
+      <button type="button" id="cookieCloseBtn" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm">Close</button>
     </div>
   </div>
 </dialog>
@@ -2475,7 +2486,7 @@ function render() {
     ["Available now", available],
     ["Out on loan", onloan],
     ["Requests waiting", pending]
-  ].map(([label, n]) => '<div class="bg-gray-100 rounded-2xl px-4 py-3 border border-gray-200"><p class="font-display text-2xl sm:text-3xl font-bold">' + (catalogLoading ? "…" : n) + '</p><p class="text-gray-500 text-xs sm:text-sm">' + label + '</p></div>').join("");
+  ].map(([label, n]) => '<div class="bg-white rounded-2xl px-4 py-3 border border-gray-200 shadow-card"><p class="font-display text-2xl sm:text-3xl font-bold">' + (catalogLoading ? "…" : n) + '</p><p class="text-gray-500 text-xs sm:text-sm">' + label + '</p></div>').join("");
 
   /* Phase 5: Requests visibility and the mail-style pending badge,
      derived fresh on every render, never cached. The badge counts only
@@ -2553,7 +2564,7 @@ function render() {
        still keys off the masked name for its photo or initials. */
     const ownerDisplayName = isToolOwner(t) ? "You" : ownerName;
     let action = "";
-    if (t.status === "available") action = isToolOwner(t) ? '<span class="text-sm text-gray-500 font-medium">Your tool</span>' : '<button class="borrow-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Request to borrow</button>';
+    if (t.status === "available") action = isToolOwner(t) ? '<span class="text-sm text-gray-500 font-medium">Your tool</span>' : '<button class="borrow-btn bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Request to borrow</button>';
     else if (t.status === "awaiting") action = '<span class="text-sm text-gray-600 font-medium">' + awaitingPickupLabel(t) + '</span>';
     else if (t.status === "onloan") action = canReturnTool(t) ? '<button class="return-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-900 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button>' : '<span class="text-sm text-gray-500 font-medium">Out on loan</span>';
     else action = '<span class="text-sm text-gray-600 font-medium">Waiting on the owner to approve</span>';
@@ -2651,7 +2662,7 @@ function render() {
        while canManageTool is permissive in local preview mode. */
     let pButtons;
     if ((pTool && isToolOwner(pTool)) || (!isRequestBorrower(r) && canManageTool(pTool))) {
-      pButtons = '<div class="flex gap-2"><button class="approve-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Approve</button>' +
+      pButtons = '<div class="flex gap-2"><button class="approve-btn bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Approve</button>' +
         '<button class="decline-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Decline</button></div>';
     } else if (isRequestBorrower(r)) {
       pButtons = '<div class="flex flex-wrap items-center gap-2"><span class="text-sm text-gray-400 font-medium">Waiting for the owner to review</span><button class="release-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">I no longer need this tool</button></div>';
@@ -2682,12 +2693,12 @@ function render() {
     let aButtons;
     if ((aTool && isToolOwner(aTool)) || (!isRequestBorrower(r) && canManageTool(aTool))) {
       aButtons = '<div class="flex flex-col gap-2 w-full sm:w-64 shrink-0"><span class="text-sm text-gray-400 font-medium">Waiting for pickup</span>' +
-        '<button class="pickup-btn w-full bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Picked up</button>' +
+        '<button class="pickup-btn w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Picked up</button>' +
         '<button class="nopickup-btn w-full bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">Not picked up</button>' +
         '<button class="unavailable-btn w-full bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">No longer available</button></div>';
     } else if (isRequestBorrower(r)) {
       aButtons = '<div class="flex flex-col gap-2 w-full sm:w-64 shrink-0"><span class="text-sm text-gray-400 font-medium">Waiting for you to pick up</span>' +
-        '<button class="pickup-btn w-full bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">I picked it up</button>' +
+        '<button class="pickup-btn w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">I picked it up</button>' +
         '<button class="release-btn w-full bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + r.id + '">I no longer need this tool</button></div>';
     } else {
       aButtons = '<span class="text-sm text-gray-400 font-medium">Waiting for pickup</span>';
@@ -2705,7 +2716,7 @@ function render() {
     const loanReportBtn = loanReportTarget ? '<button class="report-request-btn text-xs font-medium text-gray-400 hover:text-gray-700 underline decoration-dotted" data-id="' + lReq.id + '">Report ' + esc(loanReportTarget.buttonName) + '</button>' : "";
     return '<div class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-wrap items-center justify-between gap-3 fade-in">' +
       '<div><p class="font-bold text-gray-950">' + esc(t.name) + '</p><p class="text-sm text-gray-500 flex items-start gap-1.5"><span class="text-gray-400 mt-0.5 shrink-0 flex">' + icon("clock", "w-4 h-4") + '</span>' + avatarHTML(lReq && lReq.borrowerAvatar, t.borrower) + '<span>' + loanLead + ' · due back ' + esc(t.dueAt ? fmtDateTime(t.dueAt) : fmtDate(t.due)) + (isOverdue(t) ? ' · <span class="text-gray-700 font-semibold">overdue</span>' : "") + '</span></p>' + pickupSpotHTML(lReq) + '</div>' +
-      '<div class="flex flex-wrap items-center gap-3">' + (canReturnTool(t) ? '<button class="return-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button>' : '<span class="text-sm text-gray-400 font-medium">Out on loan</span>') + loanReportBtn + '</div></div>';
+      '<div class="flex flex-wrap items-center gap-3">' + (canReturnTool(t) ? '<button class="return-btn bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + t.id + '">Mark returned</button>' : '<span class="text-sm text-gray-400 font-medium">Out on loan</span>') + loanReportBtn + '</div></div>';
   }).join("") : '<p class="text-sm text-gray-400 bg-white border border-dashed border-gray-200 rounded-2xl p-6 text-center">Nothing is out on loan right now.</p>';
 
   const history = myReqs.filter(r => r.status === "returned" || r.status === "declined" || r.status === "not_picked_up" || r.status === "cancelled" || r.status === "unavailable");
@@ -2782,14 +2793,14 @@ function toast(msg) {
    action. Error panels render inside an open dialog when the failed
    action lives there, so the member sees the failure beside the form
    that kept its data. Prominence comes from size, weight, border,
-   and placement, in neutral grays only. */
+   and placement. */
 function createProminentNotice() {
   const el = document.createElement("div");
-  el.className = "prominent-notice rounded-2xl border-2 border-gray-900 bg-white p-5 shadow-card";
+  el.className = "prominent-notice rounded-2xl border-2 border-brand-600 bg-white p-5 shadow-card";
   el.setAttribute("role", "status");
   el.setAttribute("aria-live", "polite");
   el.innerHTML = '<div class="flex items-start gap-3">' +
-    '<span class="notice-icon w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center shrink-0"></span>' +
+    '<span class="notice-icon w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0"></span>' +
     '<div class="flex-1 min-w-0"><h3 class="notice-title font-display text-xl font-bold text-gray-950"></h3>' +
     '<p class="notice-body text-base text-gray-700 mt-1"></p></div>' +
     '<button type="button" class="notice-dismiss text-gray-400 hover:text-gray-700 text-2xl leading-none px-1" aria-label="Dismiss message">×</button></div>';
@@ -5015,7 +5026,7 @@ document.getElementById("neighborhoodForm").addEventListener("submit", async e =
     result.innerHTML = "<p class='text-xs font-semibold uppercase tracking-widest text-gray-500'>Done</p>" +
       "<p class='font-bold mt-1'>Your library is live.</p>" +
       "<p class='mt-1'>Its address is <span class='font-semibold'>" + esc(address) + "</span>.</p>" +
-      "<a href='" + esc(address) + "/' class='inline-block mt-3 bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm'>Open your library</a>" +
+      "<a href='" + esc(address) + "/' class='inline-block mt-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-full text-sm'>Open your library</a>" +
       "<p class='mt-3'>" + (membershipFailed
         ? "One thing did not finish: your admin membership in it could not be saved. Sign in at your new library with the same email (" + esc(currentUser.email || "") + ") and finish signing up there, and you will be recognized as its admin."
         : "Sign in there with the same email (" + esc(currentUser.email || "") + ") and you will be recognized as its admin.") + "</p>";
@@ -5181,7 +5192,7 @@ function adminReportsHTML(reports) {
   const openCount = reports.filter(r => r.status === "open").length;
   const countLine = openCount + (openCount === 1 ? " open report" : " open reports");
   const head = '<div class="flex flex-wrap items-center justify-between gap-2">' +
-    '<h3 class="font-display text-xl font-bold text-gray-950">Reports <span id="reportsBadgeSection" class="hidden ml-1 inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-gray-900 text-white text-[11px] font-bold align-middle"></span></h3>' +
+    '<h3 class="font-display text-xl font-bold text-gray-950">Reports <span id="reportsBadgeSection" class="hidden ml-1 inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-brand-600 text-white text-[11px] font-bold align-middle"></span></h3>' +
     '<p class="text-sm text-gray-500">' + countLine + '</p></div>';
   if (!reports.length) {
     return head + '<p class="text-sm text-gray-400 bg-white border border-dashed border-gray-200 rounded-2xl p-6 text-center mt-3">No reports yet. When a member reports someone, it will appear here.</p>';
@@ -5201,7 +5212,7 @@ function adminReportsHTML(reports) {
       '<div class="flex justify-end mt-4">' +
         (resolved
           ? '<button class="report-reopen-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + rep.id + '">Reopen</button>'
-          : '<button class="report-resolve-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + rep.id + '">Mark resolved</button>') +
+          : '<button class="report-resolve-btn bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + rep.id + '">Mark resolved</button>') +
       '</div></article>';
   }).join("") + '</div>';
 }
@@ -5243,9 +5254,9 @@ async function renderAdmin() {
       (p.address ? '<p class="text-sm text-gray-500 mt-1">Home address: ' + esc(p.address) + '</p>' : '') + '</div>' +
       '<div class="flex gap-2">' +
         (p.status === "banned"
-          ? '<button class="admin-unban-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Unban</button>'
+          ? '<button class="admin-unban-btn bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Unban</button>'
           : '<button class="admin-ban-btn bg-white border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Ban</button>') +
-        '<button class="admin-delete-btn bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Delete user</button>' +
+        '<button class="admin-delete-btn bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-full" data-id="' + p.id + '">Delete user</button>' +
       '</div></div>'
   ).join("");
 }
@@ -5465,13 +5476,13 @@ document.querySelectorAll("[data-icon]").forEach(el => {
 const MARKETING_HTML = `
 
   <!-- Marketing hero -->
-  <section id="mk-top" class="section-anchor bg-white border-b border-gray-200">
+  <section id="mk-top" class="section-anchor hero-warm border-b border-gray-200">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-      <p class="text-gray-500 text-xs sm:text-sm font-semibold tracking-widest uppercase">Tool Lending Library, for every community</p>
+      <p class="text-brand-700 text-xs sm:text-sm font-semibold tracking-widest uppercase">Tool Lending Library, for every community</p>
       <h1 class="font-display text-3xl sm:text-5xl font-bold text-gray-950 mt-3 max-w-3xl">A tool lending library for your whole community</h1>
       <p class="text-gray-600 mt-4 max-w-2xl text-base sm:text-lg">Your members already own the ladders, drills, pressure washers, and party gear. Tool Lending Library gives your organization its own lending library online, so members can lend what they have and borrow what they need, with requests, pickup times, and reminders handled for you.</p>
       <div class="flex flex-wrap gap-3 mt-7">
-        <button type="button" class="mk-create-btn bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm shadow">Create your library</button>
+        <button type="button" class="mk-create-btn bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-full text-sm shadow">Create your library</button>
         <button type="button" data-scroll-to="mk-walkthrough" class="bg-white hover:bg-gray-50 text-gray-900 font-semibold px-6 py-3 rounded-full text-sm border border-gray-300">See how it works</button>
       </div>
       <p class="text-sm text-gray-500 mt-5 max-w-2xl">Setting up takes a few minutes: name your organization, choose its web address, and invite your members. Your library lives at its own address, like maplewood.toollendinglibrary.com, with your own name and logo.</p>
@@ -5483,7 +5494,7 @@ const MARKETING_HTML = `
     <!-- Example library showcase, styled like the app itself -->
     <section id="mk-showcase" class="section-anchor">
       <div class="flex items-start gap-3 mb-6">
-        <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="grid" data-icon-class="w-5 h-5" class="flex"></span></span>
+        <span class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 flex items-center justify-center shrink-0"><span data-icon="grid" data-icon-class="w-5 h-5" class="flex"></span></span>
         <div>
           <h2 class="font-display text-2xl font-bold text-gray-950">See a library in action</h2>
           <p class="text-sm text-gray-500 mt-0.5">This is an example library, shown the way your members would see yours.</p>
@@ -5514,7 +5525,7 @@ const MARKETING_HTML = `
                 <div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Loan</dt><dd class="text-sm text-gray-700">3 days</dd></div>
               </dl>
               <div class="flex items-center justify-between gap-3 mt-5">
-                <span class="bg-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-full">Request to borrow</span>
+                <span class="bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-full">Request to borrow</span>
               </div>
             </article>
             <article class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-col">
@@ -5531,7 +5542,7 @@ const MARKETING_HTML = `
                 <div><dt class="font-semibold text-gray-400 uppercase tracking-wide">Loan</dt><dd class="text-sm text-gray-700">2 days</dd></div>
               </dl>
               <div class="flex items-center justify-between gap-3 mt-5">
-                <span class="bg-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-full">Request to borrow</span>
+                <span class="bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-full">Request to borrow</span>
               </div>
             </article>
             <article class="bg-white rounded-2xl shadow-card border border-gray-200 p-5 flex flex-col">
@@ -5567,7 +5578,7 @@ const MARKETING_HTML = `
         </div>
       </div>
       <div class="flex flex-wrap items-center gap-2" role="tablist" aria-label="Walkthrough steps">
-        <button type="button" class="mk-step-btn bg-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-full" data-mk-step="0">1. Browse the catalog</button>
+        <button type="button" class="mk-step-btn bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-full" data-mk-step="0">1. Browse the catalog</button>
         <button type="button" class="mk-step-btn bg-white border border-gray-300 text-gray-800 text-sm font-semibold px-4 py-2 rounded-full" data-mk-step="1">2. Request a tool</button>
         <button type="button" class="mk-step-btn bg-white border border-gray-300 text-gray-800 text-sm font-semibold px-4 py-2 rounded-full" data-mk-step="2">3. The lender approves</button>
         <button type="button" class="mk-step-btn bg-white border border-gray-300 text-gray-800 text-sm font-semibold px-4 py-2 rounded-full" data-mk-step="3">4. Pick up and return</button>
@@ -5625,7 +5636,7 @@ const MARKETING_HTML = `
     <!-- Features: only what the platform actually does today -->
     <section id="mk-features" class="section-anchor">
       <div class="flex items-start gap-3 mb-6">
-        <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="grid" data-icon-class="w-5 h-5" class="flex"></span></span>
+        <span class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 flex items-center justify-center shrink-0"><span data-icon="grid" data-icon-class="w-5 h-5" class="flex"></span></span>
         <div>
           <h2 class="font-display text-2xl font-bold text-gray-950">Everything a lending library needs</h2>
           <p class="text-sm text-gray-500 mt-0.5">Built for the way neighbors actually lend: requests, pickups, reminders, and privacy.</p>
@@ -5712,7 +5723,7 @@ const MARKETING_HTML = `
     <!-- Audience -->
     <section id="mk-audience" class="section-anchor">
       <div class="flex items-start gap-3 mb-6">
-        <span class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
+        <span class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 flex items-center justify-center shrink-0"><span data-icon="user" data-icon-class="w-5 h-5" class="flex"></span></span>
         <div>
           <h2 class="font-display text-2xl font-bold text-gray-950">Made for communities like yours</h2>
           <p class="text-sm text-gray-500 mt-0.5">Any group whose members share a place, a purpose, or a building can run a library.</p>
@@ -5763,7 +5774,7 @@ const MARKETING_HTML = `
       <div class="text-center mt-10">
         <h3 class="font-display text-2xl font-bold text-gray-950">Start your community's tool library</h3>
         <p class="text-sm text-gray-500 mt-2 max-w-xl mx-auto">Your own address, your own name and logo, your own members. The first tools are probably already in someone's garage.</p>
-        <button type="button" class="mk-create-btn bg-gray-900 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-full text-sm shadow mt-5">Create your library</button>
+        <button type="button" class="mk-create-btn bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-full text-sm shadow mt-5">Create your library</button>
       </div>
     </section>
   </div>
@@ -5780,7 +5791,7 @@ function mkShowStep(i) {
   panels.forEach(p => { p.classList.toggle("hidden", Number(p.dataset.mkPanel) !== mkStepIndex); });
   document.querySelectorAll(".mk-step-btn").forEach(b => {
     const active = Number(b.dataset.mkStep) === mkStepIndex;
-    b.className = "mk-step-btn text-sm font-semibold px-4 py-2 rounded-full " + (active ? "bg-gray-900 text-white" : "bg-white border border-gray-300 text-gray-800");
+    b.className = "mk-step-btn text-sm font-semibold px-4 py-2 rounded-full " + (active ? "bg-brand-600 text-white" : "bg-white border border-gray-300 text-gray-800");
   });
 }
 function mkStopWalk() { if (mkWalkTimer) { clearInterval(mkWalkTimer); mkWalkTimer = null; } }
